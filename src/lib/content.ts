@@ -6,6 +6,9 @@ import { createImageUrlBuilder } from '@sanity/image-url';
 import type { Package, Photo, Service, SiteSettings, MenuVariant } from '../data/types';
 import { services as localServices } from '../data/services';
 import { site as localSite } from '../data/site';
+import { presets as localPresets } from '../data/presets';
+import { weddingCatering } from '../data/wedding';
+import { buildCatalog, type Preset, type PresetItem } from './calculator';
 
 const projectId = import.meta.env.SANITY_PROJECT_ID as string | undefined;
 const dataset = (import.meta.env.SANITY_DATASET as string | undefined) ?? 'production';
@@ -100,4 +103,57 @@ export function getSite(): Promise<SiteSettings> {
 
 export async function getService(slug: string): Promise<Service | undefined> {
   return (await getServices()).find((s) => s.slug === slug);
+}
+
+const presetsQuery = `*[_type == "calculatorPreset" && !(_id in path("drafts.**"))] | order(order asc){
+  "id": slug.current, title, description, guests, guestWord,
+  items[]{ label, service, "pkg": package, mode, perGuest, fixed }
+}`;
+
+interface SanityPreset extends Omit<Preset, 'items'> {
+  items?: (Omit<PresetItem, 'pkg'> & { pkg?: string })[] | null;
+}
+
+let presetsCache: Promise<Preset[]> | null = null;
+/** Calculator presets. Lines that name an unknown service or package are dropped. */
+export function getPresets(): Promise<Preset[]> {
+  presetsCache ??= (async () => {
+    const c = sanity();
+    if (!c) return localPresets;
+    const rows = await c.fetch<SanityPreset[] | null>(presetsQuery);
+    if (!rows?.length) return localPresets;
+    const catalog = buildCatalog(await getServices(), weddingCatering);
+    const out: Preset[] = [];
+    for (const r of rows) {
+      if (!r.id || !r.title) continue;
+      const items: PresetItem[] = [];
+      for (const it of r.items ?? []) {
+        const s = catalog.find((x) => x.slug === it.service);
+        const want = String(it.pkg ?? '').trim().toLowerCase();
+        const p = s?.packages.find((x) => x.id === want || x.name.toLowerCase() === want);
+        if (!s || !p) continue;
+        items.push({
+          label: it.label || s.title,
+          service: s.slug,
+          pkg: p.id,
+          mode: it.mode === 'fixed' ? 'fixed' : 'per-guest',
+          perGuest: Number(it.perGuest) > 0 ? Number(it.perGuest) : 1,
+          fixed: Number(it.fixed) > 0 ? Math.round(Number(it.fixed)) : 1,
+        });
+      }
+      if (!items.length && (r.items ?? []).length) continue; // every line was invalid
+      out.push({
+        id: r.id,
+        title: r.title,
+        description: r.description || '',
+        guests: Math.max(1, Math.round(Number(r.guests) || 50)),
+        guestWord: r.guestWord || 'tamu',
+        items,
+      });
+    }
+    if (!out.length) return localPresets;
+    if (!out.some((p) => p.items.length === 0)) out.push(localPresets.find((p) => p.id === 'kustom')!);
+    return out;
+  })();
+  return presetsCache;
 }

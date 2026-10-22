@@ -12,6 +12,8 @@ interface Props {
 const { variant = 'full', tone = 'color', class: cls, title = 'Aroma Langit' } = Astro.props;
 const art = variant === 'mark' ? mark : full;
 const viewBox = variant === 'wordmark' ? '0 2540 3000 531' : art.viewBox;
+// An empty title marks the logo as decoration next to text that already names it.
+const a11y: Record<string, string> = title ? { role: 'img', 'aria-label': title } : { 'aria-hidden': 'true' };
 const fills = {
   color: ['var(--orange)', 'var(--brown)'],
   'on-orange': ['var(--paper)', 'var(--ink)'],
@@ -22,7 +24,7 @@ const fills = {
 
 {
   variant === 'lockup' ? (
-    <span class:list={['lockup', cls]} role="img" aria-label={title}>
+    <span class:list={['lockup', cls]} {...a11y}>
       <svg class="lockup-mark" viewBox={mark.viewBox} aria-hidden="true" focusable="false">
         <path fill={fills[0]} d={mark.orange} />
         <path fill={fills[1]} d={mark.brown} />
@@ -33,7 +35,7 @@ const fills = {
       </svg>
     </span>
   ) : (
-    <svg class:list={['logo', cls]} viewBox={viewBox} role="img" aria-label={title} focusable="false">
+    <svg class:list={['logo', cls]} viewBox={viewBox} {...a11y} focusable="false">
       <path fill={fills[0]} d={art.orange} />
       <path fill={fills[1]} d={art.brown} />
     </svg>

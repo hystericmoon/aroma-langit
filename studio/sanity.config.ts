@@ -19,6 +19,9 @@ export default defineConfig({
             S.listItem()
               .title('Layanan & harga')
               .child(S.documentTypeList('service').title('Layanan & harga').defaultOrdering([{ field: 'order', direction: 'asc' }])),
+            S.listItem()
+              .title('Preset kalkulator')
+              .child(S.documentTypeList('calculatorPreset').title('Preset kalkulator').defaultOrdering([{ field: 'order', direction: 'asc' }])),
             S.divider(),
             S.listItem()
               .title('Pengaturan situs')

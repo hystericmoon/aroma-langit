@@ -10,6 +10,7 @@ The art direction is "the page is the box": every section is a piece of the stat
 | --- | --- | --- |
 | Home | `/` | 3D nasi box hero, menu & price sheet, **Label pesanan** (live order builder → WhatsApp), showcase, how to order, kitchen & certificates, clients, corporate enquiry coupon |
 | Services | `/katering/{nasi-box,bento,snack-box,prasmanan,tumpeng,tumpeng-mini}/` | Every package with price, minimum and full menu, order terms |
+| Calculator | `/kalkulator/` | Catering calculator: seven event presets (meeting, training, syukuran, birthday, gathering, wedding, custom), every line editable, a live printed receipt (*nota*), share link, print, WhatsApp |
 | Weddings | `/pernikahan/` | Reception packages, portion calculator, bundles, engagement packages, food stalls, catalogues |
 | Corporate | `/korporat/` | Daily catering for offices, factories and schools, enquiry coupon |
 | About | `/tentang-kami/` | Story, milestones, team, kitchen and certificates |
@@ -29,8 +30,8 @@ npm run dev        # http://localhost:4321
 npm run build      # static site in dist/
 npm run preview    # serve dist/
 npm run check      # Astro + TypeScript diagnostics
-npm test           # unit tests (Vitest): pricing, dates, WhatsApp message, content loader
-npm run test:e2e   # end-to-end (Playwright): every page, links, a11y (axe), order flow, fallbacks
+npm test           # unit tests (Vitest): pricing, dates, WhatsApp message, calculator, content loader
+npm run test:e2e   # end-to-end (Playwright): every page, links, a11y (axe), order flow, calculator, fallbacks
 ```
 
 ## Content: bundled data and Sanity
@@ -55,9 +56,11 @@ When `SANITY_PROJECT_ID` is set at build time, the site reads from Sanity instea
    cd studio && SANITY_STUDIO_PROJECT_ID=<id> npm run import-seed
    ```
 4. In Cloudflare Pages, add the build environment variables `SANITY_PROJECT_ID=<id>` and `SANITY_DATASET=production`.
-5. Rebuild on publish: create a **Deploy hook** in Cloudflare Pages, then add it in Sanity (*API → Webhooks*) with the filter `_type in ["service", "siteSettings"]`.
+5. Rebuild on publish: create a **Deploy hook** in Cloudflare Pages, then add it in Sanity (*API → Webhooks*) with the filter `_type in ["service", "siteSettings", "calculatorPreset"]`.
 
-In the Studio, staff edit **Layanan & harga** (services, packages, prices, menus, photos) and **Pengaturan situs** (phone numbers, hours, addresses, certificates, clients, milestones, team, order terms). The schemas are in `studio/schemaTypes/`.
+In the Studio, staff edit **Layanan & harga** (services, packages, prices, menus, photos), **Pengaturan situs** (phone numbers, hours, addresses, certificates, clients, milestones, team, order terms) and **Preset kalkulator** (the calculator's event presets). The schemas are in `studio/schemaTypes/`.
+
+A calculator preset has a title, a default guest count and the word for a guest (*tamu*, *peserta*, *undangan*), then its lines. Each line names a service and a package (by the package's name, as written in **Layanan & harga**), and is counted either **per guest** (e.g. 1 box per guest, or ½ for a top-up snack) or as a **fixed amount** (e.g. one tumpeng). Lines that name a package that no longer exists are skipped at build time, and a preset with no valid lines is left out, so renaming a package never breaks the build. The empty **Kustom** preset is always added.
 
 ## Deploying to Cloudflare Pages
 
@@ -83,14 +86,15 @@ Without them the function answers 503, and the form opens WhatsApp to marketing 
 
 - `src/components/home/OrderLabel.astro` is the order builder. The maths lives in `src/lib/order.ts` (unit-tested): price × quantity, a 20% surcharge on the shortfall below the minimum order, the lead-time check in Jakarta time, and the WhatsApp message.
 - `src/scripts/box/` holds the 3D box: geometry, food, lid hinge and a canvas-drawn label that mirrors the order. One WebGL canvas moves between the hero slot and the order slot. It boots on the first interaction (or after 6 s), and each slot shows a real photo until then, or for good if WebGL is unavailable.
+- `src/lib/calculator.ts` is the calculator engine (unit-tested): quantities per guest or fixed, per-line minimum-order surcharge and lead time (both from `order.ts`), share-link encoding, and the WhatsApp message. `src/pages/kalkulator.astro` renders the first plan on the server; `src/scripts/calculator.ts` keeps it live, saves it to the browser and to the URL (`#n=…`), and routes wedding plans to marketing's WhatsApp.
 - `src/scripts/motion.ts` runs Lenis smooth scroll, GSAP entrances and line reveals. Everything respects `prefers-reduced-motion`, and content is fully visible without JavaScript.
 
 ## Quality gates (all passing at handover)
 
 - `astro check`: 0 errors, 0 warnings
-- Vitest: 19/19
-- Playwright: 85 passed (desktop 1440, tablet 768, phone 390), including axe WCAG 2.1 AA scans of every page, a crawl of every internal link and anchor, the order flow, keyboard navigation, no-JS and reduced-motion runs
-- Lighthouse (mobile, homepage): Performance 94, Accessibility 100, Best Practices 100, SEO 100
+- Vitest: 34/34
+- Playwright: 111 passed (desktop 1440, tablet 768, phone 390), including axe WCAG 2.1 AA scans of every page, a crawl of every internal link and anchor, the order flow, the calculator (presets, undo, editing, surcharge, share link, reload, wedding routing, phone dock), keyboard navigation, no-JS and reduced-motion runs
+- Lighthouse (mobile): homepage 94 / 100 / 100 / 100, calculator 97 / 100 / 100 / 100 (Performance / Accessibility / Best Practices / SEO)
 
 ## Before launch, please confirm
 
@@ -98,4 +102,6 @@ Without them the function answers 503, and the form opens WhatsApp to marketing 
 - **Below-minimum surcharge**: the site reads "20% dari selisih minimum" as 20% of the price of the missing quantity (e.g. 50 of a 75-box minimum at Rp29.000 → Rp145.000).
 - **Snack box lead time**: the old snack box page said H-1, while the bento page's shared terms said H-2. The site uses H-1.
 - **Photography**: all photos are Aroma Langit's own, taken from the old site. A fresh shoot (packages from overhead, tumpeng, kitchen, delivery, a short lid-opening video loop) would lift the site further.
+- **Calculator minimums** apply per line, as on the price list: two snack lines of 20 boxes each are two orders below a 25-box minimum, not one order of 40. Tumpeng sets are counted at 25 guests per set when a tumpeng line is set per guest.
+- **Calculator presets** (what a meeting, training or syukuran usually orders) are a starting point written for the site. Adjust them in **Preset kalkulator** to match what customers really order.
 - **Wedding packages** are summarised from the 2024 catalogues, which stay downloadable in full.

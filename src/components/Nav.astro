@@ -9,6 +9,7 @@ const site = await getSite();
 const path = Astro.url.pathname;
 const from = (s: (typeof services)[number]) => Math.min(...s.packages.map((p) => p.price));
 const links = [
+  { href: '/kalkulator/', label: 'Kalkulator' },
   { href: '/pernikahan/', label: 'Pernikahan' },
   { href: '/korporat/', label: 'Katering kantor' },
   { href: '/tentang-kami/', label: 'Tentang kami' },
@@ -154,7 +155,7 @@ const isCurrent = (href: string) => path === href || path === href.replace(/\/$/
     if (burger.getAttribute('aria-expanded') === 'true') setMobile(false);
     if (ddBtn.getAttribute('aria-expanded') === 'true') { setDropdown(false); ddBtn.focus(); }
   });
-  window.matchMedia('(min-width: 1024px)').addEventListener('change', (e) => {
+  window.matchMedia('(min-width: 1200px)').addEventListener('change', (e) => {
     if (e.matches && burger.getAttribute('aria-expanded') === 'true') setMobile(false, false);
   });
 </script>
@@ -210,6 +211,7 @@ const isCurrent = (href: string) => path === href || path === href.replace(/\/$/
     font-weight: 650;
     font-size: 1rem;
     text-decoration: none;
+    white-space: nowrap;
     cursor: pointer;
     position: relative;
   }
@@ -296,6 +298,7 @@ const isCurrent = (href: string) => path === href || path === href.replace(/\/$/
     min-height: 48px;
     padding: 0 20px;
     font-size: 1rem;
+    white-space: nowrap;
   }
   .burger {
     display: grid;
@@ -386,7 +389,7 @@ const isCurrent = (href: string) => path === href || path === href.replace(/\/$/
       font-size: 38px;
     }
   }
-  @media (min-width: 1024px) {
+  @media (min-width: 1200px) {
     .desk {
       display: flex;
     }

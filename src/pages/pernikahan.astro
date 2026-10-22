@@ -76,6 +76,7 @@ const p0 = weddingPortions(start);
         <p class="t-body measure">
           Rumus dari katalog kami: 60% undangan dihitung sebagai porsi prasmanan, dan 40% undangan dikali lima sebagai porsi gubukan, karena tamu biasanya mencicipi beberapa stall.
         </p>
+        <p>Ingin menambah snack box atau tumpeng untuk lamaran? <a class="link calc-link" href="/kalkulator/?acara=pernikahan">Susun di kalkulator katering</a>.</p>
       </div>
       <form class="calc-card field-ink on-dark" data-calc data-phone={site.marketingPhone} novalidate>
         <div class="calc-in">
@@ -363,6 +364,11 @@ const p0 = weddingPortions(start);
   .calc-card > * {
     background: var(--ink);
     padding: 24px clamp(20px, 3vw, 36px);
+  }
+  .calc-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
   .calc-label {
     display: block;

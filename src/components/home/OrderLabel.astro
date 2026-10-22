@@ -31,6 +31,7 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
       <p class="t-lead intro-lead">
         Pilih paket, jumlah dan tanggal. Kami hitung perkiraannya di sini, lalu pesan lengkapnya terkirim ke WhatsApp layanan pelanggan kami.
       </p>
+      <p class="intro-more">Butuh beberapa menu sekaligus? <a class="link" href="/kalkulator/">Pakai kalkulator katering</a>.</p>
     </div>
 
     <form class="tag" action={`https://wa.me/${site.csPhone}`} method="get" target="_blank" novalidate data-order-form>
@@ -371,6 +372,11 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
   }
   .intro-lead {
     max-width: 36ch;
+  }
+  .intro-more a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
 
   /* The form is an orange luggage tag with a punched hole */

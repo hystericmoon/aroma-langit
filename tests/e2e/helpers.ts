@@ -11,6 +11,7 @@ export const PAGES = [
   '/pernikahan/',
   '/korporat/',
   '/tentang-kami/',
+  '/kalkulator/',
 ];
 
 /** Collects console errors, page errors and failed same-origin requests. */

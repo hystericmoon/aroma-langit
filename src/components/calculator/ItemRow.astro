@@ -1,0 +1,75 @@
+---
+// One editable line of the calculator. Rendered on the server for the first plan
+// and cloned from a <template> by the page script for every later change.
+import type { CatalogService, PlanItem } from '../../lib/calculator';
+import { MULTIPLIERS, multiplierLabel } from '../../lib/calculator';
+import { formatRupiah } from '../../lib/order';
+
+interface Props {
+  item: PlanItem;
+  catalog: CatalogService[];
+  qtyText?: string;
+  note?: string;
+}
+const { item, catalog, qtyText = '', note = '' } = Astro.props;
+const service = catalog.find((c) => c.slug === item.service) ?? catalog[0];
+const pkg = service.packages.find((p) => p.id === item.pkg) ?? service.packages[0];
+const u = item.id;
+---
+
+<li class="item" data-id={u}>
+  <div class="item-top">
+    <label class="sr-only" for={`${u}-label`}>Nama baris</label>
+    <input id={`${u}-label`} class="item-label" data-f="label" value={item.label} maxlength="40" autocomplete="off" spellcheck="false" />
+    <button type="button" class="remove" data-remove aria-label={`Hapus ${item.label}`}>
+      <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="2.2"></path></svg>
+    </button>
+  </div>
+  <div class="item-grid">
+    <div class="f">
+      <label for={`${u}-service`}>Layanan</label>
+      <select id={`${u}-service`} data-f="service">
+        {catalog.map((c) => <option value={c.slug} selected={c.slug === service.slug}>{c.title}</option>)}
+      </select>
+    </div>
+    <div class="f">
+      <label for={`${u}-pkg`}>Paket</label>
+      <select id={`${u}-pkg`} data-f="pkg">
+        {service.packages.map((p) => <option value={p.id} selected={p.id === pkg.id}>{p.name} · {formatRupiah(p.price)}/{p.unit}</option>)}
+      </select>
+    </div>
+    <div class="f f-wide" data-variant-wrap hidden={pkg.variants.length < 2}>
+      <label for={`${u}-variant`}>Menu</label>
+      <select id={`${u}-variant`} data-f="variant">
+        {pkg.variants.map((v) => <option value={v} selected={v === item.variant}>{v}</option>)}
+      </select>
+    </div>
+    <fieldset class="f f-wide qty">
+      <legend>Jumlah</legend>
+      <div class="qty-row">
+        <div class="seg">
+          <label><input type="radio" name={`${u}-mode`} value="per-guest" data-f="mode" checked={item.mode === 'per-guest'} /><span>Per tamu</span></label>
+          <label><input type="radio" name={`${u}-mode`} value="fixed" data-f="mode" checked={item.mode === 'fixed'} /><span>Jumlah tetap</span></label>
+        </div>
+        <div class="per" data-per hidden={item.mode !== 'per-guest'}>
+          <label class="sr-only" for={`${u}-per`}>Porsi per tamu</label>
+          <select id={`${u}-per`} data-f="perGuest">
+            {MULTIPLIERS.map((m) => <option value={String(m)} selected={m === item.perGuest}>{multiplierLabel(m)}</option>)}
+          </select>
+        </div>
+        <div class="fixed" data-fixed hidden={item.mode !== 'fixed'}>
+          <button type="button" class="qty-step" data-step="-1" aria-label="Kurangi jumlah">
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M4 10h12" stroke="currentColor" stroke-width="2.4"></path></svg>
+          </button>
+          <label class="sr-only" for={`${u}-fixed`}>Jumlah tetap</label>
+          <input id={`${u}-fixed`} class="tab" type="number" inputmode="numeric" min="1" max="5000" value={item.fixed} data-f="fixed" />
+          <button type="button" class="qty-step" data-step="1" aria-label="Tambah jumlah">
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M4 10h12M10 4v12" stroke="currentColor" stroke-width="2.4"></path></svg>
+          </button>
+        </div>
+        <output class="qty-out tab" data-qty for={`${u}-per ${u}-fixed`}>{qtyText}</output>
+      </div>
+    </fieldset>
+  </div>
+  <p class="item-note" data-note>{note}</p>
+</li>

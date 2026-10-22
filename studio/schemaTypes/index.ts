@@ -133,4 +133,46 @@ export const siteSettings = defineType({
   preview: { prepare: () => ({ title: 'Pengaturan situs' }) },
 });
 
-export const schemaTypes = [menuGroup, menuVariant, servicePackage, service, siteSettings];
+const SERVICE_OPTIONS = [
+  { title: 'Nasi Box', value: 'nasi-box' },
+  { title: 'Bento', value: 'bento' },
+  { title: 'Snack Box', value: 'snack-box' },
+  { title: 'Prasmanan', value: 'prasmanan' },
+  { title: 'Tumpeng', value: 'tumpeng' },
+  { title: 'Tumpeng Mini', value: 'tumpeng-mini' },
+  { title: 'Katering Pernikahan', value: 'pernikahan' },
+];
+
+export const presetItem = defineType({
+  name: 'presetItem',
+  title: 'Baris kalkulator',
+  type: 'object',
+  fields: [
+    defineField({ name: 'label', title: 'Nama baris', type: 'string', description: 'Misalnya "Snack pagi" atau "Makan siang".', validation: (r) => r.required().max(40) }),
+    defineField({ name: 'service', title: 'Layanan', type: 'string', options: { list: SERVICE_OPTIONS }, validation: (r) => r.required() }),
+    defineField({ name: 'package', title: 'Nama paket', type: 'string', description: 'Tulis persis seperti nama paketnya, misalnya "Spesial A". Baris dengan paket yang tidak ditemukan tidak ditampilkan.', validation: (r) => r.required() }),
+    defineField({ name: 'mode', title: 'Cara menghitung', type: 'string', options: { list: [{ title: 'Per tamu', value: 'per-guest' }, { title: 'Jumlah tetap', value: 'fixed' }], layout: 'radio' }, initialValue: 'per-guest', validation: (r) => r.required() }),
+    defineField({ name: 'perGuest', title: 'Porsi per tamu', type: 'number', description: '1 = satu per tamu, 2 = dua sesi, 0,6 = 60% tamu.', initialValue: 1, hidden: ({ parent }) => parent?.mode === 'fixed', validation: (r) => r.min(0.1).max(10) }),
+    defineField({ name: 'fixed', title: 'Jumlah tetap', type: 'number', initialValue: 1, hidden: ({ parent }) => parent?.mode !== 'fixed', validation: (r) => r.integer().min(1).max(5000) }),
+  ],
+  preview: { select: { title: 'label', service: 'service', pkg: 'package' }, prepare: ({ title, service, pkg }) => ({ title, subtitle: `${service ?? ''} · ${pkg ?? ''}` }) },
+});
+
+export const calculatorPreset = defineType({
+  name: 'calculatorPreset',
+  title: 'Preset kalkulator',
+  type: 'document',
+  fields: [
+    defineField({ name: 'title', title: 'Jenis acara', type: 'string', validation: (r) => r.required().max(40) }),
+    defineField({ name: 'slug', title: 'Kode', type: 'slug', options: { source: 'title' }, description: 'Dipakai di tautan, misalnya /kalkulator/?acara=rapat', validation: (r) => r.required() }),
+    defineField({ name: 'order', title: 'Urutan', type: 'number', validation: (r) => r.required().integer() }),
+    defineField({ name: 'description', title: 'Keterangan singkat', type: 'string', validation: (r) => r.max(90) }),
+    defineField({ name: 'guests', title: 'Jumlah tamu awal', type: 'number', initialValue: 50, validation: (r) => r.required().integer().min(1).max(5000) }),
+    defineField({ name: 'guestWord', title: 'Sebutan tamu', type: 'string', options: { list: ['tamu', 'peserta', 'undangan', 'karyawan'] }, initialValue: 'tamu' }),
+    defineField({ name: 'items', title: 'Isi pesanan', type: 'array', of: [defineArrayMember({ type: 'presetItem' })], description: 'Kosongkan untuk preset "susun sendiri".' }),
+  ],
+  orderings: [{ title: 'Urutan', name: 'order', by: [{ field: 'order', direction: 'asc' }] }],
+  preview: { select: { title: 'title', guests: 'guests', word: 'guestWord', items: 'items' }, prepare: ({ title, guests, word, items }) => ({ title, subtitle: `${guests} ${word ?? 'tamu'} · ${(items ?? []).length} baris` }) },
+});
+
+export const schemaTypes = [menuGroup, menuVariant, servicePackage, service, siteSettings, presetItem, calculatorPreset];

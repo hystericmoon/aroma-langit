@@ -8,6 +8,9 @@ import { fileURLToPath } from 'node:url';
 import { services } from '../src/data/services';
 import { site } from '../src/data/site';
 import type { Photo } from '../src/data/types';
+import { presets } from '../src/data/presets';
+import { buildCatalog } from '../src/lib/calculator';
+import { weddingCatering } from '../src/data/wedding';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const photoDir = join(root, 'src/assets/photos');
@@ -80,6 +83,29 @@ test('write Sanity seed', () => {
       terms: s.terms,
     });
   }
+  const catalog = buildCatalog(services, weddingCatering);
+  presets.forEach((p, i) => {
+    docs.push({
+      _id: `preset-${p.id}`,
+      _type: 'calculatorPreset',
+      title: p.title,
+      slug: { _type: 'slug', current: p.id },
+      order: i + 1,
+      description: p.description,
+      guests: p.guests,
+      guestWord: p.guestWord,
+      items: p.items.map((it, k) => ({
+        _key: `p${k}`,
+        _type: 'presetItem',
+        label: it.label,
+        service: it.service,
+        package: catalog.find((c) => c.slug === it.service)!.packages.find((x) => x.id === it.pkg)!.name,
+        mode: it.mode,
+        perGuest: it.perGuest ?? 1,
+        fixed: it.fixed ?? 1,
+      })),
+    });
+  });
   const out = join(root, 'studio/seed/aroma-langit.ndjson');
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, docs.map((d) => JSON.stringify(d)).join('\n') + '\n');

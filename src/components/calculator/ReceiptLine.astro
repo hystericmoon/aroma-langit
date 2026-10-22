@@ -1,0 +1,17 @@
+---
+import type { Line } from '../../lib/calculator';
+import { formatRupiah } from '../../lib/order';
+
+interface Props {
+  line: Line;
+}
+const { line } = Astro.props;
+const variant = line.item.variant && line.pkg.variants.length > 1 ? `, ${line.item.variant}` : '';
+---
+
+<li class="line" data-line={line.item.id}>
+  <span class="l-name">{line.item.label}</span>
+  <span class="l-amt tab">{formatRupiah(line.subtotal)}</span>
+  <span class="l-detail tab">{line.service.title} {line.pkg.name}{variant} · {line.qty.toLocaleString('id-ID')} {line.pkg.unit} × {formatRupiah(line.pkg.price)}</span>
+  {line.surcharge > 0 && <span class="l-extra tab">Di bawah minimum {line.pkg.minOrder} {line.pkg.unit}: +{formatRupiah(line.surcharge)}</span>}
+</li>
