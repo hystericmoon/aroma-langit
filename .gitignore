@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.astro/
+test-results/
+playwright-report/
+.env
+.env.*
+!.env.example
+.DS_Store
+# taste-skill working files (screenshots); the direction sheet is kept
+.taste-skill/inspect*/
+studio/node_modules/
+studio/dist/
+studio/.sanity/
+studio/seed/*.ndjson
