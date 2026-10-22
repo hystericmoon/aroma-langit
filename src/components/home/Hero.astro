@@ -1,0 +1,224 @@
+---
+import BoxSlot from '../BoxSlot.astro';
+import { photos } from '../../data/photos';
+import { getSite } from '../../lib/content';
+
+const site = await getSite();
+---
+
+<section class="hero field-orange" data-box-scroll aria-labelledby="hero-title">
+  <div class="pin" data-box-pin>
+    <div class="card field-paper">
+      <div class="stripe-band intro-wipe" aria-hidden="true"></div>
+      <div class="card-body">
+        <h1 id="hero-title" class="t-display hero-title">
+          <span class="intro-line"><span>Katering halal</span></span>
+          <span class="intro-line"><span>dari Bogor.</span></span>
+        </h1>
+        <p class="t-lead hero-sub intro-fade">
+          Nasi box, tumpeng dan prasmanan untuk rapat, syukuran sampai resepsi. Dimasak di dapur kami di Pasir Kuda, harga sudah termasuk antar se-Kota Bogor.
+        </p>
+        <div class="hero-actions intro-fade">
+          <a class="btn" href="#pesan">
+            Susun pesanan
+            <svg class="btn-arrow" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13M11 4l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" /></svg>
+          </a>
+          <a class="link hero-link" href="#menu">Lihat menu &amp; harga</a>
+        </div>
+      </div>
+      <ul role="list" class="facts intro-fade">
+        <li><strong>Halal BPJPH</strong><span class="tab">{site.halal.number}</span></li>
+        <li><strong>Laik Higiene</strong><span>Jasaboga {site.hygiene.grade}</span></li>
+        <li><strong>Sejak 2017</strong><span>Jatinangor, Bandung, Bogor</span></li>
+      </ul>
+    </div>
+
+    <div class="stage field-ink">
+      <BoxSlot
+        mode="hero"
+        fallback={photos.nasiboxRendang}
+        sizes="(min-width: 1024px) 50vw, 100vw"
+        priority
+        class="hero-slot"
+        label="Nasi box Aroma Langit yang terbuka, berisi nasi kuning, ayam bakar, perkedel, sambal, lalapan, jeruk dan kerupuk"
+      />
+      <p class="hint t-small" aria-hidden="true">
+        <span class="hint-dot"></span>
+        Gulir untuk membuka kotak
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding: 12px var(--gutter) 0;
+  }
+  .pin {
+    display: grid;
+    gap: 12px;
+  }
+  .card {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    order: 2;
+    margin-top: -40px;
+    margin-inline: 8px;
+  }
+  .card-body {
+    container-type: inline-size;
+    display: grid;
+    gap: 24px;
+    padding: clamp(28px, 4vw, 64px) clamp(20px, 4vw, 64px) 32px;
+  }
+  .hero-title {
+    font-size: clamp(2.4rem, 14.2cqi, 7.5rem);
+    white-space: nowrap;
+  }
+  .hero-title .intro-line {
+    display: block;
+    overflow: clip;
+    padding-bottom: 0.06em;
+  }
+  .hero-title .intro-line > span {
+    display: block;
+    animation: rise 1100ms var(--ease-out) both;
+  }
+  .hero-title .intro-line:nth-child(2) > span {
+    animation-delay: 110ms;
+  }
+  @keyframes rise {
+    from {
+      transform: translateY(105%);
+    }
+  }
+  .intro-fade {
+    animation: fade-up 900ms var(--ease-out) both;
+    animation-delay: 380ms;
+  }
+  .hero-actions.intro-fade {
+    animation-delay: 480ms;
+  }
+  .facts.intro-fade {
+    animation-delay: 580ms;
+  }
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+  }
+  .intro-wipe {
+    animation: wipe 1000ms var(--ease-out) both;
+    transform-origin: left;
+  }
+  @keyframes wipe {
+    from {
+      transform: scaleX(0);
+    }
+  }
+  .hero-sub {
+    max-width: 34ch;
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 28px;
+  }
+  .hero-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+  }
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2px;
+    margin-top: auto;
+    background: var(--paper);
+  }
+  .facts li {
+    display: grid;
+    gap: 2px;
+    padding: 16px 20px;
+    background: var(--paper-2);
+    font-size: var(--step-small);
+  }
+  .facts strong {
+    font-size: 1rem;
+  }
+  .facts span {
+    color: var(--muted);
+  }
+  .stage {
+    position: relative;
+    order: 1;
+    min-height: 56svh;
+  }
+  .stage :global(.hero-slot) {
+    position: absolute;
+    inset: 0;
+  }
+  .hint {
+    position: absolute;
+    z-index: 2;
+    left: 20px;
+    bottom: 56px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    background: var(--ink);
+    color: var(--peach);
+    pointer-events: none;
+  }
+  .hint-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--orange);
+    animation: bob 1600ms var(--ease) infinite;
+  }
+  @keyframes bob {
+    50% {
+      transform: translateY(6px);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hero {
+      height: 175svh;
+      padding-top: 12px;
+    }
+    .pin {
+      position: sticky;
+      top: 88px;
+      height: calc(100svh - 100px);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+    }
+    .card {
+      order: 1;
+      margin: 0;
+    }
+    .card-body {
+      align-content: center;
+      flex: 1;
+    }
+    .stage {
+      order: 2;
+      min-height: 0;
+    }
+    .hint {
+      left: 32px;
+      bottom: 28px;
+    }
+  }
+  @media (min-width: 1024px) and (max-height: 720px) {
+    .facts {
+      display: none;
+    }
+  }
+</style>

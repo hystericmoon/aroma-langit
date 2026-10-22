@@ -1,0 +1,324 @@
+---
+import Photo from '../Photo.astro';
+import { getServices, getSite } from '../../lib/content';
+import { formatRupiah } from '../../lib/order';
+
+const services = await getServices();
+const site = await getSite();
+const all = services.flatMap((s) => s.packages);
+const lo = Math.min(...all.map((p) => p.price));
+const hi = Math.max(...all.map((p) => p.price));
+---
+
+<section id="menu" class="menu field-orange" aria-labelledby="menu-title">
+  <div class="wrap menu-grid">
+    <div class="side">
+      <div class="side-inner">
+        <h2 id="menu-title" class="t-h2" data-split>Menu &amp; harga</h2>
+        <p class="t-lead side-lead">
+          {all.length} paket dari {formatRupiah(lo)} sampai {formatRupiah(hi)}. Ketuk satu baris untuk memasukkannya ke label pesanan.
+        </p>
+        <div class="viewer" aria-hidden="true">
+          {
+            services.map((s, i) => (
+              <div class:list={['view', i === 0 && 'is-active']} data-view={s.slug}>
+                <Photo photo={s.photo} sizes="(min-width: 1024px) 34vw, 1px" widths={[480, 720, 960]} alt="" />
+              </div>
+            ))
+          }
+          <p class="view-caption t-small" data-view-caption>{services[0].title}</p>
+        </div>
+        <a class="link pdf" href={site.pricelistUrl} download>Unduh daftar harga lengkap (PDF, 1,4 MB)</a>
+      </div>
+    </div>
+
+    <div class="sheet field-paper edge-y" data-reveal>
+      <div class="sheet-head">
+        <p class="sheet-name">Aroma Langit</p>
+        <p class="t-small sheet-note">Harga sudah termasuk antar se-Kota Bogor untuk pesanan yang memenuhi minimum.</p>
+      </div>
+      {
+        services.map((s) => (
+          <section class="group" aria-labelledby={`g-${s.slug}`} data-group={s.slug}>
+            <div class="group-head">
+              <h3 id={`g-${s.slug}`} class="group-name">{s.title}</h3>
+              <a class="group-link link t-small" href={`/katering/${s.slug}/`}>
+                Lihat isi menu<span class="sr-only"> {s.title}</span>
+              </a>
+            </div>
+            <ul role="list" class="rows">
+              {s.packages.map((p) => (
+                <li>
+                  <button
+                    type="button"
+                    class="row"
+                    data-pick-service={s.slug}
+                    data-pick-package={p.id}
+                  >
+                    <span class="row-name">
+                      <span><span class="sr-only">{s.title} </span>{p.name}</span>
+                      <span class="row-note">
+                        {p.minOrder > 1 ? `Minimum ${p.minOrder} ${p.unit}` : p.note}
+                        {p.minOrder > 1 && p.note ? ` · ${p.note}` : ''}
+                      </span>
+                    </span>
+                    <span class="row-price tab">
+                      {formatRupiah(p.price)}
+                      <span class="row-unit">/{p.unit}</span>
+                    </span>
+                    <span class="sr-only">, masukkan ke label pesanan</span>
+                    <span class="row-pick" aria-hidden="true">
+                      Pilih
+                      <svg viewBox="0 0 20 20" width="16" height="16"><path d="M3 10h13M11 4l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" /></svg>
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+      <p class="sheet-foot t-small">Pesan paling lambat H-2. Prasmanan H-3, snack box H-1.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  const root = document.getElementById('menu')!;
+  const views = root.querySelectorAll<HTMLElement>('[data-view]');
+  const caption = root.querySelector<HTMLElement>('[data-view-caption]')!;
+  let current = '';
+  function show(slug: string, title: string) {
+    if (slug === current) return;
+    current = slug;
+    views.forEach((v) => v.classList.toggle('is-active', v.dataset.view === slug));
+    caption.textContent = title;
+  }
+  root.querySelectorAll<HTMLElement>('[data-group]').forEach((g) => {
+    const title = g.querySelector('h3')?.textContent ?? '';
+    const on = () => show(g.dataset.group!, title);
+    g.addEventListener('pointerenter', on);
+    g.addEventListener('focusin', on);
+  });
+  // While scrolling, follow the group in the middle of the screen.
+  const io = new IntersectionObserver(
+    (es) => es.forEach((e) => e.isIntersecting && show((e.target as HTMLElement).dataset.group!, e.target.querySelector('h3')?.textContent ?? '')),
+    { rootMargin: '-45% 0px -45% 0px' },
+  );
+  root.querySelectorAll('[data-group]').forEach((g) => io.observe(g));
+
+  root.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-pick-service]');
+    if (!btn) return;
+    window.dispatchEvent(new CustomEvent('aroma:pick', { detail: { service: btn.dataset.pickService, pkg: btn.dataset.pickPackage } }));
+    btn.classList.add('is-picked');
+    window.setTimeout(() => btn.classList.remove('is-picked'), 900);
+    const target = document.getElementById('pesan');
+    if (target) {
+      if (window.__lenis) window.__lenis.scrollTo(target, { offset: -88, duration: 1.4 });
+      else target.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      window.setTimeout(() => document.getElementById('order-qty')?.focus({ preventScroll: true }), 900);
+    }
+  });
+</script>
+
+<style>
+  .menu {
+    padding-block: var(--section);
+  }
+  .menu-grid {
+    display: grid;
+    gap: 48px;
+  }
+  .side-inner {
+    display: grid;
+    gap: 24px;
+    align-content: start;
+  }
+  .side-lead {
+    max-width: 30ch;
+  }
+  .viewer {
+    position: relative;
+    display: none;
+    aspect-ratio: 4 / 5;
+    background: var(--ink);
+    overflow: hidden;
+  }
+  .view {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: scale(1.06);
+    transition: opacity 900ms var(--ease), transform 1600ms var(--ease-out);
+  }
+  .view.is-active {
+    opacity: 1;
+    transform: none;
+  }
+  .view :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .view-caption {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    padding: 10px 16px;
+    background: var(--paper);
+    font-weight: 700;
+  }
+  .pdf {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .sheet {
+    padding: clamp(48px, 6vw, 88px) clamp(20px, 4.5vw, 72px);
+    display: grid;
+    gap: clamp(40px, 5vw, 64px);
+  }
+  .sheet-head {
+    text-align: center;
+    display: grid;
+    gap: 8px;
+  }
+  .sheet-name {
+    font-size: clamp(2rem, 1.4rem + 2vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+  .sheet-note,
+  .sheet-foot {
+    color: var(--muted);
+    text-align: center;
+    max-width: 46ch;
+    margin-inline: auto;
+  }
+  .group {
+    display: grid;
+    gap: 10px;
+  }
+  .group-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding-bottom: 6px;
+  }
+  .group-name {
+    font-size: clamp(1.375rem, 1.1rem + 0.8vw, 1.75rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .group-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    white-space: nowrap;
+  }
+  .rows {
+    display: grid;
+    gap: 2px;
+  }
+  .row {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 4px 20px;
+    min-height: 64px;
+    padding: 12px 16px;
+    margin-inline: -16px;
+    width: calc(100% + 32px);
+    background: transparent;
+    border: 0;
+    text-align: left;
+    cursor: pointer;
+    transition: background var(--dur-fast) var(--ease);
+  }
+  .row-name {
+    display: grid;
+    gap: 2px;
+    font-size: 1.125rem;
+    font-weight: 700;
+  }
+  .row-note {
+    font-size: var(--step-small);
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .row-price {
+    font-size: 1.125rem;
+    font-weight: 700;
+    text-align: right;
+    transition: transform var(--dur) var(--ease-out);
+  }
+  .row-unit {
+    font-size: var(--step-small);
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .row-pick {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: var(--step-small);
+    font-weight: 700;
+    opacity: 0;
+    transform: translate(8px, -50%);
+    transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease-out);
+    pointer-events: none;
+  }
+  @media (hover: hover) {
+    .row:hover {
+      background: var(--paper-2);
+    }
+    .row:hover .row-pick {
+      opacity: 1;
+      transform: translate(0, -50%);
+    }
+    .row:hover .row-price {
+      transform: translateX(-88px);
+    }
+  }
+  .row:focus-visible {
+    background: var(--paper-2);
+    outline-offset: -3px;
+  }
+  .row:active {
+    transform: scale(0.99);
+  }
+  .row.is-picked {
+    background: var(--orange);
+  }
+  .row.is-picked .row-note,
+  .row.is-picked .row-unit {
+    color: var(--ink);
+  }
+
+  @media (min-width: 1024px) {
+    .menu-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: clamp(40px, 5vw, 96px);
+      align-items: start;
+    }
+    .side {
+      position: sticky;
+      top: 104px;
+    }
+    .viewer {
+      display: block;
+    }
+  }
+</style>

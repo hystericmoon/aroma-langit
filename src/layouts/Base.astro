@@ -1,0 +1,99 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { getServices, getSite } from '../lib/content';
+import fontUrl from '@fontsource-variable/plus-jakarta-sans/files/plus-jakarta-sans-latin-wght-normal.woff2?url';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Path of a social image under /public. */
+  image?: string;
+  closing?: boolean;
+  /** Extra JSON-LD objects for this page. */
+  schema?: Record<string, unknown>[];
+  noindex?: boolean;
+}
+
+const { title, description, image = '/og.jpg', closing = true, schema = [], noindex = false } = Astro.props;
+const site = await getSite();
+const services = await getServices();
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL(image, Astro.site).href;
+const fullTitle = title.includes('Aroma Langit') ? title : `${title} · Aroma Langit`;
+const prices = services.flatMap((s) => s.packages.map((p) => p.price));
+
+const business = {
+  '@context': 'https://schema.org',
+  '@type': 'FoodEstablishment',
+  '@id': `${Astro.site}#business`,
+  name: site.brand,
+  legalName: site.legalName,
+  url: Astro.site?.href,
+  logo: new URL('/favicon.svg', Astro.site).href,
+  image: ogImage,
+  email: site.email,
+  telephone: `+${site.csPhone}`,
+  servesCuisine: ['Indonesia', 'Nusantara', 'Oriental'],
+  priceRange: `Rp${Math.min(...prices).toLocaleString('id-ID')}–Rp${Math.max(...prices).toLocaleString('id-ID')}`,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: site.office.lines.slice(0, 2).join(', '),
+    addressLocality: 'Kota Bogor',
+    addressRegion: 'Jawa Barat',
+    addressCountry: 'ID',
+  },
+  areaServed: 'Kota Bogor',
+  sameAs: site.socials.map((s) => s.url),
+  hasMenu: new URL('/#menu', Astro.site).href,
+};
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content="#ec7f18" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="id_ID" />
+    <meta property="og:site_name" content="Aroma Langit" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <script type="application/ld+json" set:html={JSON.stringify([business, ...schema])} />
+  </head>
+  <body>
+    <a class="skip" href="#main">Langsung ke isi</a>
+    <Nav />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer closing={closing} />
+    <script>
+      import '../scripts/motion';
+    </script>
+  </body>
+</html>
+
+<style>
+  main {
+    display: block;
+    padding-top: 76px;
+    outline: none;
+  }
+</style>

@@ -1,0 +1,230 @@
+---
+import Photo from '../Photo.astro';
+import { photos } from '../../data/photos';
+import { getSite } from '../../lib/content';
+
+const site = await getSite();
+const steps = [
+  { title: 'Susun labelnya', text: 'Pilih paket, jumlah dan tanggal acara di situs ini, lalu kirim lewat WhatsApp.', photo: photos.nasiboxBalado, gap: 96 },
+  { title: 'Kami balas', text: `Layanan pelanggan membalas pukul ${site.csHours}, memastikan menu dan total akhirnya.`, photo: photos.hidanganFlatlay, gap: 32 },
+  { title: 'Bayar uang muka', text: 'Pesanan terkunci setelah uang muka 50% masuk. Pelunasan paling lambat H-1.', photo: photos.dapurSayur, gap: 136 },
+  { title: 'Dimasak di Pasir Kuda', text: 'Juru masak bersertifikat penjamah makanan dan HACCP menyiapkannya di dapur kami.', photo: photos.dapurKoki, gap: 56 },
+  { title: 'Dikemas bersih', text: 'Setiap kotak diisi dengan sarung tangan, lalu ditutup dan disusun untuk diantar.', photo: photos.dapurPacking, gap: 112 },
+  { title: 'Tiba di acara Anda', text: 'Antar se-Kota Bogor sudah termasuk. Prasmanan datang dengan meja saji dan pramusaji.', photo: photos.prasmananOutdoor, gap: 24 },
+];
+---
+
+<section class="steps field-paper" aria-labelledby="steps-title">
+  <div class="wrap head">
+    <h2 id="steps-title" class="t-h2" data-split>Cara pesan, dari chat sampai sajian.</h2>
+    <div class="ctrl">
+      <button type="button" class="arrow" data-dir="-1" aria-label="Langkah sebelumnya" aria-controls="steps-row">
+        <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path d="M17 10H4M9 4l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" /></svg>
+      </button>
+      <button type="button" class="arrow" data-dir="1" aria-label="Langkah berikutnya" aria-controls="steps-row">
+        <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path d="M3 10h13M11 4l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" /></svg>
+      </button>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="bar" aria-hidden="true"><div class="bar-fill" data-bar></div></div>
+  </div>
+  <ol class="row" id="steps-row" tabindex="0" aria-label="Langkah pemesanan, geser ke samping">
+    {
+      steps.map((s) => (
+        <li class="col" style={`--gap:${s.gap}px`}>
+          <h3 class="col-title">{s.title}</h3>
+          <p class="col-text">{s.text}</p>
+          <div class="col-photo">
+            <Photo photo={s.photo} sizes="(min-width: 768px) 320px, 72vw" widths={[360, 540, 720]} />
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<script>
+  const root = document.querySelector<HTMLElement>('.steps')!;
+  const row = root.querySelector<HTMLElement>('.row')!;
+  const fill = root.querySelector<HTMLElement>('[data-bar]')!;
+  const cols = Array.from(row.querySelectorAll<HTMLElement>('.col'));
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function progress() {
+    const max = row.scrollWidth - row.clientWidth;
+    const p = max > 0 ? row.scrollLeft / max : 0;
+    fill.style.transform = `scaleX(${Math.max(0.08, p)})`;
+  }
+  row.addEventListener('scroll', progress, { passive: true });
+  window.addEventListener('resize', progress);
+  progress();
+
+  function go(dir: number) {
+    const x = row.scrollLeft;
+    const pad = parseFloat(getComputedStyle(row).scrollPaddingLeft) || 0;
+    const lefts = cols.map((c) => c.offsetLeft - pad);
+    const target = dir > 0 ? lefts.find((l) => l > x + 4) : [...lefts].reverse().find((l) => l < x - 4);
+    row.scrollTo({ left: target ?? (dir > 0 ? row.scrollWidth : 0), behavior: reduce.matches ? 'auto' : 'smooth' });
+  }
+  root.querySelectorAll<HTMLButtonElement>('[data-dir]').forEach((b) => b.addEventListener('click', () => go(Number(b.dataset.dir))));
+  row.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+  });
+
+  // Drag to scroll with a mouse; touch keeps native scrolling.
+  let down = false;
+  let startX = 0;
+  let startLeft = 0;
+  let moved = false;
+  row.addEventListener('pointerdown', (e) => {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+    down = true;
+    moved = false;
+    startX = e.clientX;
+    startLeft = row.scrollLeft;
+    row.classList.add('dragging');
+  });
+  window.addEventListener('pointermove', (e) => {
+    if (!down) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 4) moved = true;
+    row.scrollLeft = startLeft - dx;
+  });
+  window.addEventListener('pointerup', () => {
+    if (!down) return;
+    down = false;
+    row.classList.remove('dragging');
+  });
+  row.addEventListener('click', (e) => { if (moved) { e.preventDefault(); e.stopPropagation(); } }, true);
+  row.addEventListener('dragstart', (e) => e.preventDefault());
+</script>
+
+<style>
+  .steps {
+    padding-block: var(--section);
+    overflow: hidden;
+  }
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+  }
+  .head h2 {
+    max-width: 16ch;
+  }
+  .ctrl {
+    display: none;
+    gap: 2px;
+  }
+  .arrow {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border: 0;
+    background: var(--ink);
+    color: var(--paper);
+    cursor: pointer;
+    transition: transform var(--dur-fast) var(--ease), background var(--dur) var(--ease);
+  }
+  .arrow:hover {
+    background: var(--ink-3);
+  }
+  .arrow:active {
+    transform: scale(0.94);
+  }
+  .bar {
+    height: 6px;
+    margin-top: 32px;
+    background: var(--paper-3);
+  }
+  .bar-fill {
+    height: 100%;
+    background: var(--ink);
+    transform-origin: left;
+    transform: scaleX(0.08);
+    transition: transform 160ms linear;
+  }
+  .row {
+    --side: max(var(--gutter), calc((100vw - var(--maxw)) / 2 + var(--gutter)));
+    display: flex;
+    gap: 32px;
+    margin: 40px 0 0;
+    padding: 0 var(--side) 8px;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: var(--side);
+    scrollbar-width: none;
+    cursor: grab;
+    user-select: none;
+  }
+  .row::-webkit-scrollbar {
+    display: none;
+  }
+  .row:focus-visible {
+    outline-offset: -3px;
+  }
+  .row.dragging {
+    cursor: grabbing;
+    scroll-snap-type: none;
+  }
+  .col {
+    flex: 0 0 72vw;
+    display: flex;
+    flex-direction: column;
+    scroll-snap-align: start;
+  }
+  .col-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+  }
+  .col-text {
+    margin-top: 8px;
+    font-size: 1rem;
+    line-height: 1.55;
+    min-height: 4.65em;
+  }
+  .col-photo {
+    margin-top: clamp(24px, calc(var(--gap) * 0.45), 64px);
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--paper-2);
+  }
+  .col-photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    transition: transform 900ms var(--ease-out);
+  }
+  @media (hover: hover) {
+    .col:hover .col-photo :global(img) {
+      transform: scale(1.05);
+    }
+  }
+  @media (min-width: 768px) {
+    .ctrl {
+      display: flex;
+    }
+  }
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+  @media (min-width: 768px) {
+    .col {
+      flex-basis: 300px;
+    }
+    .col-photo {
+      margin-top: var(--gap);
+    }
+  }
+</style>

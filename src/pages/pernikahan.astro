@@ -1,0 +1,623 @@
+---
+import Base from '../layouts/Base.astro';
+import Photo from '../components/Photo.astro';
+import Terms from '../components/Terms.astro';
+import { photos } from '../data/photos';
+import { getSite } from '../lib/content';
+import { formatRupiah, formatRupiahShort } from '../lib/order';
+import { waLink } from '../data/site';
+import { weddingCatering, weddingCuisines, weddingBundles, engagementPackages, foodStalls, weddingTerms, weddingPortions } from '../data/wedding';
+
+const site = await getSite();
+const start = 500;
+const p0 = weddingPortions(start);
+---
+
+<Base
+  title="Katering pernikahan di Bogor"
+  description="Paket katering pernikahan Aroma Langit untuk 100 sampai 1.000 tamu: Platinum, Gold, Silver dan Bronze mulai Rp45.000 per pax, menu Nusantara, Oriental dan Western, plus paket lamaran dan akad."
+>
+  <section class="head field-ink on-dark" aria-labelledby="w-title">
+    <div class="wrap head-grid">
+      <div class="head-copy">
+        <h1 id="w-title" class="t-display w-title">
+          <span class="intro-line"><span>Katering</span></span>
+          <span class="intro-line"><span>pernikahan</span></span>
+        </h1>
+        <p class="t-lead lead">
+          Dari lamaran, akad sampai resepsi. Menu Nusantara, Oriental atau Western untuk 100 sampai 1.000 tamu, dan food tasting sebelum Anda membayar uang muka.
+        </p>
+        <div class="actions">
+          <a class="btn btn-orange" href="#porsi">Hitung porsi tamu</a>
+          <a class="btn btn-paper" href={waLink(site.marketingPhone, 'Halo Aroma Langit, saya ingin konsultasi katering pernikahan.')} rel="noopener">Konsultasi via WhatsApp</a>
+        </div>
+      </div>
+      <figure class="head-photo">
+        <Photo photo={photos.prasmananMalam} sizes="(min-width: 1024px) 44vw, 100vw" priority widths={[480, 720, 1000]} />
+      </figure>
+    </div>
+  </section>
+
+  <section class="invites field-orange" aria-labelledby="pk-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="pk-title" class="t-h2" data-split>Empat paket resepsi</h2>
+        <p class="t-lead sec-lead">Harga per tamu untuk prasmanan lengkap dengan meja saji, dekorasi meja, peralatan saji dan alat makan.</p>
+      </div>
+      <ul role="list" class="cards" data-reveal>
+        {
+          weddingCatering.map((w) => (
+            <li class="invite field-paper edge-y">
+              <h3 class="inv-name">{w.name}</h3>
+              <p class="inv-price tab">{formatRupiah(w.price)}<span class="per">/pax</span></p>
+              <p class="inv-min t-small">Minimum {w.minOrder} pax</p>
+              <p class="inv-note">{w.note}</p>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="cuisines" data-reveal>
+        {
+          weddingCuisines.map((c) => (
+            <div class="cuisine">
+              <h3 class="cu-name">{c.name}</h3>
+              <p class="cu-items">{c.sample.join(' · ')}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section id="porsi" class="calc field-paper" aria-labelledby="calc-title">
+    <div class="wrap calc-grid">
+      <div class="calc-copy">
+        <h2 id="calc-title" class="t-h2" data-split>Hitung porsi tamu</h2>
+        <p class="t-body measure">
+          Rumus dari katalog kami: 60% undangan dihitung sebagai porsi prasmanan, dan 40% undangan dikali lima sebagai porsi gubukan, karena tamu biasanya mencicipi beberapa stall.
+        </p>
+      </div>
+      <form class="calc-card field-ink on-dark" data-calc data-phone={site.marketingPhone} novalidate>
+        <div class="calc-in">
+          <label for="inv" class="calc-label">Jumlah undangan</label>
+          <input id="inv" type="number" inputmode="numeric" min="0" max="20000" step="10" value={start} class="tab" data-inv />
+          <input type="range" min="100" max="2000" step="50" value={start} aria-label="Geser jumlah undangan" data-inv-range />
+        </div>
+        <div class="calc-out tab" aria-live="polite">
+          <div><p class="o-num" data-buffet>{p0.buffet.toLocaleString('id-ID')}</p><p class="o-lab">porsi prasmanan</p></div>
+          <div><p class="o-num" data-stall>{p0.stall.toLocaleString('id-ID')}</p><p class="o-lab">porsi gubukan</p></div>
+        </div>
+        <div class="calc-pkgs">
+          <label for="wpkg" class="calc-label">Paket prasmanan</label>
+          <select id="wpkg" data-wpkg>
+            {weddingCatering.map((w, i) => <option value={w.price} selected={i === 1}>{w.name} · {formatRupiah(w.price)}/pax</option>)}
+          </select>
+          <p class="calc-est">Perkiraan prasmanan <strong class="tab" data-est>{formatRupiah(p0.buffet * weddingCatering[1].price)}</strong></p>
+          <p class="t-small calc-note">Belum termasuk gubukan. Harga gubukan mulai Rp10.000 per porsi, tergantung menunya.</p>
+        </div>
+        <button type="submit" class="calc-send">
+          Kirim hitungan ini ke marketing
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 10h13M11 4l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2"></path></svg>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <section class="bundles field-paper-2" aria-labelledby="b-title">
+    <div class="wrap b-grid">
+      <div>
+        <h2 id="b-title" class="t-h2" data-split>Tidak mau menghitung?</h2>
+        <p class="t-lead b-lead">Paket bundling untuk 300 tamu sudah mencakup prasmanan dan gubukan.</p>
+      </div>
+      <ul role="list" class="b-list" data-reveal>
+        {
+          weddingBundles.map((b) => (
+            <li>
+              <span class="b-name">{b.name}</span>
+              <span class="b-guests t-small">{b.guests} tamu</span>
+              <span class="b-price tab">{formatRupiahShort(b.price)}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="engage field-ink on-dark" aria-labelledby="e-title">
+    <div class="wrap e-grid">
+      <figure class="e-photo">
+        <Photo photo={photos.pernikahan} sizes="(min-width: 1024px) 40vw, 100vw" widths={[480, 800]} />
+      </figure>
+      <div class="e-copy">
+        <h2 id="e-title" class="t-h2" data-split>Lamaran dan akad</h2>
+        <p class="t-body measure">Paket lamaran untuk 50 tamu, dari hidangan dan karpet sampai kebaya atau gaun di paket Jasmine. Paket akad dan all-in wedding ada di katalog layanan.</p>
+        <ul role="list" class="e-list">
+          {
+            engagementPackages.map((e) => (
+              <li>
+                <span class="e-name">Paket {e.name}</span>
+                <span class="t-small e-g">{e.guests} tamu</span>
+                <span class="e-price tab">{formatRupiahShort(e.price)}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <div class="downloads">
+          {site.weddingCatalogs.map((c) => <a class="link dl" href={c.url} download>{c.label} (PDF)</a>)}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="events field-paper" aria-labelledby="ev-title">
+    <div class="wrap">
+      <h2 id="ev-title" class="t-h2" data-split>Dari meja saji kami</h2>
+      <div class="ev-grid">
+        <figure class="ev ev-big"><Photo photo={photos.prasmananOutdoor} sizes="(min-width: 1024px) 50vw, 100vw" widths={[480, 720, 1000]} /></figure>
+        <figure class="ev"><Photo photo={photos.prasmananTeh} sizes="(min-width: 1024px) 25vw, 50vw" widths={[480, 720]} /></figure>
+        <figure class="ev"><Photo photo={photos.hidanganFlatlay} sizes="(min-width: 1024px) 25vw, 50vw" widths={[480, 720]} /></figure>
+        <figure class="ev"><Photo photo={photos.dapurBaki} sizes="(min-width: 1024px) 25vw, 50vw" widths={[480, 720]} /></figure>
+        <figure class="ev"><Photo photo={photos.korporatBuffet} sizes="(min-width: 1024px) 25vw, 50vw" widths={[480, 640]} /></figure>
+      </div>
+      <p class="t-small ev-cap">Prasmanan dan hidangan Aroma Langit di berbagai acara.</p>
+    </div>
+  </section>
+
+  <section class="stalls field-orange" aria-labelledby="s-title">
+    <div class="wrap">
+      <h2 id="s-title" class="t-h2" data-split>Gubukan khas</h2>
+      <p class="t-lead s-lead">Sebagian dari puluhan pilihan stall, harga per porsi. Laksa, asinan dan soto mie Bogor tentu ada.</p>
+      <ul role="list" class="chips" data-reveal>
+        {foodStalls.map((f) => <li><span>{f.name}</span><span class="tab chip-price">{formatRupiahShort(f.price)}</span></li>)}
+      </ul>
+    </div>
+  </section>
+
+  <Terms items={weddingTerms} title="Syarat pernikahan" />
+</Base>
+
+<script>
+  import { weddingPortions } from '../data/wedding';
+  import { formatRupiah } from '../lib/order';
+
+  const form = document.querySelector<HTMLFormElement>('[data-calc]')!;
+  const inv = form.querySelector<HTMLInputElement>('[data-inv]')!;
+  const range = form.querySelector<HTMLInputElement>('[data-inv-range]')!;
+  const buffetEl = form.querySelector<HTMLElement>('[data-buffet]')!;
+  const stallEl = form.querySelector<HTMLElement>('[data-stall]')!;
+  const pkg = form.querySelector<HTMLSelectElement>('[data-wpkg]')!;
+  const est = form.querySelector<HTMLElement>('[data-est]')!;
+
+  const read = () => Math.max(0, Math.min(20000, Math.floor(Number(inv.value) || 0)));
+  function update(fromRange = false) {
+    if (fromRange) inv.value = range.value;
+    const n = read();
+    if (!fromRange) range.value = String(Math.min(2000, Math.max(100, n)));
+    const p = weddingPortions(n);
+    buffetEl.textContent = p.buffet.toLocaleString('id-ID');
+    stallEl.textContent = p.stall.toLocaleString('id-ID');
+    est.textContent = formatRupiah(p.buffet * Number(pkg.value));
+  }
+  inv.addEventListener('input', () => update());
+  inv.addEventListener('blur', () => { inv.value = String(read()); update(); });
+  range.addEventListener('input', () => update(true));
+  pkg.addEventListener('change', () => update());
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const n = read();
+    const p = weddingPortions(n);
+    const name = pkg.options[pkg.selectedIndex].text;
+    const msg = [
+      'Halo Aroma Langit, saya ingin konsultasi katering pernikahan.',
+      '',
+      `• Jumlah undangan: ${n.toLocaleString('id-ID')}`,
+      `• Porsi prasmanan: ${p.buffet.toLocaleString('id-ID')}`,
+      `• Porsi gubukan: ${p.stall.toLocaleString('id-ID')}`,
+      `• Paket yang diminati: ${name}`,
+      '',
+      'Mohon info ketersediaan tanggal dan jadwal food tasting. Terima kasih.',
+    ].join('\n');
+    const url = `https://wa.me/${form.dataset.phone}?text=${encodeURIComponent(msg)}`;
+    const w = window.open(url, '_blank', 'noopener');
+    if (!w) window.location.href = url;
+  });
+  update();
+</script>
+
+<style>
+  .head {
+    padding-block: clamp(40px, 6vw, 88px) clamp(64px, 8vw, 120px);
+  }
+  .head-grid {
+    display: grid;
+    gap: 40px;
+  }
+  .head-copy {
+    display: grid;
+    gap: 28px;
+    align-content: center;
+  }
+  .w-title {
+    font-size: clamp(3rem, 0.6rem + 8.6vw, 8.5rem);
+  }
+  .w-title .intro-line {
+    display: block;
+    overflow: clip;
+    padding-bottom: 0.06em;
+  }
+  .w-title .intro-line > span {
+    display: block;
+    animation: rise 1100ms var(--ease-out) both;
+  }
+  .w-title .intro-line:nth-child(2) > span {
+    animation-delay: 110ms;
+  }
+  @keyframes rise {
+    from {
+      transform: translateY(105%);
+    }
+  }
+  .lead {
+    max-width: 34ch;
+    color: var(--peach);
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .head-photo {
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--ink-2);
+  }
+  .head-photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .invites,
+  .calc,
+  .bundles,
+  .engage,
+  .stalls {
+    padding-block: var(--section);
+  }
+  .sec-head {
+    display: grid;
+    gap: 20px;
+    align-items: end;
+  }
+  .sec-lead {
+    max-width: 40ch;
+  }
+  .cards {
+    display: grid;
+    gap: 16px;
+    margin-top: clamp(40px, 5vw, 72px);
+  }
+  .invite {
+    display: grid;
+    gap: 8px;
+    justify-items: center;
+    text-align: center;
+    padding: 56px 28px;
+  }
+  .inv-name {
+    font-size: clamp(1.75rem, 1.3rem + 1.4vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+  .inv-price {
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+    font-weight: 800;
+  }
+  .per {
+    font-size: var(--step-small);
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .inv-min {
+    color: var(--muted);
+  }
+  .inv-note {
+    margin-top: 10px;
+    max-width: 28ch;
+    font-size: 1rem;
+  }
+  .cuisines {
+    display: grid;
+    gap: 2px;
+    margin-top: 16px;
+  }
+  .cuisine {
+    padding: 20px 24px;
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .cu-name {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--orange);
+  }
+  .cu-items {
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  .calc-grid {
+    display: grid;
+    gap: 40px;
+  }
+  .calc-copy {
+    display: grid;
+    gap: 20px;
+    align-content: start;
+  }
+  .calc-card {
+    display: grid;
+    gap: 2px;
+    background: var(--ink-2);
+  }
+  .calc-card > * {
+    background: var(--ink);
+    padding: 24px clamp(20px, 3vw, 36px);
+  }
+  .calc-label {
+    display: block;
+    font-size: var(--step-small);
+    font-weight: 700;
+    color: var(--peach);
+    margin-bottom: 10px;
+  }
+  .calc-in input[type='number'] {
+    width: 100%;
+    min-height: 64px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 0;
+    background: var(--ink-2);
+    color: var(--paper);
+    font-size: 2rem;
+    font-weight: 800;
+  }
+  .calc-in input[type='range'] {
+    width: 100%;
+    margin-top: 18px;
+    accent-color: var(--orange);
+    height: 32px;
+  }
+  .calc-out {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .o-num {
+    font-size: clamp(2.25rem, 1.6rem + 2.6vw, 3.75rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    color: var(--orange);
+  }
+  .o-lab {
+    margin-top: 6px;
+    font-weight: 600;
+  }
+  .calc-pkgs select {
+    width: 100%;
+    min-height: 54px;
+    padding: 0 44px 0 16px;
+    border: 0;
+    border-radius: 0;
+    background: var(--ink-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M3 6l5 5 5-5' fill='none' stroke='%23f6d9b8' stroke-width='2.2'/%3E%3C/svg%3E") no-repeat right 16px center;
+    color: var(--paper);
+    font-weight: 700;
+    appearance: none;
+  }
+  .calc-est {
+    margin-top: 16px;
+    font-weight: 600;
+  }
+  .calc-est strong {
+    display: block;
+    font-size: 1.75rem;
+    font-weight: 800;
+  }
+  .calc-note {
+    margin-top: 6px;
+    color: var(--peach);
+  }
+  .calc-card .calc-send {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 64px;
+    border: 0;
+    background: var(--orange);
+    color: var(--ink);
+    font-weight: 800;
+    font-size: 1.0625rem;
+    cursor: pointer;
+    transition: background var(--dur) var(--ease);
+  }
+  .calc-send:hover {
+    background: #f59a45;
+  }
+  .calc-card :focus-visible {
+    outline-color: var(--peach);
+  }
+
+  .field-paper-2 {
+    background: var(--paper-2);
+  }
+  .b-grid {
+    display: grid;
+    gap: 40px;
+  }
+  .b-lead {
+    margin-top: 20px;
+    max-width: 30ch;
+  }
+  .b-list,
+  .e-list {
+    display: grid;
+    gap: 2px;
+  }
+  .b-list li,
+  .e-list li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: 'name price' 'guests price';
+    align-items: center;
+    padding: 20px 24px;
+    background: var(--paper);
+  }
+  .b-name,
+  .e-name {
+    grid-area: name;
+    font-weight: 800;
+    font-size: 1.25rem;
+  }
+  .b-guests,
+  .e-g {
+    grid-area: guests;
+    color: var(--muted);
+  }
+  .b-price,
+  .e-price {
+    grid-area: price;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .e-grid {
+    display: grid;
+    gap: 40px;
+  }
+  .e-photo {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--ink-2);
+  }
+  .e-photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .e-copy {
+    display: grid;
+    gap: 24px;
+    align-content: start;
+  }
+  .e-list li {
+    background: var(--ink-2);
+  }
+  .e-g {
+    color: var(--peach);
+  }
+  .downloads {
+    display: grid;
+    gap: 4px;
+  }
+  .dl {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    justify-self: start;
+  }
+
+  .events {
+    padding-block: var(--section);
+  }
+  .ev-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: clamp(32px, 4vw, 56px);
+  }
+  .ev {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--paper-2);
+  }
+  .ev-big {
+    grid-column: 1 / -1;
+    aspect-ratio: 16 / 9;
+  }
+  .ev :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ev-cap {
+    margin-top: 12px;
+    color: var(--muted);
+  }
+  @media (min-width: 1024px) {
+    .ev-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .ev-big {
+      grid-column: span 2;
+      grid-row: span 2;
+      aspect-ratio: auto;
+    }
+  }
+  .s-lead {
+    margin-top: 20px;
+    max-width: 40ch;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: clamp(32px, 4vw, 56px);
+  }
+  .chips li {
+    display: inline-flex;
+    gap: 12px;
+    align-items: baseline;
+    padding: 12px 18px;
+    background: var(--paper);
+    font-weight: 700;
+  }
+  .chip-price {
+    font-size: var(--step-small);
+    color: var(--muted);
+  }
+
+  @media (min-width: 640px) {
+    .cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .cuisines {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .head-grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      align-items: center;
+      gap: clamp(40px, 5vw, 96px);
+    }
+    .sec-head {
+      grid-template-columns: 1fr 1fr;
+    }
+    .cards {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .calc-grid,
+    .b-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: clamp(40px, 6vw, 120px);
+      align-items: start;
+    }
+    .e-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: clamp(40px, 6vw, 120px);
+      align-items: center;
+    }
+  }
+</style>

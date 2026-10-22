@@ -1,0 +1,67 @@
+---
+import { Picture } from 'astro:assets';
+import type { Photo } from '../data/types';
+
+interface Props {
+  photo: Photo;
+  /** The `sizes` attribute: how wide the image renders. */
+  sizes: string;
+  widths?: number[];
+  class?: string;
+  /** Hero images load eagerly with high priority. */
+  priority?: boolean;
+  /** CSS object-position, e.g. "50% 30%". */
+  position?: string;
+  alt?: string;
+}
+
+const { photo, sizes, widths = [480, 720, 960, 1280, 1600, 2000], class: cls, priority = false, position, alt } = Astro.props;
+const altText = alt ?? photo.alt;
+const style = position ? `object-position:${position}` : undefined;
+
+let remote: { src: string; srcset: string } | null = null;
+if (photo.kind === 'remote') {
+  const sep = photo.url.includes('?') ? '&' : '?';
+  const ws = widths.filter((w) => w <= photo.width);
+  if (!ws.length) ws.push(photo.width);
+  remote = {
+    src: `${photo.url}${sep}w=${ws[Math.min(2, ws.length - 1)]}&q=80`,
+    srcset: ws.map((w) => `${photo.url}${sep}w=${w}&q=80 ${w}w`).join(', '),
+  };
+}
+const localWidths = photo.kind === 'local' ? widths.filter((w) => w <= photo.src.width) : [];
+if (photo.kind === 'local' && !localWidths.length) localWidths.push(photo.src.width);
+---
+
+{
+  photo.kind === 'local' ? (
+    <Picture
+      src={photo.src}
+      alt={altText}
+      widths={localWidths}
+      sizes={sizes}
+      formats={['avif', 'webp']}
+      fallbackFormat="jpg"
+      quality={78}
+      class={cls}
+      style={style}
+      loading={priority ? 'eager' : 'lazy'}
+      decoding={priority ? 'sync' : 'async'}
+      fetchpriority={priority ? 'high' : 'auto'}
+    />
+  ) : (
+    <img
+      src={remote!.src}
+      srcset={remote!.srcset}
+      sizes={sizes}
+      width={photo.width}
+      height={photo.height}
+      alt={altText}
+      class={cls}
+      style={style}
+      loading={priority ? 'eager' : 'lazy'}
+      decoding={priority ? 'sync' : 'async'}
+      fetchpriority={priority ? 'high' : 'auto'}
+    />
+  )
+}

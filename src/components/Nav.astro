@@ -1,0 +1,401 @@
+---
+import Logo from './Logo.astro';
+import { getServices, getSite } from '../lib/content';
+import { formatRupiah } from '../lib/order';
+import { waLink } from '../data/site';
+
+const services = await getServices();
+const site = await getSite();
+const path = Astro.url.pathname;
+const from = (s: (typeof services)[number]) => Math.min(...s.packages.map((p) => p.price));
+const links = [
+  { href: '/pernikahan/', label: 'Pernikahan' },
+  { href: '/korporat/', label: 'Katering kantor' },
+  { href: '/tentang-kami/', label: 'Tentang kami' },
+];
+const isCurrent = (href: string) => path === href || path === href.replace(/\/$/, '');
+---
+
+<header class="nav" data-nav data-hidden="false" data-open="false">
+  <div class="bar wrap">
+    <a href="/" class="home" aria-label="Aroma Langit, ke beranda">
+      <Logo variant="lockup" tone="on-orange" class="nav-logo" title="Aroma Langit" />
+    </a>
+
+    <nav class="desk" aria-label="Utama">
+      <div class="menu-wrap" data-dropdown>
+        <button type="button" class="nav-link menu-btn" aria-expanded="false" aria-controls="menu-panel">
+          Menu &amp; harga
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.2" /></svg>
+        </button>
+        <div class="dropdown" id="menu-panel" hidden>
+          <ul role="list">
+            {
+              services.map((s) => (
+                <li>
+                  <a href={`/katering/${s.slug}/`} aria-current={isCurrent(`/katering/${s.slug}/`) ? 'page' : undefined}>
+                    <span class="d-name">{s.title}</span>
+                    <span class="d-price tab">mulai {formatRupiah(from(s))}</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          <a class="d-pdf link" href={site.pricelistUrl} download>Unduh daftar harga (PDF)</a>
+        </div>
+      </div>
+      {
+        links.map((l) => (
+          <a class="nav-link" href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>
+            {l.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="actions">
+      <a class="btn nav-cta" href="/#pesan"><span>Susun pesanan</span></a>
+      <button type="button" class="burger" aria-expanded="false" aria-controls="mobile-menu" aria-label="Buka menu">
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile edge-bottom" id="mobile-menu" hidden>
+    <div class="wrap mobile-inner">
+      <p class="m-head t-small">Menu &amp; harga</p>
+      <ul role="list" class="m-services">
+        {
+          services.map((s) => (
+            <li>
+              <a href={`/katering/${s.slug}/`}>
+                <span>{s.title}</span>
+                <span class="tab t-small">mulai {formatRupiah(from(s))}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <ul role="list" class="m-links">
+        {
+          links.map((l) => (
+            <li>
+              <a href={l.href}>{l.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="m-actions">
+        <a class="btn" href="/#pesan">Susun pesanan</a>
+        <a class="btn btn-orange" href={waLink(site.csPhone)} rel="noopener">Tanya via WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  const nav = document.querySelector<HTMLElement>('[data-nav]')!;
+  const burger = nav.querySelector<HTMLButtonElement>('.burger')!;
+  const mobile = nav.querySelector<HTMLElement>('#mobile-menu')!;
+  const dd = nav.querySelector<HTMLElement>('[data-dropdown]')!;
+  const ddBtn = dd.querySelector<HTMLButtonElement>('.menu-btn')!;
+  const ddPanel = dd.querySelector<HTMLElement>('.dropdown')!;
+
+  function setMobile(open: boolean, returnFocus = true) {
+    burger.setAttribute('aria-expanded', String(open));
+    burger.setAttribute('aria-label', open ? 'Tutup menu' : 'Buka menu');
+    nav.dataset.open = String(open);
+    mobile.hidden = !open;
+    document.documentElement.classList.toggle('menu-open', open);
+    if (open) {
+      window.__lenis?.stop();
+      mobile.querySelector<HTMLElement>('a')?.focus();
+    } else {
+      window.__lenis?.start();
+      if (returnFocus) burger.focus();
+    }
+  }
+  burger.addEventListener('click', () => setMobile(burger.getAttribute('aria-expanded') !== 'true'));
+  mobile.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a')) setMobile(false, false);
+  });
+
+  function setDropdown(open: boolean) {
+    if (!open) pinned = false;
+    ddBtn.setAttribute('aria-expanded', String(open));
+    ddPanel.hidden = !open;
+    dd.dataset.open = String(open);
+  }
+  // Hover opens it for mouse users; a click pins it open (or closes it if it was pinned).
+  let pinned = false;
+  ddBtn.addEventListener('click', () => {
+    const open = ddBtn.getAttribute('aria-expanded') === 'true';
+    if (open && !pinned) { pinned = true; return; }
+    pinned = !open;
+    setDropdown(!open);
+  });
+  let closeTimer = 0;
+  if (window.matchMedia('(hover: hover)').matches) {
+    dd.addEventListener('pointerenter', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      clearTimeout(closeTimer);
+      setDropdown(true);
+    });
+    dd.addEventListener('pointerleave', (e) => {
+      if (e.pointerType !== 'mouse' || pinned) return;
+      closeTimer = window.setTimeout(() => setDropdown(false), 180);
+    });
+  }
+  dd.addEventListener('focusout', (e) => {
+    if (!dd.contains(e.relatedTarget as Node)) setDropdown(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (burger.getAttribute('aria-expanded') === 'true') setMobile(false);
+    if (ddBtn.getAttribute('aria-expanded') === 'true') { setDropdown(false); ddBtn.focus(); }
+  });
+  window.matchMedia('(min-width: 1024px)').addEventListener('change', (e) => {
+    if (e.matches && burger.getAttribute('aria-expanded') === 'true') setMobile(false, false);
+  });
+</script>
+
+<style>
+  .nav {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    background: var(--orange);
+    transition: transform 420ms var(--ease-out);
+    view-transition-name: site-nav;
+  }
+  .nav[data-hidden='true'] {
+    transform: translateY(-100%);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    height: 76px;
+  }
+  .home {
+    display: block;
+    flex: none;
+    border-radius: 0;
+  }
+  .nav :global(.nav-logo) {
+    font-size: 44px;
+  }
+  .nav :global(.lockup-mark) {
+    transition: transform 520ms var(--ease-out);
+  }
+  @media (hover: hover) {
+    .home:hover :global(.lockup-mark) {
+      transform: rotate(-12deg);
+    }
+  }
+  .desk {
+    display: none;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+  }
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 48px;
+    padding: 0 14px;
+    background: none;
+    border: 0;
+    font-weight: 650;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    position: relative;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 10px;
+    height: 3px;
+    background: var(--ink);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform var(--dur) var(--ease-out);
+  }
+  .nav-link:hover::after,
+  .nav-link[aria-current='page']::after,
+  .menu-wrap[data-open='true'] .nav-link::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+  .menu-btn svg {
+    transition: transform var(--dur) var(--ease-out);
+  }
+  .menu-btn[aria-expanded='true'] svg {
+    transform: rotate(180deg);
+  }
+  .menu-wrap {
+    position: relative;
+  }
+  .dropdown {
+    position: absolute;
+    top: calc(100% + 14px);
+    left: 0;
+    width: 380px;
+    background: var(--paper);
+    padding: 12px;
+    box-shadow: 0 24px 48px -24px rgba(60, 36, 24, 0.5); /* taste-skill-ignore: floating menu */
+  }
+  .dropdown::before {
+    content: '';
+    position: absolute;
+    inset: -14px 0 auto 0;
+    height: 14px;
+  }
+  .dropdown ul {
+    display: grid;
+  }
+  .dropdown li a {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding: 12px 14px;
+    text-decoration: none;
+    transition: background var(--dur-fast) var(--ease);
+  }
+  .dropdown li a:hover,
+  .dropdown li a[aria-current='page'] {
+    background: var(--paper-2);
+  }
+  .d-name {
+    font-weight: 700;
+    font-size: 1.125rem;
+  }
+  .d-price {
+    font-size: var(--step-small);
+    color: var(--muted);
+  }
+  .d-pdf {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin: 6px 14px 4px;
+    font-size: var(--step-small);
+  }
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+  .nav-cta {
+    min-height: 48px;
+    padding: 0 20px;
+    font-size: 1rem;
+  }
+  .burger {
+    display: grid;
+    place-content: center;
+    gap: 7px;
+    width: 52px;
+    height: 48px;
+    border: 0;
+    background: var(--ink);
+    cursor: pointer;
+  }
+  .burger span {
+    display: block;
+    width: 22px;
+    height: 2.5px;
+    background: var(--paper);
+    transition: transform var(--dur) var(--ease-out);
+  }
+  .burger[aria-expanded='true'] span:first-child {
+    transform: translateY(4.75px) rotate(45deg);
+  }
+  .burger[aria-expanded='true'] span:last-child {
+    transform: translateY(-4.75px) rotate(-45deg);
+  }
+  .mobile {
+    position: absolute;
+    top: 76px;
+    left: 0;
+    right: 0;
+    height: calc(100dvh - 76px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--paper);
+    padding-bottom: 40px;
+    animation: drop 380ms var(--ease-out);
+  }
+  @keyframes drop {
+    from {
+      transform: translateY(-16px);
+      opacity: 0;
+    }
+  }
+  .mobile-inner {
+    display: grid;
+    gap: 28px;
+    padding-top: 28px;
+  }
+  .m-head {
+    color: var(--muted);
+  }
+  .m-services li a {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 10px 0;
+    font-size: clamp(1.75rem, 7vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    text-decoration: none;
+  }
+  .m-services .t-small {
+    color: var(--muted);
+    letter-spacing: 0;
+  }
+  .m-links {
+    display: grid;
+    background: var(--paper-2);
+    padding: 8px 16px;
+  }
+  .m-links a {
+    display: flex;
+    min-height: 52px;
+    align-items: center;
+    font-weight: 700;
+    font-size: 1.125rem;
+    text-decoration: none;
+  }
+  .m-actions {
+    display: grid;
+    gap: 10px;
+  }
+  @media (max-width: 479px) {
+    .nav-cta {
+      display: none;
+    }
+    .nav :global(.nav-logo) {
+      font-size: 38px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .desk {
+      display: flex;
+    }
+    .actions {
+      margin-left: 8px;
+    }
+    .burger,
+    .mobile {
+      display: none !important;
+    }
+  }
+</style>

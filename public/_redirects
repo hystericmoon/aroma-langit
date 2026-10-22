@@ -1,0 +1,14 @@
+# Old Joomla URLs → new pages (Cloudflare Pages / Netlify syntax)
+/index.php                     /                       301
+/aqiqah                        /                       301
+/aqiqah/*                      /                       301
+/supplier                      /                       301
+/supplier/*                    /                       301
+/wedding                       /pernikahan/            301
+/wedding/                      /pernikahan/            301
+/katering                      /#menu                  301
+/katering/                     /#menu                  301
+/home                          /                       301
+/images/CATERING_SERVICES_2024_By_Aroma_Langit.pdf  /files/pricelist-aroma-langit-2024.pdf  301
+/images/2024_WEDDING_CATERING_CATALOG.pdf           /files/katalog-katering-pernikahan-2024.pdf  301
+/images/2024_WEDDING_SERVICES_CATALOG.pdf           /files/katalog-layanan-wedding-2024.pdf  301

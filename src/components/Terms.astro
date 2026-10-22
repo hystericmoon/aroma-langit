@@ -1,0 +1,102 @@
+---
+import type { Service } from '../data/types';
+import { getSite } from '../lib/content';
+import { waLink } from '../data/site';
+
+interface Props {
+  service?: Service;
+  /** Replaces the shared terms entirely (used for weddings). */
+  items?: string[];
+  title?: string;
+}
+const { service, items, title = 'Syarat pemesanan' } = Astro.props;
+const site = await getSite();
+const list = items ?? [
+  ...(service
+    ? [`${service.title} dipesan paling lambat ${service.leadDays} hari sebelum acara (H-${service.leadDays}).`]
+    : []),
+  ...site.sharedTerms,
+  ...(service?.terms ?? []),
+];
+---
+
+<section class="terms field-ink on-dark" aria-labelledby="terms-title">
+  <div class="wrap">
+    <div class="card field-paper edge-top">
+      <div class="grid-t">
+        <div class="t-side">
+          <h2 id="terms-title" class="t-h2" data-split>{title}</h2>
+          <p class="t-body side-text">
+            Supaya pesanan Anda aman dan tepat waktu. Ada yang ingin dirundingkan? Marketing kami siap bantu.
+          </p>
+          <a class="link side-link" href={waLink(site.marketingPhone, 'Halo Aroma Langit, saya ingin bertanya tentang syarat pemesanan.')} rel="noopener">
+            Tanya marketing via WhatsApp
+          </a>
+        </div>
+        <ul role="list" class="list" data-reveal>
+          {list.map((t) => <li>{t}</li>)}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .terms {
+    padding-block: var(--section);
+  }
+  .card {
+    padding: clamp(48px, 6vw, 88px) clamp(20px, 4.5vw, 72px) clamp(32px, 4vw, 64px);
+  }
+  .grid-t {
+    display: grid;
+    gap: 40px;
+  }
+  .t-side {
+    display: grid;
+    gap: 18px;
+    align-content: start;
+  }
+  .side-text {
+    max-width: 36ch;
+  }
+  .side-link {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .list {
+    display: grid;
+    gap: 2px;
+    background: var(--paper-2);
+    counter-reset: t;
+  }
+  .list li {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 14px;
+    padding: 16px 0;
+    background: var(--paper);
+    font-weight: 500;
+    line-height: 1.55;
+  }
+  .list li::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    margin-top: 0.5em;
+    background: var(--orange);
+    rotate: 45deg;
+  }
+  @media (min-width: 1024px) {
+    .grid-t {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: clamp(40px, 6vw, 120px);
+    }
+    .t-side {
+      position: sticky;
+      top: 104px;
+    }
+  }
+</style>

@@ -1,0 +1,258 @@
+---
+import Base from '../layouts/Base.astro';
+import Photo from '../components/Photo.astro';
+import Kitchen from '../components/home/Kitchen.astro';
+import { photos } from '../data/photos';
+import { getSite } from '../lib/content';
+
+const site = await getSite();
+const pillars = [
+  { name: 'Tampilan', text: 'Makanan dinikmati dengan mata lebih dulu, jadi setiap kotak dan meja saji kami tata dengan rapi.' },
+  { name: 'Aroma', text: 'Separuh dari nama kami. Wangi bumbu Nusantara yang membuat tamu menghampiri meja saji lebih dulu.' },
+  { name: 'Rasa', text: 'Resep Nusantara yang kami masak sejak rumah makan pertama di Jatinangor, ditambah sajian populer yang dicari tamu.' },
+];
+---
+
+<Base
+  title="Tentang kami"
+  description="Aroma Langit berawal dari rumah makan prasmanan di Jatinangor pada 2017 dan kini menjadi dapur katering bersertifikat halal di Bogor. Kenali cerita, tim dan dapur kami."
+>
+  <section class="head field-orange" aria-labelledby="a-title">
+    <div class="wrap head-grid">
+      <h1 id="a-title" class="t-display a-title">
+        <span class="intro-line"><span>Tentang</span></span>
+        <span class="intro-line"><span>Aroma Langit</span></span>
+      </h1>
+      <div class="head-copy">
+        <p class="t-lead">
+          Aroma Langit lahir dari mimpi sederhana: menggapai cita-cita setinggi langit sambil menebarkan aroma masakan yang membuat orang betah duduk lebih lama.
+        </p>
+        <p class="t-body measure">
+          Kami mulai sebagai rumah makan prasmanan bercita rasa Nusantara di Jatinangor, Sumedang, pada Februari 2017. Ayam Bakar Kalasan, Rendang, Nila Bumbu Cobek, Gepuk dan Sayur Urap menjadi andalan kami saat menjamu mahasiswa dan warga sekitar.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="story field-paper" aria-labelledby="s-title">
+    <div class="wrap">
+      <h2 id="s-title" class="t-h2 story-title" data-split>Dari rumah makan ke katering</h2>
+    </div>
+    <div class="wrap story-grid">
+      <figure class="story-photo">
+        <Photo photo={photos.hidanganFlatlay} sizes="(min-width: 1024px) 46vw, 100vw" widths={[480, 720, 994]} />
+      </figure>
+      <div class="story-copy" data-reveal>
+        <p class="t-body measure">
+          Di akhir 2017 kami memutuskan fokus pada jasaboga dan memindahkan dapur ke Cinambo, Bandung. Sejak itu kami melayani pelanggan perorangan, instansi pemerintah dan swasta, sampai perusahaan besar.
+        </p>
+        <p class="t-body measure">
+          Kini dapur kami berada di Pasir Kuda, Bogor Barat, dengan kantor di Bogor Nirwana Residence. Tujuan kami tetap sama: memberi manfaat sebesar-besarnya bagi orang-orang di sekitar dapur kami.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="timeline field-ink on-dark" aria-labelledby="t-title">
+    <div class="wrap">
+      <h2 id="t-title" class="t-h2" data-split>Perjalanan kami</h2>
+      <ol role="list" class="stubs" data-reveal>
+        {
+          site.milestones.map((m) => (
+            <li class="stub">
+              <p class="when">{m.when}</p>
+              <p class="what">{m.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="pillars field-paper" aria-labelledby="p-title">
+    <div class="wrap">
+      <h2 id="p-title" class="t-h2 p-title" data-split>Tiga hal di setiap sajian</h2>
+      <ul role="list" class="p-list" data-reveal>
+        {
+          pillars.map((p) => (
+            <li>
+              <h3 class="p-name">{p.name}</h3>
+              <p class="t-body">{p.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="team field-orange" aria-labelledby="tm-title">
+    <div class="wrap">
+      <h2 id="tm-title" class="t-h2" data-split>Orang-orang di balik dapur</h2>
+      <ul role="list" class="cards" data-reveal>
+        {
+          site.team.map((t) => (
+            <li class="card field-paper edge-top">
+              <p class="role">{t.role}</p>
+              <h3 class="name">{t.name}</h3>
+              <p class="t-body bio">{t.bio}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <Kitchen />
+</Base>
+
+<style>
+  .head {
+    padding-block: clamp(40px, 6vw, 88px) clamp(64px, 8vw, 120px);
+  }
+  .head-grid {
+    display: grid;
+    gap: 40px;
+  }
+  .a-title {
+    font-size: clamp(3rem, 0.4rem + 6.6vw, 7rem);
+  }
+  .a-title .intro-line {
+    display: block;
+    overflow: clip;
+    padding-bottom: 0.06em;
+  }
+  .a-title .intro-line > span {
+    display: block;
+    animation: rise 1100ms var(--ease-out) both;
+  }
+  .a-title .intro-line:nth-child(2) > span {
+    animation-delay: 110ms;
+  }
+  @keyframes rise {
+    from {
+      transform: translateY(105%);
+    }
+  }
+  .head-copy {
+    display: grid;
+    gap: 20px;
+    align-content: end;
+    max-width: 40rem;
+  }
+  .story,
+  .timeline,
+  .pillars,
+  .team {
+    padding-block: var(--section);
+  }
+  .story-title {
+    max-width: 16ch;
+    margin-bottom: clamp(32px, 4vw, 56px);
+  }
+  .story-grid {
+    display: grid;
+    gap: 40px;
+    align-items: center;
+  }
+  .story-photo {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--paper-2);
+  }
+  .story-photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .story-copy {
+    display: grid;
+    gap: 20px;
+  }
+  .stubs {
+    display: grid;
+    gap: 2px;
+    margin-top: clamp(40px, 5vw, 72px);
+  }
+  .stub {
+    display: grid;
+    gap: 6px;
+    padding: 24px;
+    background: var(--ink-2);
+  }
+  .when {
+    font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--orange);
+  }
+  .what {
+    font-weight: 600;
+    max-width: 40ch;
+  }
+  .p-title {
+    max-width: 14ch;
+  }
+  .p-list {
+    display: grid;
+    gap: 40px;
+    margin-top: clamp(40px, 5vw, 72px);
+  }
+  .p-list li {
+    display: grid;
+    gap: 12px;
+    align-content: start;
+  }
+  .p-name {
+    font-size: clamp(2.5rem, 1.4rem + 4vw, 5rem);
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+    color: var(--brown);
+  }
+  .cards {
+    display: grid;
+    gap: 16px;
+    margin-top: clamp(40px, 5vw, 72px);
+  }
+  .card {
+    display: grid;
+    gap: 8px;
+    align-content: start;
+    padding: 48px clamp(20px, 3vw, 36px) 32px;
+  }
+  .role {
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .name {
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+  }
+  .bio {
+    margin-top: 8px;
+  }
+  @media (min-width: 768px) {
+    .stubs {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .p-list,
+    .cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .head-grid {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
+      align-items: end;
+      gap: clamp(40px, 5vw, 96px);
+    }
+    .story-grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: clamp(40px, 6vw, 120px);
+    }
+    .stubs {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

@@ -1,0 +1,237 @@
+---
+import type { Package } from '../data/types';
+import { formatRupiah } from '../lib/order';
+
+interface Props {
+  pkg: Package;
+  serviceSlug: string;
+  serviceTitle: string;
+  index: number;
+}
+const { pkg, serviceSlug, serviceTitle, index } = Astro.props;
+const uid = `${serviceSlug}-${pkg.id}`;
+// Set menus (bento, snack box) list each set as a card; pick-one menus get tabs.
+const isSetMenu = pkg.variants.every((v) => v.groups.length === 1 && v.groups[0].label === 'Isi');
+---
+
+<article class="pkg" data-index={index} aria-labelledby={`${uid}-name`}>
+  <div class="pkg-side">
+  <header class="pkg-head">
+    <div>
+      <h3 id={`${uid}-name`} class="pkg-name">{serviceTitle} {pkg.name}</h3>
+      <p class="pkg-note t-small">
+        {pkg.minOrder > 1 ? `Minimum ${pkg.minOrder} ${pkg.unit}` : null}
+        {pkg.minOrder > 1 && pkg.note ? ' · ' : null}
+        {pkg.note}
+      </p>
+    </div>
+    <p class="pkg-price tab">
+      {formatRupiah(pkg.price)}<span class="per">/{pkg.unit}</span>
+    </p>
+  </header>
+  <a class="use" href={`/?layanan=${serviceSlug}&paket=${pkg.id}#pesan`}>
+    Pakai paket ini
+    <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 10h13M11 4l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2"></path></svg>
+  </a>
+  </div>
+  <div class="pkg-main">
+
+  {
+    isSetMenu ? (
+      <ul role="list" class="sets">
+        {pkg.variants.map((v) => (
+          <li class="set">
+            <h4 class="set-name">{v.name}</h4>
+            <p class="set-items">{v.groups[0].items.join(' · ')}</p>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <div class="menus" data-tabs>
+        {pkg.variants.length > 1 && (
+          <div class="vtabs" role="tablist" aria-label={`Pilihan menu ${pkg.name}`}>
+            {pkg.variants.map((v, i) => (
+              <button
+                type="button"
+                role="tab"
+                class="vtab"
+                id={`${uid}-t${i}`}
+                aria-controls={`${uid}-p${i}`}
+                aria-selected={i === 0 ? 'true' : 'false'}
+                tabindex={i === 0 ? 0 : -1}
+              >
+                {v.name}
+              </button>
+            ))}
+          </div>
+        )}
+        {pkg.variants.map((v, i) => (
+          <div
+            class="vpanel"
+            role={pkg.variants.length > 1 ? 'tabpanel' : undefined}
+            id={`${uid}-p${i}`}
+            aria-labelledby={pkg.variants.length > 1 ? `${uid}-t${i}` : undefined}
+            hidden={i !== 0}
+          >
+            <dl class="groups">
+              {v.groups.map((g) => (
+                <div class="grp">
+                  <dt>{g.label}</dt>
+                  <dd>{g.items.join(' · ')}</dd>
+                </div>
+              ))}
+            </dl>
+            {v.extras && v.extras.length > 0 && <p class="extras t-small">Termasuk {v.extras.join(', ').toLowerCase()}.</p>}
+          </div>
+        ))}
+        {pkg.variants.some((v) => v.groups.some((g) => g.items.length > 1)) && (
+          <p class="hint t-small">Pilih satu hidangan dari setiap baris.</p>
+        )}
+      </div>
+    )
+  }
+  </div>
+</article>
+
+<style>
+  .pkg {
+    display: grid;
+    gap: 24px;
+  }
+  .pkg-side {
+    display: grid;
+    gap: 20px;
+    align-content: start;
+  }
+  .pkg-head {
+    display: grid;
+    gap: 6px;
+  }
+  @media (min-width: 900px) {
+    .pkg {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+      gap: clamp(32px, 5vw, 80px);
+    }
+    .pkg-side {
+      position: sticky;
+      top: 104px;
+    }
+  }
+  .pkg-name {
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+  .pkg-note {
+    margin-top: 6px;
+    color: var(--muted);
+  }
+  .pkg-price {
+    font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    white-space: nowrap;
+  }
+  .per {
+    font-size: var(--step-small);
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0;
+  }
+  .vtabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-bottom: 18px;
+  }
+  .vtab {
+    min-height: 44px;
+    padding: 0 16px;
+    border: 0;
+    background: var(--paper-2);
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  }
+  .vtab:hover {
+    background: var(--paper-3);
+  }
+  .vtab[aria-selected='true'] {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .vpanel[hidden] {
+    display: none;
+  }
+  .groups {
+    display: grid;
+    gap: 2px;
+    background: var(--paper-2);
+  }
+  .grp {
+    display: grid;
+    gap: 2px;
+    padding: 12px 0;
+    background: var(--paper);
+  }
+  .grp dt {
+    font-size: var(--step-small);
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .grp dd {
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  .extras,
+  .hint {
+    margin-top: 12px;
+    color: var(--muted);
+  }
+  .sets {
+    display: grid;
+    gap: 2px;
+    background: var(--paper-2);
+  }
+  .set {
+    padding: 16px 0;
+    background: var(--paper);
+  }
+  .set-name {
+    font-size: 1.125rem;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+  }
+  .set-items {
+    margin-top: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  .use {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 60px;
+    padding: 0 20px;
+    background: var(--ink);
+    color: var(--paper);
+    font-weight: 700;
+    text-decoration: none;
+    transition: background var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
+  }
+  .use:hover {
+    background: var(--ink-3);
+  }
+  .use:active {
+    transform: scale(0.98);
+  }
+  .use svg {
+    transition: transform var(--dur) var(--ease-out);
+  }
+  .use:hover svg {
+    transform: translateX(4px);
+  }
+</style>

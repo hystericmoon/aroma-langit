@@ -1,0 +1,55 @@
+---
+import Base from '../layouts/Base.astro';
+import { getServices } from '../lib/content';
+const services = await getServices();
+---
+
+<Base title="Halaman tidak ditemukan" description="Halaman yang Anda cari tidak ada di situs Aroma Langit." noindex closing={false}>
+  <section class="nf field-orange" aria-labelledby="nf-title">
+    <div class="wrap nf-grid">
+      <h1 id="nf-title" class="t-display">Kotaknya kosong.</h1>
+      <div class="nf-copy">
+        <p class="t-lead">Halaman ini tidak ada, atau sudah pindah. Layanan aqiqah dan pemasok grosir juga sudah tidak kami buka.</p>
+        <a class="btn" href="/">Kembali ke beranda</a>
+        <ul role="list" class="nf-list">
+          {services.map((s) => <li><a class="link" href={`/katering/${s.slug}/`}>{s.title}</a></li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    min-height: calc(100svh - 76px);
+    display: grid;
+    align-items: center;
+    padding-block: 64px;
+  }
+  .nf-grid {
+    display: grid;
+    gap: 40px;
+  }
+  .nf-copy {
+    display: grid;
+    gap: 24px;
+    justify-items: start;
+    max-width: 36rem;
+  }
+  .nf-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 20px;
+  }
+  .nf-list a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  @media (min-width: 1024px) {
+    .nf-grid {
+      grid-template-columns: 1.3fr 1fr;
+      align-items: end;
+    }
+  }
+</style>
