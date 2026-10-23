@@ -71,8 +71,9 @@ let plan: Plan = initialPlan();
 let guestsTouched = false;
 let undoPlan: Plan | null = null;
 let undoTimer = 0;
-let shownTotal = 0;
+let shownTotal = 0; // the figure on screen, updated every frame
 let tween = 0;
+let settle = 0;
 let liveTimer = 0;
 let saveTimer = 0;
 let renderedLines = new Set<string>();
@@ -277,21 +278,29 @@ function span(cls: string, text: string) {
 
 function animateTotal(to: number) {
   cancelAnimationFrame(tween);
+  clearTimeout(settle);
   const from = shownTotal;
+  const show = (v: number) => {
+    shownTotal = v;
+    ui.rTotal.textContent = formatRupiah(v);
+  };
   if (from === to || reduceMotion.matches) {
-    shownTotal = to;
-    ui.rTotal.textContent = formatRupiah(to);
+    show(to);
     return;
   }
   const start = performance.now();
   const step = (now: number) => {
     const t = Math.min(1, (now - start) / 520);
     const e = 1 - Math.pow(1 - t, 3);
-    ui.rTotal.textContent = formatRupiah(Math.round(from + (to - from) * e));
+    show(Math.round(from + (to - from) * e));
     if (t < 1) tween = requestAnimationFrame(step);
-    else shownTotal = to;
   };
   tween = requestAnimationFrame(step);
+  // Frames can stall (a busy GPU, a background tab); never leave a half-counted figure.
+  settle = window.setTimeout(() => {
+    cancelAnimationFrame(tween);
+    show(to);
+  }, 620);
   ui.rTotal.classList.remove('bump');
   void ui.rTotal.offsetWidth;
   ui.rTotal.classList.add('bump');

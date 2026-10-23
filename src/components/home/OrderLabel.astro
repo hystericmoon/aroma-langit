@@ -168,8 +168,9 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
   const preview = document.querySelector<HTMLElement>('[data-order-preview]')!;
 
   let qtyTouched = false;
-  let shownTotal = 0;
+  let shownTotal = 0; // the figure on screen, updated every frame
   let tween = 0;
+  let settle = 0;
   let liveTimer = 0;
 
   const svc = () => data.find((s) => s.slug === svcSel.value) ?? data[0];
@@ -204,10 +205,14 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
 
   function animateTotal(to: number) {
     cancelAnimationFrame(tween);
+    clearTimeout(settle);
     const from = shownTotal;
+    const show = (v: number) => {
+      shownTotal = v;
+      totalEl.textContent = formatRupiah(v);
+    };
     if (from === to || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      shownTotal = to;
-      totalEl.textContent = formatRupiah(to);
+      show(to);
       return;
     }
     const start = performance.now();
@@ -215,12 +220,15 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
     const step = (now: number) => {
       const t = Math.min(1, (now - start) / dur);
       const e = 1 - Math.pow(1 - t, 3);
-      const v = Math.round(from + (to - from) * e);
-      totalEl.textContent = formatRupiah(v);
+      show(Math.round(from + (to - from) * e));
       if (t < 1) tween = requestAnimationFrame(step);
-      else shownTotal = to;
     };
     tween = requestAnimationFrame(step);
+    // Frames can stall (a busy GPU, a background tab); never leave a half-counted figure.
+    settle = window.setTimeout(() => {
+      cancelAnimationFrame(tween);
+      show(to);
+    }, dur + 100);
     totalEl.classList.remove('bump');
     void totalEl.offsetWidth;
     totalEl.classList.add('bump');
