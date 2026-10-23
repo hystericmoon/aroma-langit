@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const PORT = 4322;
+// E2E_PORT points the suite at another server, e.g. the shared-hosting package under Apache.
+const PORT = Number(process.env.E2E_PORT ?? 4322);
 
 export default defineConfig({
   testDir: 'tests/e2e',

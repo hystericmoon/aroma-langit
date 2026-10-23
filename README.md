@@ -72,6 +72,19 @@ A calculator preset has a title, a default guest count and the word for a guest 
 
 `public/_redirects` maps the old Joomla URLs and PDFs. `public/_headers` sets caching and security headers.
 
+## Deploying to the current shared hosting (cPanel)
+
+The site also runs on ordinary Apache or LiteSpeed hosting. `public/.htaccess` carries the same redirects, headers and caching as the Cloudflare files.
+
+```bash
+npm run package:hosting                 # hosting/aroma-langit.zip, for the live domain
+npm run package:hosting -- --staging    # hosting/aroma-langit-staging.zip, noindex, for a test subdomain
+```
+
+Upload the zip into the domain's document root in cPanel's File Manager and extract it there, so `index.html` sits at the top. Each update means building and uploading again. On this hosting the corporate enquiry form opens WhatsApp, because the Pages Function does not run there.
+
+To run the end-to-end suite against any server, set its port: `E2E_PORT=8088 npm run test:e2e`.
+
 ### Corporate enquiry email (optional)
 
 `functions/api/penawaran.ts` is a Pages Function that emails the corporate coupon to the team through [Resend](https://resend.com). Set these variables:
