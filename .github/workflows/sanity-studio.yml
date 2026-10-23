@@ -32,9 +32,18 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-          cache-dependency-path: studio/package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            studio/package-lock.json
 
-      - run: npm ci
+      # The Studio build also reads the site's tsconfig.json (it extends astro/tsconfigs/strict),
+      # so the site's packages are installed too.
+      - name: Install
+        run: |
+          npm ci --prefix ..
+          npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
 
       - name: Deploy
         env:
