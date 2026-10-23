@@ -83,6 +83,8 @@ npm run package:hosting -- --staging    # hosting/aroma-langit-staging.zip, noin
 
 Upload the zip into the domain's document root in cPanel's File Manager and extract it there, so `index.html` sits at the top. Each update means building and uploading again. On this hosting the corporate enquiry form opens WhatsApp, because the Pages Function does not run there.
 
+Pushes to `main` or `feat/astro-sanity-rebuild` deploy the staging package to https://new.aromalangit.id automatically (`.github/workflows/deploy-staging.yml`, by FTP with the repo secrets `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`). It runs the type check and unit tests first and fails if the live home page is not the new build.
+
 To run the end-to-end suite against any server, set its port: `E2E_PORT=8088 npm run test:e2e`.
 
 ### Corporate enquiry email (optional)
