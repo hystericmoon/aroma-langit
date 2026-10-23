@@ -1,34 +1,55 @@
 ---
 import Base from '../layouts/Base.astro';
+import Photo from '../components/Photo.astro';
 import { getServices } from '../lib/content';
+import { formatRupiah } from '../lib/order';
 const services = await getServices();
+const from = (s: (typeof services)[number]) => {
+  const cheapest = s.packages.reduce((a, b) => (b.price < a.price ? b : a));
+  return `Mulai ${formatRupiah(cheapest.price)}/${cheapest.unit}`;
+};
 ---
 
 <Base title="Halaman tidak ditemukan" description="Halaman yang Anda cari tidak ada di situs Aroma Langit." noindex closing={false}>
   <section class="nf field-orange" aria-labelledby="nf-title">
     <div class="wrap nf-grid">
-      <h1 id="nf-title" class="t-display">Kotaknya kosong.</h1>
+      <h1 id="nf-title" class="t-display" data-split>Kotaknya kosong.</h1>
       <div class="nf-copy">
         <p class="t-lead">Halaman ini tidak ada, atau sudah pindah. Layanan aqiqah dan pemasok grosir juga sudah tidak kami buka.</p>
         <a class="btn" href="/">Kembali ke beranda</a>
-        <ul role="list" class="nf-list">
-          {services.map((s) => <li><a class="link" href={`/katering/${s.slug}/`}>{s.title}</a></li>)}
-        </ul>
       </div>
+    </div>
+  </section>
+
+  <section class="menu field-paper" aria-labelledby="nf-menu">
+    <div class="wrap">
+      <h2 id="nf-menu" class="t-h2">Kotak yang masih kami isi</h2>
+      <ul role="list" class="tiles">
+        {
+          services.map((s, i) => (
+            <li style={`--i:${i}`}>
+              <a class="tile" href={`/katering/${s.slug}/`}>
+                <span class="tile-photo">
+                  <Photo photo={s.photo} sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw" widths={[480, 720, 960]} alt="" />
+                </span>
+                <span class="tile-name">{s.title}</span>
+                <span class="tile-from tab">{from(s)}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 </Base>
 
 <style>
   .nf {
-    min-height: calc(100svh - 76px);
-    display: grid;
-    align-items: center;
-    padding-block: 64px;
+    padding-block: clamp(72px, 12vw, 160px) clamp(56px, 8vw, 112px);
   }
   .nf-grid {
     display: grid;
-    gap: 40px;
+    gap: 32px;
   }
   .nf-copy {
     display: grid;
@@ -36,20 +57,85 @@ const services = await getServices();
     justify-items: start;
     max-width: 36rem;
   }
-  .nf-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 20px;
-  }
-  .nf-list a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-  }
   @media (min-width: 1024px) {
     .nf-grid {
       grid-template-columns: 1.3fr 1fr;
       align-items: end;
+    }
+  }
+  .menu {
+    padding-block: var(--section);
+  }
+  .tiles {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px 24px;
+    margin-top: 40px;
+  }
+  @media (min-width: 640px) {
+    .tiles {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .tiles {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  /* The tiles deal in like boxes on a counter; reduced motion skips it (global rule). */
+  .tiles li {
+    animation: deal 520ms var(--ease-out) both;
+    animation-delay: calc(240ms + var(--i, 0) * 60ms);
+  }
+  @keyframes deal {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+  }
+  .nf-copy {
+    animation: deal 520ms var(--ease-out) both;
+    animation-delay: 120ms;
+  }
+  .tile {
+    display: grid;
+    gap: 4px;
+    color: var(--ink);
+    text-decoration: none;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  .tile:active {
+    transform: scale(0.98);
+  }
+  .tile-photo {
+    display: block;
+    aspect-ratio: 4 / 3;
+    margin-bottom: 12px;
+    overflow: hidden;
+    background: var(--paper-3);
+  }
+  .tile-photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 600ms var(--ease-out);
+  }
+  .tile-name {
+    font-size: clamp(1.375rem, 1.1rem + 0.8vw, 1.75rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .tile-from {
+    font-weight: 600;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .tile:hover .tile-photo :global(img) {
+      transform: scale(1.04);
+    }
+    .tile:hover .tile-name {
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 0.18em;
     }
   }
 </style>

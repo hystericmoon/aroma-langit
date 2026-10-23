@@ -86,10 +86,17 @@ const from = (s: (typeof services)[number]) => Math.min(...s.packages.map((p) =>
     });
     panels.forEach((p, k) => {
       p.hidden = k !== i;
-      if (k === i) p.classList.add('entering');
+      p.classList.remove('entering', 'fresh');
     });
-    window.setTimeout(() => panels[i].classList.remove('entering'), 60);
-    if (focus) tabs[i].focus();
+    // Arrow keys switch instantly; a click gets a short entrance.
+    if (focus) {
+      tabs[i].focus();
+      return;
+    }
+    const panel = panels[i];
+    panel.classList.add('entering', 'fresh');
+    requestAnimationFrame(() => requestAnimationFrame(() => panel.classList.remove('entering')));
+    window.setTimeout(() => panel.classList.remove('fresh'), 400);
   }
   tabs.forEach((t, i) => {
     t.addEventListener('click', () => select(i));
@@ -161,9 +168,11 @@ const from = (s: (typeof services)[number]) => Math.min(...s.packages.map((p) =>
     cursor: pointer;
     transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
   }
-  .tab-btn:hover {
-    background: var(--ink-3);
-    color: var(--paper);
+  @media (hover: hover) and (pointer: fine) {
+    .tab-btn:hover {
+      background: var(--ink-3);
+      color: var(--paper);
+    }
   }
   .tab-btn[aria-selected='true'] {
     background: var(--orange);
@@ -182,10 +191,14 @@ const from = (s: (typeof services)[number]) => Math.min(...s.packages.map((p) =>
   }
   .panel.entering .copy {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(8px);
   }
   .copy {
-    transition: opacity 600ms var(--ease), transform 700ms var(--ease-out);
+    transition: opacity 200ms var(--ease), transform 240ms var(--ease-out);
+  }
+  /* A tab switch fades the photo quickly; the slow crossfade is for autoplay only. */
+  .panel.fresh .frame {
+    transition-duration: 200ms;
   }
   .plate {
     position: relative;
@@ -275,21 +288,27 @@ const from = (s: (typeof services)[number]) => Math.min(...s.packages.map((p) =>
     background: var(--paper);
     color: var(--ink);
   }
-  .cell-a:hover {
-    background: var(--peach);
+  @media (hover: hover) and (pointer: fine) {
+    .cell-a:hover {
+      background: var(--peach);
+    }
   }
   .cell-b {
     background: var(--orange);
     color: var(--ink);
   }
-  .cell-b:hover {
-    background: #f59a45;
+  @media (hover: hover) and (pointer: fine) {
+    .cell-b:hover {
+      background: #f59a45;
+    }
   }
   .cell svg {
     transition: transform var(--dur) var(--ease-out);
   }
-  .cell:hover svg {
-    transform: translateX(4px);
+  @media (hover: hover) and (pointer: fine) {
+    .cell:hover svg {
+      transform: translateX(4px);
+    }
   }
   @media (max-width: 559px) {
     .facts {

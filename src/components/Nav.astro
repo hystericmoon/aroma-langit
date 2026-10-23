@@ -166,7 +166,7 @@ const isCurrent = (href: string) => path === href || path === href.replace(/\/$/
     inset: 0 0 auto 0;
     z-index: 50;
     background: var(--orange);
-    transition: transform 420ms var(--ease-out);
+    transition: transform 240ms var(--ease-out);
     view-transition-name: site-nav;
   }
   .nav[data-hidden='true'] {
@@ -187,9 +187,9 @@ const isCurrent = (href: string) => path === href || path === href.replace(/\/$/
     font-size: 44px;
   }
   .nav :global(.lockup-mark) {
-    transition: transform 520ms var(--ease-out);
+    transition: transform 300ms var(--ease-out);
   }
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     .home:hover :global(.lockup-mark) {
       transform: rotate(-12deg);
     }
@@ -332,8 +332,8 @@ const isCurrent = (href: string) => path === href || path === href.replace(/\/$/
     overflow-y: auto;
     overscroll-behavior: contain;
     background: var(--paper);
-    padding-bottom: 40px;
-    animation: drop 380ms var(--ease-out);
+    padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
+    animation: drop 240ms var(--ease-out);
   }
   @keyframes drop {
     from {

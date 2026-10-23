@@ -1,0 +1,60 @@
+# Aroma Langit on Apache / LiteSpeed shared hosting (cPanel).
+# Mirrors public/_redirects and public/_headers, which only Cloudflare Pages reads.
+# Build the upload zip with `npm run package:hosting` (see README).
+
+Options -Indexes
+DirectoryIndex index.html
+AddDefaultCharset utf-8
+ErrorDocument 404 /404.html
+
+# The deploy's sync record (GitHub Actions → FTP) is not for visitors.
+<Files ".ftp-deploy-sync-state.json">
+  Require all denied
+</Files>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Always HTTPS
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Old Joomla URLs. The trailing "?" drops Joomla's query strings.
+  RewriteRule ^index\.php$ /? [L,R=301]
+  RewriteRule ^(aqiqah|supplier)(/.*)?$ /? [L,R=301]
+  RewriteRule ^wedding/?$ /pernikahan/? [L,R=301]
+  RewriteRule ^katering/?$ /#menu [NE,L,R=301]
+  RewriteRule ^home/?$ /? [L,R=301]
+  RewriteRule ^images/CATERING_SERVICES_2024_By_Aroma_Langit\.pdf$ /files/pricelist-aroma-langit-2024.pdf [L,R=301]
+  RewriteRule ^images/2024_WEDDING_CATERING_CATALOG\.pdf$ /files/katalog-katering-pernikahan-2024.pdf [L,R=301]
+  RewriteRule ^images/2024_WEDDING_SERVICES_CATALOG\.pdf$ /files/katalog-layanan-wedding-2024.pdf [L,R=301]
+
+  # Corporate enquiry: served by api/penawaran.php when it is uploaded; without it
+  # the request 404s and the form opens WhatsApp with the enquiry written out.
+  RewriteCond %{DOCUMENT_ROOT}/api/penawaran.php -f
+  RewriteRule ^api/penawaran/?$ /api/penawaran.php [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Strict-Transport-Security "max-age=31536000"
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "\.(pdf|jpg|png|svg)$">
+    Header set Cache-Control "public, max-age=86400"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript application/json image/svg+xml
+</IfModule>
+
+AddType application/javascript .js .mjs
+AddType image/avif .avif
+AddType image/webp .webp
+AddType font/woff2 .woff2

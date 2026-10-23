@@ -33,8 +33,21 @@ export interface Estimate {
 export const SURCHARGE_RATE = 0.2;
 export const MAX_QTY = 5000;
 
+/**
+ * Reads a typed amount the way an Indonesian visitor writes it: "1.000" is one
+ * thousand, "2,5" is two and a half, trailing words are ignored. NaN if no number.
+ */
+export function parseAmount(raw: unknown): number {
+  if (typeof raw === 'number') return raw;
+  const s = String(raw ?? '')
+    .trim()
+    .replace(/\.(?=\d{3}(?!\d))/g, '')
+    .replace(',', '.');
+  return parseFloat(s);
+}
+
 export function clampQty(raw: unknown): number {
-  const n = typeof raw === 'number' ? raw : parseInt(String(raw ?? '').replace(/\D/g, ''), 10);
+  const n = parseAmount(raw);
   if (!Number.isFinite(n) || n < 1) return 1;
   return Math.min(Math.floor(n), MAX_QTY);
 }

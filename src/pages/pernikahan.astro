@@ -447,8 +447,10 @@ const p0 = weddingPortions(start);
     cursor: pointer;
     transition: background var(--dur) var(--ease);
   }
-  .calc-send:hover {
-    background: #f59a45;
+  @media (hover: hover) and (pointer: fine) {
+    .calc-send:hover {
+      background: #f59a45;
+    }
   }
   .calc-card :focus-visible {
     outline-color: var(--peach);

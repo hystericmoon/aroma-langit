@@ -156,8 +156,10 @@ const isSetMenu = pkg.variants.every((v) => v.groups.length === 1 && v.groups[0]
     cursor: pointer;
     transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
   }
-  .vtab:hover {
-    background: var(--paper-3);
+  @media (hover: hover) and (pointer: fine) {
+    .vtab:hover {
+      background: var(--paper-3);
+    }
   }
   .vtab[aria-selected='true'] {
     background: var(--ink);
@@ -222,8 +224,10 @@ const isSetMenu = pkg.variants.every((v) => v.groups.length === 1 && v.groups[0]
     text-decoration: none;
     transition: background var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
   }
-  .use:hover {
-    background: var(--ink-3);
+  @media (hover: hover) and (pointer: fine) {
+    .use:hover {
+      background: var(--ink-3);
+    }
   }
   .use:active {
     transform: scale(0.98);
@@ -231,7 +235,9 @@ const isSetMenu = pkg.variants.every((v) => v.groups.length === 1 && v.groups[0]
   .use svg {
     transition: transform var(--dur) var(--ease-out);
   }
-  .use:hover svg {
-    transform: translateX(4px);
+  @media (hover: hover) and (pointer: fine) {
+    .use:hover svg {
+      transform: translateX(4px);
+    }
   }
 </style>

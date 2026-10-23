@@ -1,0 +1,84 @@
+# Builds the site and uploads it to the test subdomain (https://new.aromalangit.id) by FTP.
+# Secrets (repo Settings → Secrets and variables → Actions): FTP_SERVER, FTP_USERNAME, FTP_PASSWORD.
+# The FTP account's home folder is the subdomain's document root, so files go to its top level.
+# Content comes from Sanity (project eo2zthve). Publishing in the Studio calls the GitHub API
+# through a Sanity webhook, which starts this workflow (see docs/panduan-sanity.md).
+name: Deploy staging
+
+on:
+  push:
+    branches: [main, feat/astro-sanity-rebuild]
+  workflow_dispatch:
+  repository_dispatch:
+    types: [sanity-publish]
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment:
+      name: staging
+      url: https://new.aromalangit.id
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+
+      - name: Check and unit tests
+        run: |
+          npm run check
+          npm test
+
+      - name: Build the staging package
+        run: npm run package:hosting -- --staging
+        env:
+          SANITY_PROJECT_ID: eo2zthve
+          SANITY_DATASET: production
+
+      # The loader falls back to the bundled data when Sanity is empty or unreachable,
+      # so say so loudly rather than deploy stale content without notice.
+      - name: Check the content came from Sanity
+        run: |
+          if grep -rqs 'cdn.sanity.io' hosting/aroma-langit-staging/index.html; then
+            echo "::notice title=Content::Built from Sanity ($GITHUB_EVENT_NAME)"
+          else
+            echo "::warning title=Content::No Sanity images in the home page: the build used the bundled data"
+          fi
+
+      # Uploads only what changed since the last run (it keeps a small sync file on the server).
+      - name: Upload by FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          security: loose
+          local-dir: ./hosting/aroma-langit-staging/
+          server-dir: ./
+
+      - name: Smoke test
+        run: |
+          set -e
+          home=$(curl -fsS https://new.aromalangit.id/ | sha256sum | cut -d' ' -f1)
+          built=$(sha256sum < hosting/aroma-langit-staging/index.html | cut -d' ' -f1)
+          [ "$home" = "$built" ] || { echo "The live home page is not this build"; exit 1; }
+          for p in / /kalkulator/ /katering/nasi-box/ /pernikahan/ /korporat/ /tentang-kami/; do
+            curl -fsS -o /dev/null "https://new.aromalangit.id$p"
+          done
+          curl -sSI https://new.aromalangit.id/ | grep -qi 'x-robots-tag: noindex'
+          echo "new.aromalangit.id is serving this build"

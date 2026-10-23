@@ -37,7 +37,7 @@ function initReveals() {
     const split = SplitText.create(el, { type: 'lines', mask: 'lines', linesClass: 'split-line', autoSplit: true,
       onSplit(self) {
         return gsap.from(self.lines, {
-          yPercent: 110, duration: 1.1, ease: 'power4.out', stagger: 0.09,
+          yPercent: 110, duration: 1.1, ease: 'power4.out', stagger: 0.06,
           scrollTrigger: { trigger: el, start: 'top 97%', once: true },
         });
       },

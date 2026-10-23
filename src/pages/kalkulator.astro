@@ -369,11 +369,15 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
       aspect-ratio: 4 / 1;
     }
   }
-  .preset:hover {
-    background: var(--paper-2);
+  @media (hover: hover) and (pointer: fine) {
+    .preset:hover {
+      background: var(--paper-2);
+    }
   }
-  .preset:hover .p-photo :global(img) {
-    transform: scale(1.06);
+  @media (hover: hover) and (pointer: fine) {
+    .preset:hover .p-photo :global(img) {
+      transform: scale(1.06);
+    }
   }
   .preset:has(input:checked) {
     background: var(--ink);
@@ -516,7 +520,10 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
     gap: 16px;
     padding: 20px clamp(16px, 2.5vw, 28px) 18px;
     background: var(--paper-2);
-    animation: item-in 420ms var(--ease-out);
+  }
+  /* Only a line the visitor adds animates in; re-rendered rows stay still. */
+  .items :global(.item.is-new) {
+    animation: item-in 220ms cubic-bezier(0.23, 1, 0.32, 1);
   }
   @keyframes item-in {
     from {
@@ -543,8 +550,10 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
     letter-spacing: -0.02em;
     color: var(--ink);
   }
-  .items :global(.item-label:hover) {
-    background: var(--paper);
+  @media (hover: hover) and (pointer: fine) {
+    .items :global(.item-label:hover) {
+      background: var(--paper);
+    }
   }
   .items :global(.item-label:focus-visible) {
     background: var(--paper);
@@ -563,9 +572,11 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
     cursor: pointer;
     transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
   }
-  .items :global(.remove:hover) {
-    background: var(--ink);
-    color: var(--paper);
+  @media (hover: hover) and (pointer: fine) {
+    .items :global(.remove:hover) {
+      background: var(--ink);
+      color: var(--paper);
+    }
   }
   .items :global(.item-grid) {
     display: grid;
@@ -668,14 +679,6 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
     font-weight: 800;
     text-align: right;
   }
-  .items :global(.qty-out.bump) {
-    animation: bump 380ms var(--ease-out);
-  }
-  @keyframes bump {
-    40% {
-      transform: translateY(-3px);
-    }
-  }
   .items :global(.item-note) {
     min-height: 1.4em;
     font-size: 1rem;
@@ -751,8 +754,10 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
     cursor: pointer;
     transition: transform var(--dur-fast) var(--ease), background var(--dur) var(--ease);
   }
-  .add:hover {
-    background: #f59a45;
+  @media (hover: hover) and (pointer: fine) {
+    .add:hover {
+      background: #f59a45;
+    }
   }
   .add:active {
     transform: scale(0.98);
@@ -815,6 +820,7 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
     --zig: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='10'%3E%3Cpath d='M0 0h20L10 10z'/%3E%3C/svg%3E");
     position: relative;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 18px;
     padding: 40px var(--pad) 40px;
     background: var(--paper);
@@ -881,20 +887,18 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
   }
   .lines :global(.line.is-new) {
     animation: print 520ms var(--ease-out) both;
-    animation-delay: calc(var(--i, 0) * 90ms);
+    animation-delay: calc(var(--i, 0) * 60ms);
   }
   @keyframes print {
     from {
       opacity: 0;
       transform: translateY(-10px);
-      clip-path: inset(0 0 100% 0);
-    }
-    to {
-      clip-path: inset(0 0 0 0);
     }
   }
   .lines :global(.l-name) {
+    min-width: 0;
     font-weight: 800;
+    overflow-wrap: anywhere;
   }
   .lines :global(.l-amt) {
     font-weight: 800;
@@ -933,7 +937,7 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
   }
   .r-total {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: baseline;
     gap: 2px 16px;
     margin-inline: calc(-1 * var(--pad));
@@ -945,14 +949,11 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
     font-weight: 700;
   }
   .r-total-value {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 1rem + 2.4vw, 2rem);
     font-weight: 800;
     letter-spacing: -0.03em;
     line-height: 1.05;
     text-align: right;
-  }
-  .r-total-value.bump {
-    animation: bump 420ms var(--ease-out);
   }
   .r-per {
     grid-column: 1 / -1;
@@ -991,8 +992,10 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
     cursor: pointer;
     transition: background var(--dur-fast) var(--ease);
   }
-  .r-link:hover {
-    background: var(--paper-3);
+  @media (hover: hover) and (pointer: fine) {
+    .r-link:hover {
+      background: var(--paper-3);
+    }
   }
   .r-note {
     font-weight: 500;
@@ -1005,7 +1008,7 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
     right: 0;
     bottom: 0;
     z-index: 30;
-    padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom));
+    padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom, 0px));
     background: var(--ink);
     color: var(--paper);
     transform: translateY(0);
@@ -1013,6 +1016,12 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
   }
   .dock[data-off='true'] {
     transform: translateY(calc(100% + var(--gutter) + 24px));
+  }
+  /* On a phone the keyboard is up while a field is being typed in; keep the bar out of its way. */
+  @media (max-width: 1023px) {
+    :global(html:has([data-calc-form] input:focus)) .dock {
+      transform: translateY(calc(100% + var(--gutter) + 24px));
+    }
   }
   :global(html.has-dock) {
     scroll-padding-bottom: 96px;
@@ -1023,8 +1032,11 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
     justify-content: space-between;
     gap: 12px;
   }
+  .dock-total {
+    min-width: 0;
+  }
   .dock-total strong {
-    font-size: 1.375rem;
+    font-size: clamp(1.125rem, 0.8rem + 1.6vw, 1.375rem);
     font-weight: 800;
     margin-right: 6px;
   }

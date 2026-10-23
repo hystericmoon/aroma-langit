@@ -160,6 +160,7 @@ const year = new Date().getFullYear();
   }
   .card-grid {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 56px;
   }
   @media (min-width: 900px) {
@@ -198,6 +199,7 @@ const year = new Date().getFullYear();
   .address {
     position: relative;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 28px;
     align-content: start;
     padding-right: clamp(100px, 11vw, 150px);
@@ -236,8 +238,10 @@ const year = new Date().getFullYear();
     background-image: none;
   }
   .addr-link:hover,
-  .contact a:hover {
-    text-decoration: underline;
+  @media (hover: hover) and (pointer: fine) {
+    .contact a:hover {
+      text-decoration: underline;
+    }
   }
   .contact {
     display: grid;
@@ -274,8 +278,10 @@ const year = new Date().getFullYear();
     font-weight: 600;
     text-decoration: none;
   }
-  .foot-nav a:hover {
-    text-decoration: underline;
+  @media (hover: hover) and (pointer: fine) {
+    .foot-nav a:hover {
+      text-decoration: underline;
+    }
   }
   .card :global(.big-word) {
     width: 100%;

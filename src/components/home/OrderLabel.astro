@@ -168,8 +168,9 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
   const preview = document.querySelector<HTMLElement>('[data-order-preview]')!;
 
   let qtyTouched = false;
-  let shownTotal = 0;
+  let shownTotal = 0; // the figure on screen, updated every frame
   let tween = 0;
+  let settle = 0;
   let liveTimer = 0;
 
   const svc = () => data.find((s) => s.slug === svcSel.value) ?? data[0];
@@ -202,31 +203,46 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
     varField.hidden = p.variants.length < 2;
   }
 
-  function animateTotal(to: number) {
+  // A small lift on the total. Never restarted while running, so fast changes do not jitter.
+  function bump(el: HTMLElement) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || el.getAnimations().length) return;
+    el.animate([{ transform: 'none' }, { transform: 'translateY(-4px)' }, { transform: 'none' }], {
+      duration: 200,
+      easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
+    });
+  }
+
+  function animateTotal(to: number, live = false) {
     cancelAnimationFrame(tween);
+    clearTimeout(settle);
     const from = shownTotal;
-    if (from === to || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      shownTotal = to;
-      totalEl.textContent = formatRupiah(to);
+    const show = (v: number) => {
+      shownTotal = v;
+      totalEl.textContent = formatRupiah(v);
+    };
+    if (from === to || live || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      show(to);
       return;
     }
     const start = performance.now();
-    const dur = 520;
+    const dur = 240;
     const step = (now: number) => {
       const t = Math.min(1, (now - start) / dur);
       const e = 1 - Math.pow(1 - t, 3);
-      const v = Math.round(from + (to - from) * e);
-      totalEl.textContent = formatRupiah(v);
+      show(Math.round(from + (to - from) * e));
       if (t < 1) tween = requestAnimationFrame(step);
-      else shownTotal = to;
     };
     tween = requestAnimationFrame(step);
-    totalEl.classList.remove('bump');
-    void totalEl.offsetWidth;
-    totalEl.classList.add('bump');
+    // Frames can stall (a busy GPU, a background tab); never leave a half-counted figure.
+    settle = window.setTimeout(() => {
+      cancelAnimationFrame(tween);
+      show(to);
+    }, dur + 100);
+    bump(totalEl);
   }
 
-  function update() {
+  /** opts.live: the change comes from typing, so the total updates without motion. */
+  function update(opts?: { live?: boolean }) {
     const s = svc();
     const p = pkg();
     const qty = clampQty(qtyIn.value);
@@ -256,7 +272,7 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
     extraRow.hidden = !e.belowMinimum;
     extraEl.textContent = formatRupiah(e.surcharge);
     shipEl.textContent = area() === 'kota-bogor' ? 'Termasuk' : 'Dihitung tim kami';
-    animateTotal(e.total);
+    animateTotal(e.total, opts?.live === true);
 
     const draft = {
       serviceName: s.title, leadDays: s.leadDays, pkg: p,
@@ -295,12 +311,12 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
   // A new service has a different unit, so the quantity starts again from its minimum.
   svcSel.addEventListener('change', () => { fillPackages(); fillVariants(); qtyTouched = false; qtyIn.value = String(pkg().minOrder); update(); });
   pkgSel.addEventListener('change', () => { fillVariants(); if (!qtyTouched) qtyIn.value = String(pkg().minOrder); update(); });
-  varSel.addEventListener('change', update);
-  qtyIn.addEventListener('input', () => { qtyTouched = true; update(); });
+  varSel.addEventListener('change', () => update());
+  qtyIn.addEventListener('input', () => { qtyTouched = true; update({ live: true }); });
   qtyIn.addEventListener('blur', () => { qtyIn.value = String(clampQty(qtyIn.value)); update(); });
-  dateIn.addEventListener('change', update);
-  dateIn.addEventListener('input', update);
-  areaIns.forEach((i) => i.addEventListener('change', update));
+  dateIn.addEventListener('change', () => update());
+  dateIn.addEventListener('input', () => update());
+  areaIns.forEach((i) => i.addEventListener('change', () => update()));
   form.querySelectorAll<HTMLButtonElement>('[data-step]').forEach((b) =>
     b.addEventListener('click', () => {
       const p = pkg();
@@ -574,7 +590,7 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
   }
   .sum div {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(min-content, 1fr);
     gap: 16px;
     padding: 10px 0;
     font-weight: 600;
@@ -604,14 +620,6 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
     letter-spacing: -0.03em;
     line-height: 1;
   }
-  .total-value.bump {
-    animation: bump 420ms var(--ease-out);
-  }
-  @keyframes bump {
-    40% {
-      transform: translateY(-4px);
-    }
-  }
   .tag-actions {
     display: flex;
     flex-wrap: wrap;
@@ -632,8 +640,10 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
     cursor: pointer;
     transition: background var(--dur-fast) var(--ease);
   }
-  .copy:hover {
-    background: var(--ink-3);
+  @media (hover: hover) and (pointer: fine) {
+    .copy:hover {
+      background: var(--ink-3);
+    }
   }
   .copy:focus-visible,
   .send:focus-visible {

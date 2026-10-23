@@ -324,7 +324,7 @@ const schema = [
     object-fit: cover;
     transition: transform 900ms var(--ease-out);
   }
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     .gal-item:hover :global(img) {
       transform: scale(1.04);
     }
@@ -347,8 +347,10 @@ const schema = [
     text-decoration: none;
     transition: transform var(--dur) var(--ease-out);
   }
-  .o-card:hover {
-    transform: translateY(-4px);
+  @media (hover: hover) and (pointer: fine) {
+    .o-card:hover {
+      transform: translateY(-4px);
+    }
   }
   .o-img {
     display: block;
@@ -362,8 +364,10 @@ const schema = [
     object-fit: cover;
     transition: transform 900ms var(--ease-out);
   }
-  .o-card:hover .o-img :global(img) {
-    transform: scale(1.05);
+  @media (hover: hover) and (pointer: fine) {
+    .o-card:hover .o-img :global(img) {
+      transform: scale(1.05);
+    }
   }
   .o-name {
     padding: 10px 14px 0;
