@@ -40,23 +40,15 @@ All content lives in `src/data/` (services, packages, prices, menus, terms, cont
 
 When `SANITY_PROJECT_ID` is set at build time, the site reads from Sanity instead (`src/lib/content.ts`). Anything missing in Sanity falls back to the bundled data, so a half-filled dataset never breaks the build.
 
-### Setting up Sanity (one time)
+### Sanity project
 
-1. Create a project at [sanity.io/manage](https://www.sanity.io/manage) and note the **project ID**.
-2. Install and start the Studio:
-   ```bash
-   cd studio
-   npm install
-   SANITY_STUDIO_PROJECT_ID=<id> npm run dev        # local Studio at http://localhost:3333
-   SANITY_STUDIO_PROJECT_ID=<id> npm run deploy     # hosted Studio at https://aromalangit.sanity.studio
-   ```
-3. Load the current content and photos into the dataset:
-   ```bash
-   npm run seed                                       # from the repo root: writes studio/seed/aroma-langit.ndjson
-   cd studio && SANITY_STUDIO_PROJECT_ID=<id> npm run import-seed
-   ```
-4. In Cloudflare Pages, add the build environment variables `SANITY_PROJECT_ID=<id>` and `SANITY_DATASET=production`.
-5. Rebuild on publish: create a **Deploy hook** in Cloudflare Pages, then add it in Sanity (*API → Webhooks*) with the filter `_type in ["service", "siteSettings", "calculatorPreset"]`.
+The project is **eo2zthve**, dataset **production** (public read). The Studio is hosted at https://aromalangit.sanity.studio, and staff instructions are in [docs/panduan-sanity.md](docs/panduan-sanity.md).
+
+- Local Studio: `cd studio && npm install && npm run dev` (http://localhost:3333). The project ID is the default in `studio/sanity.cli.ts`; `SANITY_STUDIO_PROJECT_ID` overrides it.
+- The Studio redeploys itself when anything in `studio/` is pushed (`.github/workflows/sanity-studio.yml`, repository secret `SANITY_DEPLOY_TOKEN`: a Sanity token with the *Deploy Studio* role; the Editor token cannot deploy). By hand: `cd studio && npm run deploy`.
+- Reseed from the bundled data (overwrites documents with the same IDs): `npm run seed`, then `cd studio && npm run import-seed`. The first load was done by a one-off GitHub Actions workflow with the `SANITY_AUTH_TOKEN` repository secret.
+- Staging builds (`.github/workflows/deploy-staging.yml`) set `SANITY_PROJECT_ID=eo2zthve` and `SANITY_DATASET=production`, and warn when the build fell back to the bundled data.
+- Rebuild on publish: a Sanity webhook (*API → Webhooks*, filter `_type in ["service", "siteSettings", "calculatorPreset"]`) calls the GitHub API with a fine-grained token stored only in Sanity, which starts the deploy workflow. The workflow accepts `workflow_dispatch` and `repository_dispatch` (`sanity-publish`); GitHub only delivers `repository_dispatch` to workflows on the default branch.
 
 In the Studio, staff edit **Layanan & harga** (services, packages, prices, menus, photos), **Pengaturan situs** (phone numbers, hours, addresses, certificates, clients, milestones, team, order terms) and **Preset kalkulator** (the calculator's event presets). The schemas are in `studio/schemaTypes/`.
 

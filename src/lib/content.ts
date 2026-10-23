@@ -74,11 +74,17 @@ export function getServices(): Promise<Service[]> {
             minOrder: Math.max(1, p.minOrder || 1),
             variants: (p.variants ?? []).map((v) => ({ ...v, groups: v.groups ?? [] })),
           }));
+        const photo = toPhoto(r.photo, local.photo);
+        // Pages leave the main photo out of the gallery by identity, so a gallery image
+        // that is the same asset as the main photo becomes the very same object.
+        const mainAsset = r.photo?.asset?._id;
         return {
           ...local,
           ...Object.fromEntries(Object.entries(r).filter(([, v]) => v !== null && v !== undefined)),
-          photo: toPhoto(r.photo, local.photo),
-          gallery: r.gallery?.length ? r.gallery.map((g, i) => toPhoto(g, local.gallery[i % local.gallery.length] ?? local.photo)) : local.gallery,
+          photo,
+          gallery: r.gallery?.length
+            ? r.gallery.map((g, i) => (mainAsset && g?.asset?._id === mainAsset ? photo : toPhoto(g, local.gallery[i % local.gallery.length] ?? local.photo)))
+            : local.gallery,
           packages: packages.length ? packages : local.packages,
         } as Service;
       });

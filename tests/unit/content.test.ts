@@ -27,6 +27,10 @@ describe('content loader', () => {
         {
           slug: 'nasi-box', title: 'Nasi Box', tagline: 'Baru', intro: null, leadDays: 2, unit: 'kotak', order: 1,
           photo: { alt: 'Foto', asset: { _id: 'image-abc-800x600-jpg', url: 'https://cdn.sanity.io/images/abc123/production/abc-800x600.jpg', metadata: { dimensions: { width: 800, height: 600 } } } },
+          gallery: [
+            { alt: 'Sama', asset: { _id: 'image-abc-800x600-jpg', url: 'https://cdn.sanity.io/images/abc123/production/abc-800x600.jpg' } },
+            { alt: 'Lain', asset: { _id: 'image-def-800x600-jpg', url: 'https://cdn.sanity.io/images/abc123/production/def-800x600.jpg' } },
+          ],
           packages: [{ id: 'hemat', name: 'Hemat', price: 25000, unit: null, minOrder: 0, variants: [{ name: 'Nusantara', groups: null }] }],
         },
         { slug: null, title: 'Draft tanpa slug' },
@@ -40,6 +44,8 @@ describe('content loader', () => {
     expect(s.intro.length).toBeGreaterThan(20); // fell back to bundled intro
     expect(s.photo.kind).toBe('remote');
     expect(s.photo.kind === 'remote' && s.photo.width).toBe(800);
+    expect(s.gallery[0]).toBe(s.photo); // same asset as the main photo, so pages can leave it out
+    expect(s.gallery[1]).not.toBe(s.photo);
     expect(s.packages[0]).toMatchObject({ id: 'hemat', price: 25000, unit: 'kotak', minOrder: 1 });
     expect(s.packages[0].variants[0].groups).toEqual([]);
     const site = await getSite();

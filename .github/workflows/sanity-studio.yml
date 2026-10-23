@@ -1,0 +1,51 @@
+# Deploys the Sanity Studio to https://aromalangit.sanity.studio when anything in studio/ changes.
+# Secret: SANITY_DEPLOY_TOKEN, a Sanity API token with the "Deploy Studio" role
+# (sanity.io/manage → project eo2zthve → API → Tokens). The Editor token cannot deploy Studios.
+# It is only passed as an env var to the CLI; GitHub masks it in logs.
+name: Deploy Sanity Studio
+
+on:
+  push:
+    branches: [main, feat/astro-sanity-rebuild]
+    paths: [studio/**, .github/workflows/sanity-studio.yml]
+  workflow_dispatch:
+
+concurrency:
+  group: sanity-studio
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: studio
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: studio/package-lock.json
+
+      - run: npm ci
+
+      - name: Deploy
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_DEPLOY_TOKEN }}
+        run: |
+          if [ -z "$SANITY_AUTH_TOKEN" ]; then
+            echo "::error title=Studio::Add the SANITY_DEPLOY_TOKEN repository secret (Sanity token with the Deploy Studio role)"
+            exit 1
+          fi
+          if npx sanity deploy -y > ../deploy.log 2>&1; then
+            echo "::notice title=Studio deployed::https://aromalangit.sanity.studio"
+          else
+            echo "::error title=Studio deploy failed::$(tail -n 15 ../deploy.log | tr '\n' ' ' | cut -c1-900)"
+            exit 1
+          fi
