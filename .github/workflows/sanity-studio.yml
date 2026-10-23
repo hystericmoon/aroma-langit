@@ -1,6 +1,7 @@
 # Deploys the Sanity Studio to https://aromalangit.sanity.studio when anything in studio/ changes.
-# Secret: SANITY_DEPLOY_TOKEN, a Sanity API token with the "Deploy Studio" role
-# (sanity.io/manage → project eo2zthve → API → Tokens). The Editor token cannot deploy Studios.
+# Secret: SANITY_DEPLOY_TOKEN, or SANITY_AUTH_TOKEN when that is unset. The token needs a role
+# that can deploy Studios, such as "Deploy Studio (Token only)" or Administrator; Editor cannot
+# (sanity.io/manage → project eo2zthve → API → Tokens).
 # It is only passed as an env var to the CLI; GitHub masks it in logs.
 name: Deploy Sanity Studio
 
@@ -37,10 +38,10 @@ jobs:
 
       - name: Deploy
         env:
-          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_DEPLOY_TOKEN }}
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_DEPLOY_TOKEN || secrets.SANITY_AUTH_TOKEN }}
         run: |
           if [ -z "$SANITY_AUTH_TOKEN" ]; then
-            echo "::error title=Studio::Add the SANITY_DEPLOY_TOKEN repository secret (Sanity token with the Deploy Studio role)"
+            echo "::error title=Studio::Add a SANITY_DEPLOY_TOKEN or SANITY_AUTH_TOKEN repository secret (Sanity token that can deploy Studios)"
             exit 1
           fi
           if npx sanity deploy -y > ../deploy.log 2>&1; then
