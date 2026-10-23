@@ -1,12 +1,16 @@
 # Builds the site and uploads it to the test subdomain (https://new.aromalangit.id) by FTP.
 # Secrets (repo Settings → Secrets and variables → Actions): FTP_SERVER, FTP_USERNAME, FTP_PASSWORD.
 # The FTP account's home folder is the subdomain's document root, so files go to its top level.
+# Content comes from Sanity (project eo2zthve). Publishing in the Studio calls the GitHub API
+# through a Sanity webhook, which starts this workflow (see docs/panduan-sanity.md).
 name: Deploy staging
 
 on:
   push:
     branches: [main, feat/astro-sanity-rebuild]
   workflow_dispatch:
+  repository_dispatch:
+    types: [sanity-publish]
 
 concurrency:
   group: deploy-staging
@@ -41,6 +45,19 @@ jobs:
 
       - name: Build the staging package
         run: npm run package:hosting -- --staging
+        env:
+          SANITY_PROJECT_ID: eo2zthve
+          SANITY_DATASET: production
+
+      # The loader falls back to the bundled data when Sanity is empty or unreachable,
+      # so say so loudly rather than deploy stale content without notice.
+      - name: Check the content came from Sanity
+        run: |
+          if grep -rqs 'cdn.sanity.io' hosting/aroma-langit-staging/index.html; then
+            echo "::notice title=Content::Built from Sanity ($GITHUB_EVENT_NAME)"
+          else
+            echo "::warning title=Content::No Sanity images in the home page: the build used the bundled data"
+          fi
 
       # Uploads only what changed since the last run (it keeps a small sync file on the server).
       - name: Upload by FTP

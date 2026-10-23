@@ -8,7 +8,7 @@ const SINGLETONS = new Set(['siteSettings']);
 export default defineConfig({
   name: 'aroma-langit',
   title: 'Aroma Langit',
-  projectId: process.env.SANITY_STUDIO_PROJECT_ID || 'replace-with-project-id',
+  projectId: process.env.SANITY_STUDIO_PROJECT_ID || 'eo2zthve',
   dataset: process.env.SANITY_STUDIO_DATASET || 'production',
   plugins: [
     structureTool({
