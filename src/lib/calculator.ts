@@ -225,7 +225,7 @@ export function decodePlan(code: string, catalog: CatalogService[]): Plan | null
     const fixed = mode === 1;
     items.push({
       id: newId(),
-      label: cleanLabel(label) || found.s.title,
+      label: (typeof label === 'string' ? cleanLabel(label) : '') || found.s.title,
       service: found.s.slug,
       pkg: found.p.id,
       variant: found.p.variants.includes(String(variant)) ? String(variant) : (found.p.variants[0] ?? ''),

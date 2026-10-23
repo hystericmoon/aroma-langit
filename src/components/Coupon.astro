@@ -23,19 +23,19 @@ const site = await getSite();
       <div class="inputs">
         <label class="in">
           <span class="sr-only">Nama Anda</span>
-          <input name="nama" autocomplete="name" placeholder="Nama Anda" required maxlength="80" />
+          <input name="nama" autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder="Nama Anda" required maxlength="80" />
         </label>
         <label class="in">
           <span class="sr-only">Perusahaan atau instansi</span>
-          <input name="perusahaan" autocomplete="organization" placeholder="Perusahaan atau instansi" required maxlength="120" />
+          <input name="perusahaan" autocomplete="organization" autocapitalize="words" enterkeyhint="next" placeholder="Perusahaan atau instansi" required maxlength="120" />
         </label>
         <label class="in">
           <span class="sr-only">Nomor WhatsApp</span>
-          <input name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="Nomor WhatsApp" required maxlength="20" pattern="[0-9+\-\s]{8,20}" />
+          <input name="whatsapp" type="tel" enterkeyhint="next" inputmode="tel" autocomplete="tel" placeholder="Nomor WhatsApp" required maxlength="20" pattern="[0-9+\-\s]{8,20}" />
         </label>
         <label class="in">
           <span class="sr-only">Perkiraan porsi per hari</span>
-          <input name="porsi" type="number" inputmode="numeric" min="1" max="100000" placeholder="Perkiraan porsi per hari" required />
+          <input name="porsi" type="number" enterkeyhint="send" inputmode="numeric" min="1" max="100000" placeholder="Perkiraan porsi per hari" required />
         </label>
         <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
       </div>
@@ -59,11 +59,18 @@ const site = await getSite();
       const bad = fields.find((f) => !f.checkValidity() || !f.value.trim());
       fields.forEach((f) => f.setAttribute('aria-invalid', String(!f.checkValidity() || !f.value.trim())));
       if (bad) {
-        status.textContent = bad.name === 'whatsapp' ? 'Nomor WhatsApp belum benar. Gunakan angka, minimal 8 digit.' : `Lengkapi isian "${bad.placeholder}".`;
+        status.textContent =
+          bad.name === 'whatsapp'
+            ? 'Nomor WhatsApp belum benar. Gunakan angka, minimal 8 digit.'
+            : bad.name === 'porsi' && bad.value.trim()
+              ? 'Isi perkiraan porsi dengan angka bulat, misalnya 150.'
+              : `Lengkapi isian "${bad.placeholder}".`;
         bad.focus();
         return;
       }
       const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
+      data.porsi = String(Math.floor(Number(data.porsi))); // "1e3" → "1000"
+
       const msg = [
         'Halo Aroma Langit, saya ingin penawaran katering kantor:',
         '',
@@ -224,8 +231,10 @@ const site = await getSite();
     cursor: pointer;
     transition: background var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
   }
-  .submit:hover {
-    background: #f59a45;
+  @media (hover: hover) and (pointer: fine) {
+    .submit:hover {
+      background: #f59a45;
+    }
   }
   .submit:active {
     transform: scale(0.98);
@@ -233,8 +242,10 @@ const site = await getSite();
   .submit svg {
     transition: transform var(--dur) var(--ease-out);
   }
-  .submit:hover svg {
-    transform: translateX(4px);
+  @media (hover: hover) and (pointer: fine) {
+    .submit:hover svg {
+      transform: translateX(4px);
+    }
   }
   .coupon[aria-busy='true'] .submit {
     opacity: 0.7;

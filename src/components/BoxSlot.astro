@@ -39,7 +39,6 @@ const { mode, fallback, sizes, class: cls, priority = false, label } = Astro.pro
   .box-fallback {
     position: absolute;
     inset: 0;
-    transition: opacity 600ms var(--ease);
   }
   .box-fallback :global(picture),
   .box-fallback :global(img) {
@@ -47,8 +46,8 @@ const { mode, fallback, sizes, class: cls, priority = false, label } = Astro.pro
     height: 100%;
     object-fit: cover;
   }
-  /* The photo shows until the 3D canvas arrives in this slot, then crossfades out. */
-  .box-slot:global(.has-canvas) .box-fallback {
+  /* The photo shows until the 3D canvas has fully faded in over it, then hides. */
+  .box-slot:global(.canvas-ready) .box-fallback {
     opacity: 0;
   }
 </style>

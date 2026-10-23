@@ -37,6 +37,11 @@ describe('clampQty', () => {
     expect(clampQty('')).toBe(1);
     expect(clampQty(undefined)).toBe(1);
     expect(clampQty(12.7)).toBe(12);
+    expect(clampQty('-5')).toBe(1);
+    expect(clampQty('1.5')).toBe(1);
+    expect(clampQty('2,5')).toBe(2);
+    expect(clampQty('12.500')).toBe(5000);
+    expect(clampQty('2.500 kotak')).toBe(2500);
   });
 });
 

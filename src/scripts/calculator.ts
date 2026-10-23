@@ -3,7 +3,7 @@ import {
   buildPlanMessage, cleanLabel, computePlan, decodePlan, encodePlan, LIMITS, MULTIPLIERS, multiplierLabel, newItem,
   planFromPreset, quantityFor, type CatalogService, type Plan, type PlanItem, type PlanResult, type Preset,
 } from '../lib/calculator';
-import { areaLabel, checkDate, earliestDate, formatDateLong, formatRupiah, type Area } from '../lib/order';
+import { areaLabel, checkDate, earliestDate, formatDateLong, formatRupiah, parseAmount, type Area } from '../lib/order';
 
 interface Data {
   catalog: CatalogService[];
@@ -157,7 +157,8 @@ function renderItems(focus?: { id: string; field: string } | 'add') {
 
 /* ------------------------------------------------------------------ update */
 
-function update(opts: { announce?: boolean } = {}) {
+/** live: the change comes from typing or dragging, so figures update without motion. */
+function update(opts: { announce?: boolean; live?: boolean } = {}) {
   const result = computePlan(plan, catalog);
   const word = guestWord();
 
@@ -169,11 +170,7 @@ function update(opts: { announce?: boolean } = {}) {
     const text = `= ${line.qty.toLocaleString('id-ID')} ${line.pkg.unit}`;
     if (out.textContent !== text) {
       out.textContent = text;
-      if (!reduceMotion.matches) {
-        out.classList.remove('bump');
-        void out.offsetWidth;
-        out.classList.add('bump');
-      }
+      if (!opts.live) bump(out);
     }
     const note = li.querySelector<HTMLElement>('[data-note]')!;
     if (line.surcharge > 0) {
@@ -209,9 +206,9 @@ function update(opts: { announce?: boolean } = {}) {
   ui.dateHelp.classList.toggle('warn', dc === 'too-soon' || dc === 'invalid');
   ui.date.setAttribute('aria-invalid', String(dc === 'too-soon' || dc === 'invalid'));
 
-  renderReceipt(result, word);
-  ui.dockTotal.textContent = formatRupiah(result.total);
-  ui.dockPer.textContent = result.lines.length ? `${formatRupiah(result.perGuest)}/${word}` : '';
+  renderReceipt(result, word, opts.live);
+  ui.dockTotal.textContent = dockRupiah(result.total);
+  ui.dockPer.textContent = result.lines.length ? `${dockRupiah(result.perGuest)}/${word}` : '';
 
   clearTimeout(liveTimer);
   if (opts.announce !== false) {
@@ -226,7 +223,12 @@ function update(opts: { announce?: boolean } = {}) {
   saveTimer = window.setTimeout(persist, 300);
 }
 
-function renderReceipt(result: PlanResult, word: string) {
+// The phone bar is narrow; from a hundred million up it shows "Rp118,9 M" (miliar).
+// The receipt always prints the full figure.
+const compact = new Intl.NumberFormat('id-ID', { notation: 'compact', maximumFractionDigits: 1 });
+const dockRupiah = (n: number) => (n >= 1e8 ? `Rp${compact.format(n)}` : formatRupiah(n));
+
+function renderReceipt(result: PlanResult, word: string, live = false) {
   const preset = currentPreset();
   ui.rEvent.textContent = preset === custom ? 'Acara Anda' : preset.title;
   ui.rGuests.textContent = `${plan.guests.toLocaleString('id-ID')} ${word}`;
@@ -266,7 +268,7 @@ function renderReceipt(result: PlanResult, word: string) {
     ? `Pesan paling lambat H-${result.leadDays}. Tanggal paling cepat: ${formatDateLong(result.earliest)}.`
     : '';
   ui.send.disabled = result.lines.length === 0;
-  animateTotal(result.total);
+  animateTotal(result.total, live);
 }
 
 function span(cls: string, text: string) {
@@ -276,7 +278,17 @@ function span(cls: string, text: string) {
   return s;
 }
 
-function animateTotal(to: number) {
+// A small lift on a figure that changed. Never restarted while running, so fast
+// changes do not jitter; composited transform only.
+function bump(el: HTMLElement) {
+  if (reduceMotion.matches || el.getAnimations().length) return;
+  el.animate([{ transform: 'none' }, { transform: 'translateY(-3px)' }, { transform: 'none' }], {
+    duration: 200,
+    easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
+  });
+}
+
+function animateTotal(to: number, live = false) {
   cancelAnimationFrame(tween);
   clearTimeout(settle);
   const from = shownTotal;
@@ -284,13 +296,13 @@ function animateTotal(to: number) {
     shownTotal = v;
     ui.rTotal.textContent = formatRupiah(v);
   };
-  if (from === to || reduceMotion.matches) {
+  if (from === to || live || reduceMotion.matches) {
     show(to);
     return;
   }
   const start = performance.now();
   const step = (now: number) => {
-    const t = Math.min(1, (now - start) / 520);
+    const t = Math.min(1, (now - start) / 240);
     const e = 1 - Math.pow(1 - t, 3);
     show(Math.round(from + (to - from) * e));
     if (t < 1) tween = requestAnimationFrame(step);
@@ -300,10 +312,8 @@ function animateTotal(to: number) {
   settle = window.setTimeout(() => {
     cancelAnimationFrame(tween);
     show(to);
-  }, 620);
-  ui.rTotal.classList.remove('bump');
-  void ui.rTotal.offsetWidth;
-  ui.rTotal.classList.add('bump');
+  }, 340);
+  bump(ui.rTotal);
 }
 
 function shareUrl() {
@@ -369,19 +379,20 @@ ui.presetRadios.forEach((r) => r.addEventListener('change', () => r.checked && c
 
 /* ------------------------------------------------------------------ guests, date, area */
 
-function setGuests(n: number) {
+function setGuests(n: number, live = false) {
   plan.guests = Math.min(LIMITS.guests[1], Math.max(LIMITS.guests[0], Math.round(n) || 1));
   guestsTouched = true;
-  update();
+  update({ live });
 }
 ui.guests.addEventListener('input', () => {
-  const n = parseInt(ui.guests.value, 10);
-  if (Number.isFinite(n) && n >= 1) setGuests(n);
+  const n = Math.floor(parseAmount(ui.guests.value));
+  if (Number.isFinite(n) && n >= 1) setGuests(n, true);
 });
 ui.guests.addEventListener('blur', () => {
   ui.guests.value = String(plan.guests);
 });
-ui.guestsRange.addEventListener('input', () => setGuests(Number(ui.guestsRange.value)));
+ui.guestsRange.addEventListener('input', () => setGuests(Number(ui.guestsRange.value), true));
+ui.guestsRange.addEventListener('change', () => update());
 form.querySelectorAll<HTMLButtonElement>('[data-guest-step]').forEach((b) =>
   b.addEventListener('click', () => {
     const dir = Number(b.dataset.guestStep);
@@ -418,12 +429,12 @@ list.addEventListener('input', (e) => {
   if (f === 'label') {
     row.item.label = cleanLabel(t.value);
     row.li.querySelector('[data-remove]')!.setAttribute('aria-label', `Hapus ${row.item.label || 'baris ini'}`);
-    update({ announce: false });
+    update({ announce: false, live: true });
   } else if (f === 'fixed') {
-    const n = parseInt(t.value, 10);
+    const n = Math.floor(parseAmount(t.value));
     if (Number.isFinite(n) && n >= 1) {
       row.item.fixed = Math.min(LIMITS.fixed[1], n);
-      update();
+      update({ live: true });
     }
   }
 });
@@ -471,7 +482,7 @@ list.addEventListener('change', (e) => {
       item.perGuest = Number(t.value) || 1;
       break;
     case 'fixed':
-      item.fixed = Math.min(LIMITS.fixed[1], Math.max(1, parseInt(t.value, 10) || 1));
+      item.fixed = Math.min(LIMITS.fixed[1], Math.max(1, Math.floor(parseAmount(t.value)) || 1));
       (t as HTMLInputElement).value = String(item.fixed);
       break;
     default:
@@ -518,6 +529,7 @@ ui.add.addEventListener('click', () => {
   const item = newItem(catalog, plan);
   plan.items.push(item);
   renderItems({ id: item.id, field: 'service' });
+  list.querySelector(`[data-id="${item.id}"]`)?.classList.add('is-new');
   update();
   list.querySelector(`[data-id="${item.id}"]`)?.scrollIntoView({ block: 'nearest', behavior: reduceMotion.matches ? 'auto' : 'smooth' });
 });
@@ -584,6 +596,7 @@ let engaged = false;
 const syncDock = () => {
   const on = engaged && formVisible && !receiptVisible;
   ui.dock.dataset.off = String(!on);
+  ui.dock.inert = !on; // off screen, so out of the tab order too
   document.documentElement.classList.toggle('has-dock', on && window.innerWidth < 1024);
 };
 const dockIo = new IntersectionObserver(
@@ -606,6 +619,7 @@ form.addEventListener('click', (e) => {
   if ((e.target as HTMLElement).closest('button')) engage();
 });
 ui.dock.dataset.off = 'true';
+ui.dock.inert = true;
 ui.dock.hidden = false;
 dockIo.observe(ui.receipt);
 dockIo.observe(form);

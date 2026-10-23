@@ -31,7 +31,7 @@
 
   /* Motion */
   --dur-fast: 120ms;
-  --dur: 320ms;
+  --dur: 220ms;
   --dur-slow: 1600ms;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -56,6 +56,58 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-padding-top: 96px;
+  -webkit-tap-highlight-color: transparent;
+}
+/* The menu locks scroll through Lenis, which does not run under reduced motion. */
+html.menu-open {
+  overflow: clip;
+}
+
+/* ---------- Touch ---------- */
+a,
+button,
+label,
+select,
+summary,
+[role='button'],
+[role='tab'] {
+  touch-action: manipulation;
+}
+button,
+.btn,
+.seg label,
+.preset,
+[role='tab'] {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Press feedback for controls that have no :active state of their own */
+:is(.burger, [data-order-copy], .r-link, .remove, .qty-step, .tab-btn, .vtab, .calc-send, .dock-btn):active {
+  transform: scale(0.97);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+:is(.preset, .seg label):active {
+  transform: scale(0.98);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+input[type='date']::-webkit-date-and-time-value {
+  text-align: left;
+}
+p {
+  text-wrap: pretty;
+}
+:is(.tag-title, .panel-title, .r-title, .col-title) {
+  text-wrap: balance;
 }
 
 html.lenis,
@@ -218,7 +270,7 @@ a {
   width: 100%;
   max-width: var(--maxw);
   margin-inline: auto;
-  padding-inline: var(--gutter);
+  padding-inline: max(var(--gutter), env(safe-area-inset-left, 0px)) max(var(--gutter), env(safe-area-inset-right, 0px));
 }
 .grid {
   display: grid;
@@ -281,7 +333,6 @@ a {
   cursor: pointer;
   overflow: hidden;
   transition: transform var(--dur-fast) var(--ease), color var(--dur) var(--ease);
-  -webkit-tap-highlight-color: transparent;
 }
 .btn::before {
   content: '';
@@ -300,7 +351,7 @@ a {
   margin: -4px -8px;
   background: var(--btn-bg);
 }
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .btn:hover::before {
     transform: translateY(calc(100% - 6px));
   }
@@ -322,7 +373,7 @@ a {
   flex: none;
   transition: transform var(--dur) var(--ease-out);
 }
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .btn:hover .btn-arrow {
     transform: translateX(4px);
   }
@@ -336,7 +387,7 @@ a {
   text-decoration-color: currentColor;
   transition: text-underline-offset var(--dur) var(--ease);
 }
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .link:hover {
     text-underline-offset: 0.38em;
   }
@@ -354,9 +405,8 @@ a {
   *,
   *::before,
   *::after {
-    animation-duration: 1ms !important;
-    animation-delay: 0ms !important;
-    animation-iteration-count: 1 !important;
+    /* Entrances are skipped, not shortened: even a 1ms fade starts from invisible. */
+    animation: none !important;
     transition-duration: 1ms !important;
     scroll-behavior: auto !important;
   }

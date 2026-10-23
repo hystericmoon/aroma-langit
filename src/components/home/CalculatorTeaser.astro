@@ -77,7 +77,7 @@ const rows = presets
     padding: 20px 24px;
     background: var(--paper);
     text-decoration: none;
-    transition: background var(--dur) var(--ease), padding var(--dur) var(--ease-out);
+    transition: background var(--dur) var(--ease);
   }
   .t-name {
     font-size: clamp(1.25rem, 1rem + 0.8vw, 1.625rem);
@@ -88,16 +88,22 @@ const rows = presets
     grid-column: 1;
     font-weight: 600;
   }
+  .t-name,
+  .t-meta {
+    transition: transform var(--dur) var(--ease-out);
+  }
   .t-arrow {
     grid-column: 2;
     grid-row: 1 / span 2;
     transition: transform var(--dur) var(--ease-out);
   }
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     .t-row:hover {
       background: var(--ink);
       color: var(--paper);
-      padding-left: 32px;
+    }
+    .t-row:hover :is(.t-name, .t-meta) {
+      transform: translateX(8px);
     }
     .t-row:hover .t-arrow {
       transform: translateX(4px);

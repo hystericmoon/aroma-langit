@@ -63,7 +63,8 @@ export class BoxStage {
   private orient = { x: 0.62, y: -0.62 };
   private orientTarget = { x: 0.62, y: -0.62 };
   private spin = 0;
-  private spinVel = 0;
+  private spinVel = 0; // radians per second, for the fling after a drag
+  private dragging = false;
   private bump = 0;
   private activeMode: SlotMode | null = null;
   private fade = 0;
@@ -389,21 +390,33 @@ export class BoxStage {
     this.dispose.push(() => io.disconnect());
 
     if (mode === 'label') {
-      // Drag to spin the box
-      let dragging = false;
+      // Drag to spin the box: it follows the finger 1:1, then flings with the release speed.
       let lastX = 0;
+      let lastT = 0;
       el.addEventListener('pointerdown', (e) => {
-        dragging = true;
+        if (this.dragging) return; // ignore a second finger
+        this.dragging = true;
+        this.spinVel = 0;
         lastX = e.clientX;
+        lastT = e.timeStamp;
         el.setPointerCapture(e.pointerId);
       });
       el.addEventListener('pointermove', (e) => {
-        if (!dragging) return;
-        this.spinVel = (e.clientX - lastX) * 0.012;
+        if (!this.dragging) return;
+        const d = (e.clientX - lastX) * 0.012;
+        const dt = Math.max(1, e.timeStamp - lastT) / 1000;
+        this.spin += d;
+        this.spinVel = lerp(this.spinVel, d / dt, 0.5);
         lastX = e.clientX;
+        lastT = e.timeStamp;
         this.wake();
       });
-      const end = () => (dragging = false);
+      const end = (e: PointerEvent) => {
+        this.dragging = false;
+        // No fling if the finger rested before lifting, or under reduced motion.
+        if (this.reduced || e.timeStamp - lastT > 80) this.spinVel = 0;
+        this.wake();
+      };
       el.addEventListener('pointerup', end);
       el.addEventListener('pointercancel', end);
     }
@@ -412,7 +425,7 @@ export class BoxStage {
   setLabel(c: LabelContent) {
     drawLabel(this.labelCanvas, c);
     this.labelTex.needsUpdate = true;
-    this.bump = 1;
+    if (this.bump < 0.4) this.bump = 1; // typing a quantity should not keep re-pulsing
     this.wake();
   }
 
@@ -439,7 +452,7 @@ export class BoxStage {
   /** Moves the canvas into the slot that is on screen. */
   private attach(slot: SlotState) {
     if (this.host === slot.el) return;
-    this.host?.classList.remove('has-canvas');
+    this.host?.classList.remove('has-canvas', 'canvas-ready');
     this.host = slot.el;
     slot.el.appendChild(this.canvas);
     slot.el.classList.add('has-canvas');
@@ -496,6 +509,8 @@ export class BoxStage {
       this.fade = 0;
     }
     this.fade = Math.min(1, this.fade + dt * 1.6);
+    // The photo stays under the canvas until the canvas is fully opaque, so nothing dips.
+    slot.el.classList.toggle('canvas-ready', this.fade >= 1);
 
     // Targets per mode
     if (slot.mode === 'hero') {
@@ -524,9 +539,12 @@ export class BoxStage {
     this.orient.x = lerp(this.orient.x, this.orientTarget.x, ease);
     this.orient.y = lerp(this.orient.y, this.orientTarget.y, ease);
     this.pointerSmooth.lerp(this.pointer, this.reduced ? 1 : ease * 0.6);
-    this.spinVel *= Math.pow(0.04, dt);
-    this.spin += this.spinVel * (this.reduced ? 0 : 1);
-    if (slot.mode === 'label') this.spin = lerp(this.spin, Math.round(this.spin / (Math.PI * 2)) * Math.PI * 2, ease * 0.25);
+    if (!this.dragging) {
+      this.spinVel *= Math.pow(0.04, dt);
+      this.spin += this.spinVel * dt;
+      if (slot.mode === 'label' && Math.abs(this.spinVel) < 0.12)
+        this.spin = lerp(this.spin, Math.round(this.spin / (Math.PI * 2)) * Math.PI * 2, ease * 0.25);
+    }
     this.bump = Math.max(0, this.bump - dt * 2.2);
 
     const tiltStrength = this.reduced ? 0 : 0.14;
@@ -535,7 +553,7 @@ export class BoxStage {
       this.orient.y + this.pointerSmooth.x * tiltStrength + this.spin,
       0,
     );
-    const pulse = this.reduced ? 0 : Math.sin(this.bump * Math.PI) * 0.06;
+    const pulse = this.reduced ? 0 : Math.sin(this.bump * Math.PI) * 0.03;
     this.box.scale.setScalar(1 + pulse);
     if (!this.reduced && slot.mode === 'hero') this.box.position.y = -0.32 + Math.sin(now / 1400) * 0.035;
 
@@ -573,7 +591,9 @@ export class BoxStage {
       Math.abs(this.orient.x - this.orientTarget.x) > 0.001 ||
       Math.abs(this.orient.y - this.orientTarget.y) > 0.001 ||
       this.pointerSmooth.distanceTo(this.pointer) > 0.001 ||
-      Math.abs(this.spinVel) > 0.0005 ||
+      this.dragging ||
+      Math.abs(this.spinVel) > 0.03 ||
+      (slot.mode === 'label' && Math.abs(this.spin - Math.round(this.spin / (Math.PI * 2)) * Math.PI * 2) > 0.001) ||
       this.bump > 0 ||
       this.fade < 1 ||
       (slot.mode === 'hero' && this.intro < 1);
