@@ -44,7 +44,7 @@ jobs:
           npm test
 
       - name: Build the staging package
-        run: npm run package:hosting -- --staging
+        run: npm run package:hosting:staging
         env:
           SANITY_PROJECT_ID: eo2zthve
           SANITY_DATASET: production
@@ -81,4 +81,5 @@ jobs:
             curl -fsS -o /dev/null "https://new.aromalangit.id$p"
           done
           curl -sSI https://new.aromalangit.id/ | grep -qi 'x-robots-tag: noindex'
+          curl -fsS https://new.aromalangit.id/robots.txt | grep -qx 'User-agent: Claude-User'
           echo "new.aromalangit.id is serving this build"
