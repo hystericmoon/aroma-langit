@@ -9,7 +9,9 @@ Astro 7 static site (Bahasa Indonesia) with a Three.js nasi box, GSAP/Lenis moti
 - Motion must keep content visible without JavaScript and under `prefers-reduced-motion`; animate opacity/transform only, never `visibility`.
 
 ## Design system
-All UI work follows docs/design-system/brand-book.md (Editorial + Nota).
+All UI work follows docs/design-system/brand-book.md ("Kotak & Nota" v1.0).
+Logo files are in public/brand/ (full colour, paper, ink and icon-only
+versions); follow the logo rules in brand-book section 2.
 Tokens: docs/design-system/tokens.json. Reference CSS for components:
 docs/design-system/reference-components.css (port into Astro components;
 its variables have no Tailwind prefix, e.g. --paper → --color-paper).
