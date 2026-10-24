@@ -1,8 +1,8 @@
 // Packages dist/ for Apache / LiteSpeed shared hosting (cPanel).
-//   node scripts/package-hosting.mjs            → hosting/aroma-langit.zip (live site)
-//   node scripts/package-hosting.mjs --staging  → hosting/aroma-langit-staging.zip (noindex, for a test subdomain)
-// Run `npm run build` first. Upload the zip into the domain's document root and extract it there.
-import { cpSync, rmSync, writeFileSync, appendFileSync, existsSync, mkdirSync } from 'node:fs';
+//   npm run package:hosting          → hosting/aroma-langit.zip (live site, public_html)
+//   npm run package:hosting:staging  → hosting/aroma-langit-staging.zip (noindex, for new.aromalangit.id)
+// Upload the zip into the domain's document root and extract it there.
+import { cpSync, rmSync, writeFileSync, appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 
@@ -13,6 +13,18 @@ const zip = `${root}.zip`;
 
 if (!existsSync('dist/index.html')) {
   console.error('dist/ is missing. Run `npm run build` first.');
+  process.exit(1);
+}
+
+// robots.txt comes from the build (SITE_ENV). Refuse to package a build for the other site:
+// a staging build in public_html would hide the live site from search engines.
+const builtForStaging = readFileSync('dist/robots.txt', 'utf8').includes('Disallow: /');
+if (builtForStaging !== staging) {
+  console.error(
+    staging
+      ? 'dist/ is a production build. Use `npm run package:hosting:staging` for new.aromalangit.id.'
+      : 'dist/ is a staging build and must never go to aromalangit.id. Use `npm run package:hosting`.',
+  );
   process.exit(1);
 }
 
@@ -32,8 +44,8 @@ writeFileSync(
 );
 
 if (staging) {
-  // Keep the test copy out of search results.
-  writeFileSync(join(root, 'robots.txt'), 'User-agent: *\nDisallow: /\n');
+  // Keep the test copy out of search results. robots.txt and the noindex meta tag come from
+  // the staging build; this header covers files the meta tag can't (PDFs, images).
   appendFileSync(
     join(root, '.htaccess'),
     '\n# Staging copy: never index\n<IfModule mod_headers.c>\n  Header always set X-Robots-Tag "noindex, nofollow"\n</IfModule>\n',
