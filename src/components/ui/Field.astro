@@ -1,0 +1,21 @@
+---
+// Field (brand book §7): label above, the control (an .ui-input) in the slot, helper below.
+// The control carries id={id} and, when there is help, aria-describedby={helpId}.
+// Errors: set aria-invalid on the control and put the message in the help slot with .ui-error.
+interface Props {
+  id: string;
+  label?: string;
+  help?: string;
+  helpId?: string;
+  class?: string;
+  /** Extra attributes for the helper paragraph, e.g. data hooks for scripts. */
+  helpAttrs?: Record<string, string | boolean | undefined>;
+}
+const { id, label, help, helpId = `${id}-help`, class: cls, helpAttrs } = Astro.props;
+---
+
+<div class:list={['ui-field', cls]}>
+  <label for={id}>{label}<slot name="label" /></label>
+  <slot />
+  {help !== undefined && <p id={helpId} class="ui-help" {...helpAttrs}>{help}</p>}
+</div>

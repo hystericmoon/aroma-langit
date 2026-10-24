@@ -1,0 +1,9 @@
+---
+// Chip (brand book §7): states a fact, never interactive. On a photo, use ink or kraft.
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = HTMLAttributes<'span'> & { variant?: 'outline' | 'kraft' | 'halal' | 'ink' };
+const { variant = 'outline', class: cls, ...rest } = Astro.props;
+---
+
+<span class:list={['ui-chip', `ui-chip--${variant}`, cls]} {...rest}><slot /></span>

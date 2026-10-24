@@ -1,0 +1,35 @@
+---
+// Tabs (brand book §7): pill tabs, ink fill when selected. Renders the tablist; the caller
+// renders the panels (role="tabpanel", aria-labelledby the tab id) and wraps both in an
+// element with data-tabs, which src/scripts/tabs.ts wires up (arrow keys, Home, End).
+interface Tab {
+  id: string;
+  label: string;
+  controls: string;
+}
+interface Props {
+  label: string;
+  tabs: Tab[];
+  selected?: number;
+  class?: string;
+}
+const { label, tabs, selected = 0, class: cls } = Astro.props;
+---
+
+<div class:list={['ui-tabs', cls]} role="tablist" aria-label={label}>
+  {
+    tabs.map((t, i) => (
+      <button
+        type="button"
+        role="tab"
+        class="ui-tab"
+        id={t.id}
+        aria-controls={t.controls}
+        aria-selected={i === selected ? 'true' : 'false'}
+        tabindex={i === selected ? 0 : -1}
+      >
+        {t.label}
+      </button>
+    ))
+  }
+</div>

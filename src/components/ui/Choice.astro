@@ -1,0 +1,33 @@
+---
+// A single choice between a few options: real radio buttons drawn as pill tabs.
+// Not one of the brand book's 12 components; agreed in Phase 0 to style it like Tabs.
+interface Option {
+  value: string;
+  label: string;
+  checked?: boolean;
+  /** Extra attributes for the <input>, e.g. data hooks for scripts. */
+  attrs?: Record<string, string | boolean | undefined>;
+}
+interface Props {
+  name: string;
+  legend: string;
+  options: Option[];
+  legendClass?: string;
+  class?: string;
+}
+const { name, legend, options, legendClass, class: cls } = Astro.props;
+---
+
+<fieldset class:list={['ui-field', cls]}>
+  <legend class={legendClass}>{legend}</legend>
+  <div class="ui-choice">
+    {
+      options.map((o) => (
+        <label>
+          <input type="radio" name={name} value={o.value} checked={o.checked} {...o.attrs} />
+          <span>{o.label}</span>
+        </label>
+      ))
+    }
+  </div>
+</fieldset>

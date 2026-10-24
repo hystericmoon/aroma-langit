@@ -1,0 +1,32 @@
+---
+// QuantityStepper (brand book §7): 44px − and + around a numeric input. Typing still works,
+// and going below a minimum is allowed (the nota shows the surcharge line instead).
+// The buttons carry data-step="-1" / "1" for the page script that owns the input.
+import Icon from './Icon.astro';
+
+interface Props {
+  id: string;
+  value: number;
+  min?: number;
+  max?: number;
+  step?: number;
+  decLabel: string;
+  incLabel: string;
+  /** Extra attributes for the <input>, e.g. data hooks and aria-describedby. */
+  inputAttrs?: Record<string, string | boolean | undefined>;
+  /** Extra class for both buttons, for scripts that look them up. */
+  buttonClass?: string;
+  class?: string;
+}
+const { id, value, min = 1, max = 5000, step = 1, decLabel, incLabel, inputAttrs, buttonClass, class: cls } = Astro.props;
+---
+
+<div class:list={['ui-stepper', cls]}>
+  <button type="button" class:list={['ui-btn ui-btn--secondary ui-btn--icon', buttonClass]} data-step="-1" aria-label={decLabel}>
+    <Icon name="minus" />
+  </button>
+  <input id={id} class="ui-input ui-input--number" type="number" inputmode="numeric" min={min} max={max} step={step} value={value} {...inputAttrs} />
+  <button type="button" class:list={['ui-btn ui-btn--secondary ui-btn--icon', buttonClass]} data-step="1" aria-label={incLabel}>
+    <Icon name="plus" />
+  </button>
+</div>
