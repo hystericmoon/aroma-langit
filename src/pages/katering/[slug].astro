@@ -1,11 +1,11 @@
 ---
 import Base from '../../layouts/Base.astro';
-import Photo from '../../components/Photo.astro';
 import Figure from '../../components/ui/Figure.astro';
 import SectionHeading from '../../components/ui/SectionHeading.astro';
-import Chip from '../../components/ui/Chip.astro';
-import Icon from '../../components/ui/Icon.astro';
+import PriceRow from '../../components/ui/PriceRow.astro';
+import ServiceCard from '../../components/ui/ServiceCard.astro';
 import PackageSheet from '../../components/PackageSheet.astro';
+import OrderLabel from '../../components/home/OrderLabel.astro';
 import Terms from '../../components/Terms.astro';
 import { getServices, getSite } from '../../lib/content';
 import { formatRupiah } from '../../lib/order';
@@ -70,12 +70,12 @@ const schema = [
         <p class="t-lead tagline">{service.tagline}</p>
         <p class="t-body measure intro">{service.intro}</p>
         <dl class="facts tab">
-          <div><dt>Harga</dt><dd>{lo === hi ? formatRupiah(lo) : `${formatRupiah(lo)}–${formatRupiah(hi)}`}<span class="per">/{service.unit}</span></dd></div>
+          <div><dt>Harga</dt><dd><span class="amount">{lo === hi ? formatRupiah(lo) : `${formatRupiah(lo)}–${formatRupiah(hi)}`}</span><span class="per">/{service.unit}</span></dd></div>
           <div><dt>Minimum</dt><dd>{minLo > 1 ? `${minLo} ${service.unit}` : `1 ${service.unit}`}</dd></div>
           <div><dt>Pesan paling lambat</dt><dd>H-{service.leadDays}</dd></div>
         </dl>
         <div class="actions">
-          <a class="ui-btn ui-btn--primary" href={`/?layanan=${service.slug}#pesan`}>Susun pesanan {service.title}</a>
+          <a class="ui-btn ui-btn--primary" href="#pesan">Susun pesanan {service.title}</a>
           <a class="ui-link pdf" href={site.pricelistUrl} download>Unduh daftar harga (PDF)</a>
         </div>
       </div>
@@ -91,6 +91,21 @@ const schema = [
         context={`${service.packages.length > 1 ? 'Diurutkan dari yang paling lengkap. ' : ''}Harga per ${service.unit}, sudah termasuk antar se-Kota Bogor untuk pesanan yang memenuhi minimum.`}
         split
       />
+      <ul role="list" class="ui-price-list pkg-list" data-svc-picks>
+        {
+          service.packages.map((p) => (
+            <PriceRow
+              name={p.name}
+              srPrefix={service.title}
+              meta={[p.minOrder > 1 ? `Minimum ${p.minOrder} ${p.unit}` : '', p.note ?? ''].filter(Boolean).join(' · ')}
+              price={formatRupiah(p.price)}
+              unit={p.unit}
+              pickLabel={`Pilih ${service.title} ${p.name}, masukkan ke label pesanan`}
+              pickAttrs={{ 'data-pick-service': service.slug, 'data-pick-package': p.id }}
+            />
+          ))
+        }
+      </ul>
       <div class="sheet">
         {service.packages.map((p, i) => <PackageSheet pkg={p} serviceSlug={service.slug} serviceTitle={service.title} index={i} />)}
       </div>
@@ -106,12 +121,8 @@ const schema = [
             {service.choices.map((c) => (
               <div class="choice">
                 <h3 class="choice-h">{c.label}</h3>
-                <ul role="list" class="chips">
-                  {c.items.map((it) => (
-                    <li>
-                      <Chip variant="outline">{it}</Chip>
-                    </li>
-                  ))}
+                <ul role="list" class="choice-items">
+                  {c.items.map((it) => <li>{it}</li>)}
                 </ul>
               </div>
             ))}
@@ -138,6 +149,10 @@ const schema = [
 
   <Terms service={service} />
 
+  <div class="wrap estimate">
+    <OrderLabel service={service.slug} standalone />
+  </div>
+
   <section class="others" aria-labelledby="others-title">
     <div class="wrap">
       <SectionHeading id="others-title" title="Layanan lain" split />
@@ -145,16 +160,7 @@ const schema = [
         {
           others.map((o) => (
             <li>
-              <a class="o-card" href={`/katering/${o.slug}/`}>
-                <span class="o-img">
-                  <Photo photo={o.photo} sizes="(min-width: 1024px) 18vw, 45vw" widths={[360, 540]} alt="" />
-                </span>
-                <span class="o-name">
-                  {o.title}
-                  <Icon name="arrow-right" />
-                </span>
-                <span class="o-price tab">mulai {formatRupiah(Math.min(...o.packages.map((p) => p.price)))}</span>
-              </a>
+              <ServiceCard service={o} sizes="(min-width: 1024px) 18vw, 45vw" />
             </li>
           ))
         }
@@ -163,9 +169,32 @@ const schema = [
   </section>
 </Base>
 
+<script>
+  // The price list's "Pilih" fills this page's estimator, as on the home page.
+  const list = document.querySelector<HTMLElement>('[data-svc-picks]');
+  if (list) {
+    const picks = list.querySelectorAll<HTMLButtonElement>('[data-pick-service]');
+    list.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-pick-service]');
+      if (!btn) return;
+      window.dispatchEvent(new CustomEvent('aroma:pick', { detail: { service: btn.dataset.pickService, pkg: btn.dataset.pickPackage } }));
+      const target = document.getElementById('pesan');
+      if (target) {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (window.__lenis) window.__lenis.scrollTo(target, { offset: -88, duration: 0.6 });
+        else target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+      }
+    });
+    window.addEventListener('aroma:order', (e) => {
+      const o = (e as CustomEvent<{ serviceSlug: string; pkgId: string }>).detail;
+      picks.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pickService === o.serviceSlug && b.dataset.pickPackage === o.pkgId)));
+    });
+  }
+</script>
+
 <style>
-  /* Service page (brand book §7 recipe): SectionHeading → PriceRows with menu Tabs → Figures →
-     terms list. Read mode except the package actions. */
+  /* Service page (brand book §8 recipe): heading and intro → PriceList → each package's menu in
+     Tabs → photos → terms → estimator. "Layanan lain" uses ServiceCards. */
   .head-grid {
     display: grid;
     gap: var(--spacing-4);
@@ -176,11 +205,12 @@ const schema = [
     gap: var(--spacing-3);
     align-content: center;
   }
+  /* The reveal mask leaves room above (Fraunces ascenders) and below (descenders). */
   .svc-title .intro-line {
     display: block;
     overflow: clip;
-    padding-bottom: 0.08em;
-    margin-bottom: -0.08em;
+    padding-block: 0.12em 0.1em;
+    margin-block: -0.12em -0.1em;
   }
   .svc-title .intro-line > span {
     display: block;
@@ -190,9 +220,6 @@ const schema = [
     from {
       transform: translateY(40%);
     }
-  }
-  .intro {
-    color: var(--color-ink-muted);
   }
   .facts {
     display: grid;
@@ -216,6 +243,9 @@ const schema = [
     margin: 0;
     font-weight: 600;
   }
+  .facts .amount {
+    font-family: var(--font-mono);
+  }
   .per {
     font-weight: 400;
     font-size: 13px;
@@ -236,10 +266,16 @@ const schema = [
   .packages,
   .choices,
   .gallery,
-  .others {
+  .others,
+  .estimate {
     padding-block: 0 var(--section-space);
   }
+  .pkg-list {
+    margin-top: var(--spacing-3);
+  }
   .sheet {
+    display: grid;
+    gap: var(--spacing-2);
     margin-top: var(--spacing-3);
   }
 
@@ -249,13 +285,16 @@ const schema = [
     margin-top: var(--spacing-3);
   }
   .choice-h {
-    margin-bottom: 12px;
-    font: 400 22px/1.2 var(--font-display);
+    margin-bottom: 8px;
+    font: 700 20px/1.3 var(--font-sans);
   }
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-1);
+  /* What can be chosen is read, not tapped: a middot-separated line, not chips. */
+  .choice-items li {
+    display: inline;
+  }
+  .choice-items li + li::before {
+    content: ' · ';
+    color: var(--color-ink-muted);
   }
 
   .gal {
@@ -265,47 +304,11 @@ const schema = [
     margin-top: var(--spacing-3);
   }
 
-  /* Photo links to the other services: read mode (not one of the 12 components, flagged). */
   .o-list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--spacing-3) 12px;
+    gap: 12px;
     margin-top: var(--spacing-3);
-  }
-  .o-card {
-    display: grid;
-    gap: 6px;
-    color: var(--color-ink);
-    text-decoration: none;
-  }
-  .o-img {
-    display: block;
-    aspect-ratio: 1;
-    overflow: hidden;
-    background: var(--color-kraft);
-  }
-  .o-img :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .o-name {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--spacing-1);
-    margin-top: 4px;
-    font: 400 22px/1.2 var(--font-display);
-  }
-  .o-card:hover .o-name {
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 4px;
-  }
-  .o-price {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-brown);
   }
 
   @media (min-width: 600px) {

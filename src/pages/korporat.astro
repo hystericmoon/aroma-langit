@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Figure from '../components/ui/Figure.astro';
 import SectionHeading from '../components/ui/SectionHeading.astro';
-import Band from '../components/ui/Band.astro';
+import TrustStamps from '../components/ui/TrustStamps.astro';
 import Coupon from '../components/Coupon.astro';
 import { photos } from '../data/photos';
 import { getServices, getSite } from '../lib/content';
@@ -89,34 +89,32 @@ const uses = [
     </div>
   </section>
 
-  <Band id="y-title" label="Untuk bagian pengadaan" class="why">
-    <dl class="y-list" data-reveal>
-      <div>
-        <dt>Halal BPJPH</dt>
-        <dd class="tab">{site.halal.number}</dd>
-      </div>
-      <div>
-        <dt>Laik Higiene Jasaboga {site.hygiene.grade}</dt>
-        <dd class="tab">{site.hygiene.number}</dd>
-      </div>
-      <div>
-        <dt>Badan usaha</dt>
-        <dd>{site.legalName}</dd>
-      </div>
-      {nutritionist && (
-        <div>
-          <dt>Ahli gizi</dt>
-          <dd>{nutritionist.name}, {nutritionist.role}</dd>
+  <section class="why" aria-labelledby="y-title">
+    <div class="wrap">
+      <SectionHeading id="y-title" title="Untuk bagian pengadaan" split />
+      <div class="y-cards" data-reveal>
+        <div class="y-card wide">
+          <TrustStamps />
         </div>
-      )}
-      <div class="wide">
-        <dt>Pernah melayani</dt>
-        <dd class="clients">{site.clients.join(' · ')}</dd>
+        <dl class="y-card">
+          <dt>Badan usaha</dt>
+          <dd>{site.legalName}</dd>
+        </dl>
+        {nutritionist && (
+          <dl class="y-card">
+            <dt>Ahli gizi</dt>
+            <dd>{nutritionist.name}, {nutritionist.role}</dd>
+          </dl>
+        )}
+        <dl class="y-card wide">
+          <dt>Pernah melayani</dt>
+          <dd class="clients">{site.clients.join(' · ')}</dd>
+        </dl>
       </div>
-    </dl>
-  </Band>
+    </div>
+  </section>
 
-  <section class="form" aria-labelledby="kupon-title">
+  <section class="form rule-top" aria-labelledby="kupon-title">
     <div class="wrap">
       <Coupon id="kupon" />
     </div>
@@ -124,8 +122,9 @@ const uses = [
 </Base>
 
 <style>
-  /* Korporat (brand book §7 recipe): read-mode page with a procurement panel (the page's one
-     NavyBand) and an order-mode quote request. */
+  /* Korporat (brand book §8 recipe): the procurement panel as cards (certificates as trust
+     stamps, legal entity, nutritionist, clients) and the quote request. Invoicing details and
+     the printable quote Nota are open items (no data yet; a new feature). */
   .head-grid {
     display: grid;
     gap: var(--spacing-4);
@@ -136,11 +135,12 @@ const uses = [
     gap: var(--spacing-3);
     align-content: center;
   }
+  /* The reveal mask leaves room above (Fraunces ascenders) and below (descenders). */
   .k-title .intro-line {
     display: block;
     overflow: clip;
-    padding-bottom: 0.08em;
-    margin-bottom: -0.08em;
+    padding-block: 0.12em 0.1em;
+    margin-block: -0.12em -0.1em;
   }
   .k-title .intro-line > span {
     display: block;
@@ -169,12 +169,14 @@ const uses = [
     min-height: var(--tap-min);
   }
 
-  .uses {
+  .uses,
+  .why,
+  .form {
     padding-bottom: var(--section-space);
   }
   .u-list {
     display: grid;
-    gap: var(--spacing-5);
+    gap: var(--spacing-4);
     margin-top: var(--spacing-3);
   }
   .use {
@@ -187,10 +189,7 @@ const uses = [
     gap: 12px;
   }
   .u-title {
-    font: 400 32px/1.1 var(--font-display);
-  }
-  .u-text {
-    color: var(--color-ink-muted);
+    font: 700 20px/1.3 var(--font-sans);
   }
   .u-links {
     display: grid;
@@ -202,33 +201,37 @@ const uses = [
     min-height: var(--tap-min);
   }
 
-  .y-list {
+  .y-cards {
     display: grid;
-    gap: var(--spacing-3);
-    margin: 0;
+    gap: 12px;
+    margin-top: var(--spacing-3);
   }
-  .y-list dt {
+  .y-card {
+    margin: 0;
+    padding: var(--spacing-3);
+    border: var(--hairline);
+    border-radius: var(--radius-card);
+    background: var(--color-card);
+  }
+  .y-card dt {
     font: 600 12px/1.3 var(--font-sans);
     letter-spacing: 0.12em;
     text-transform: uppercase;
+    color: var(--color-ink-muted);
   }
-  .y-list dd {
+  .y-card dd {
     margin: 6px 0 0;
-    font: 300 24px/1.3 var(--font-display);
+    font: 700 20px/1.3 var(--font-sans);
   }
-  .y-list .clients {
-    font-size: 20px;
-  }
-
-  .form {
-    padding-block: var(--section-space) 0;
+  .y-card .clients {
+    font: 400 16px/1.5 var(--font-sans);
   }
 
   @media (min-width: 768px) {
-    .y-list {
+    .y-cards {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .y-list .wide {
+    .y-card.wide {
       grid-column: 1 / -1;
     }
   }

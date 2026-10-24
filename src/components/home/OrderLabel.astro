@@ -10,6 +10,13 @@ import NotaTotal from '../ui/NotaTotal.astro';
 import NotaDeposit from '../ui/NotaDeposit.astro';
 import Icon from '../ui/Icon.astro';
 
+interface Props {
+  /** Service to preselect (a service page's own estimator). */
+  service?: string;
+  /** On a page of its own (not beside the price list): opens with its own section line. */
+  standalone?: boolean;
+}
+const { service: preset, standalone = false } = Astro.props;
 const services = await getServices();
 const site = await getSite();
 const data = services.map((s) => ({
@@ -25,12 +32,12 @@ const data = services.map((s) => ({
     variants: p.variants.map((v) => v.name),
   })),
 }));
-const first = data[0];
+const first = data.find((s) => s.slug === preset) ?? data[0];
 const firstPkg = first.packages[Math.min(2, first.packages.length - 1)];
 const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
 ---
 
-<section id="pesan" class="order" aria-labelledby="order-title">
+<section id="pesan" class:list={['order', standalone && 'standalone']} aria-labelledby="order-title">
   <div class="intro">
     <h2 id="order-title" class="t-heading-2" data-split>Susun pesanan Anda.</h2>
     <p class="intro-lead">
@@ -378,6 +385,20 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
     .intro {
       border-top: var(--hairline);
       border-image: linear-gradient(var(--color-ink), var(--color-ink)) 1 0 0 / 1px 0 0 / 0 100vw;
+    }
+  }
+  .standalone .intro {
+    border-top: var(--hairline);
+    border-image: linear-gradient(var(--color-ink), var(--color-ink)) 1 0 0 / 1px 0 0 / 0 100vw;
+  }
+  @media (min-width: 1000px) {
+    .standalone {
+      grid-template-columns: minmax(0, 1fr) minmax(360px, 440px);
+      gap: var(--spacing-5);
+      align-items: start;
+    }
+    .standalone .panel {
+      margin-top: var(--section-space);
     }
   }
   .intro-lead {

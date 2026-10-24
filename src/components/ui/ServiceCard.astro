@@ -1,0 +1,31 @@
+---
+// ServiceCard (brand book §8): a card with a 1:1 photo, chips on the photo (price and lead time,
+// on solid fills), the title and the number of packages. The whole card is one link. The text
+// comes first in the source so the link's name starts with the service; CSS shows the photo on top.
+import Photo from '../Photo.astro';
+import Icon from './Icon.astro';
+import { formatRupiah } from '../../lib/order';
+import type { Service } from '../../data/types';
+
+interface Props {
+  service: Service;
+  sizes: string;
+  class?: string;
+}
+const { service, sizes, class: cls } = Astro.props;
+const cheapest = service.packages.reduce((a, b) => (b.price < a.price ? b : a));
+---
+
+<a class:list={['ui-service-card', cls]} href={`/katering/${service.slug}/`}>
+  <span class="ui-service-card__body">
+    <span class="ui-service-card__title">{service.title}<Icon name="arrow-right" /></span>
+    <span class="ui-service-card__meta">{service.packages.length} paket</span>
+  </span>
+  <span class="ui-service-card__photo">
+    <Photo photo={service.photo} sizes={sizes} widths={[360, 540, 720]} alt="" />
+    <span class="ui-service-card__chips">
+      <span class="ui-chip ui-chip--paper">Mulai&nbsp;<span class="ui-chip__amount">{formatRupiah(cheapest.price)}</span>/{cheapest.unit}</span>
+      <span class="ui-chip ui-chip--ink">Pesan H-{service.leadDays}</span>
+    </span>
+  </span>
+</a>

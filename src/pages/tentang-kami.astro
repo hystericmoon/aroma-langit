@@ -29,7 +29,7 @@ const pillars = [
         <p class="t-lead">
           Aroma Langit lahir dari mimpi sederhana: menggapai cita-cita setinggi langit sambil menebarkan aroma masakan yang membuat orang betah duduk lebih lama.
         </p>
-        <p class="t-body measure muted">
+        <p class="t-body measure">
           Kami mulai sebagai rumah makan prasmanan bercita rasa Nusantara di Jatinangor, Sumedang, pada Februari 2017. Ayam Bakar Kalasan, Rendang, Nila Bumbu Cobek, Gepuk dan Sayur Urap menjadi andalan kami saat menjamu mahasiswa dan warga sekitar.
         </p>
       </div>
@@ -74,7 +74,7 @@ const pillars = [
           pillars.map((p) => (
             <li>
               <h3 class="p-name">{p.name}</h3>
-              <p class="t-body muted">{p.text}</p>
+              <p class="t-body">{p.text}</p>
             </li>
           ))
         }
@@ -103,17 +103,19 @@ const pillars = [
 </Base>
 
 <style>
-  /* Tentang kami: read mode throughout; the timeline is the page's one NavyBand. */
+  /* Tentang kami: no page recipe in the brand book; built from its components (white cards,
+     the timeline as a Band card, the kitchen section with trust stamps). */
   .head-grid {
     display: grid;
     gap: var(--spacing-3);
     padding-block: var(--spacing-4) var(--section-space);
   }
+  /* The reveal mask leaves room above (Fraunces ascenders) and below (descenders). */
   .a-title .intro-line {
     display: block;
     overflow: clip;
-    padding-bottom: 0.08em;
-    margin-bottom: -0.08em;
+    padding-block: 0.12em 0.1em;
+    margin-block: -0.12em -0.1em;
   }
   .a-title .intro-line > span {
     display: block;
@@ -132,11 +134,10 @@ const pillars = [
     gap: var(--spacing-2);
     align-content: end;
   }
-  .muted {
-    color: var(--color-ink-muted);
-  }
 
-  .story {
+  .story,
+  .pillars,
+  .team {
     padding-bottom: var(--section-space);
   }
   .story-grid {
@@ -150,69 +151,47 @@ const pillars = [
     gap: var(--spacing-2);
   }
 
-  /* On navy, rules are paper (ink is not visible there; flagged). */
   .stubs {
     display: grid;
     margin: 0;
     padding: 0;
-    border-top: 1px solid var(--color-paper);
   }
   .stub {
     display: grid;
     gap: 4px;
     padding: var(--spacing-2) 0;
-    border-bottom: 1px solid var(--color-paper);
+  }
+  .stub + .stub {
+    border-top: 1px solid var(--color-rule-soft);
   }
   .when {
-    font: 300 28px/1.2 var(--font-display);
-  }
-  .what {
-    font-size: 15px;
+    font: 700 20px/1.3 var(--font-sans);
   }
 
-  .pillars,
-  .team {
-    padding-block: var(--section-space) 0;
-  }
-  .p-list {
-    display: grid;
-    gap: var(--spacing-3);
-    margin-top: var(--spacing-3);
-  }
-  .p-list li {
-    display: grid;
-    align-content: start;
-    gap: var(--spacing-1);
-    padding-top: var(--spacing-2);
-    border-top: var(--hairline);
-  }
-  .p-name {
-    font: 400 32px/1.1 var(--font-display);
-  }
-
+  .p-list,
   .cards {
     display: grid;
-    gap: var(--spacing-3);
+    gap: 12px;
     margin-top: var(--spacing-3);
   }
+  .p-list li,
   .card {
     display: grid;
-    gap: var(--spacing-1);
     align-content: start;
-    padding-top: var(--spacing-2);
-    border-top: var(--hairline);
+    gap: var(--spacing-1);
+    padding: var(--spacing-3);
+    border: var(--hairline);
+    border-radius: var(--radius-card);
+    background: var(--color-card);
+  }
+  .p-name,
+  .name {
+    font: 700 20px/1.3 var(--font-sans);
   }
   .role {
     font: 600 12px/1.3 var(--font-sans);
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--color-ink-muted);
-  }
-  .name {
-    font: 400 26px/1.15 var(--font-display);
-  }
-  .bio {
-    font-size: 15px;
     color: var(--color-ink-muted);
   }
 
@@ -224,7 +203,7 @@ const pillars = [
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .stub {
-      grid-template-columns: 180px minmax(0, 1fr);
+      grid-template-columns: 200px minmax(0, 1fr);
       gap: var(--spacing-3);
       align-items: baseline;
     }

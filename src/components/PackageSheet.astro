@@ -28,7 +28,7 @@ const meta = [pkg.minOrder > 1 ? `Minimum ${pkg.minOrder} ${pkg.unit}` : '', pkg
         {formatRupiah(pkg.price)}<span class="ui-price-row__unit">/{pkg.unit}</span>
       </p>
     </header>
-    <a class="ui-btn ui-btn--secondary ui-btn--small use" href={`/?layanan=${serviceSlug}&paket=${pkg.id}#pesan`}>
+    <a class="ui-btn ui-btn--secondary ui-btn--small use" href={`?layanan=${serviceSlug}&paket=${pkg.id}#pesan`}>
       Pakai paket ini
       <Icon name="arrow-right" />
     </a>
@@ -155,6 +155,11 @@ const meta = [pkg.minOrder > 1 ? `Minimum ${pkg.minOrder} ${pkg.unit}` : '', pkg
       grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
       gap: var(--spacing-5);
       padding: var(--spacing-4);
+    }
+    /* The name, price and action stay in view beside a long menu. */
+    .pkg-side {
+      position: sticky;
+      top: 96px;
     }
   }
 </style>

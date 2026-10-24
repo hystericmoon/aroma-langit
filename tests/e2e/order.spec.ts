@@ -101,6 +101,23 @@ test.describe('order label', () => {
   });
 });
 
+test('the phone order bar appears after a pick and steps aside at the estimator', async ({ page }, info) => {
+  test.skip(info.project.name !== 'mobile', 'the bar is phones only');
+  await page.goto('/');
+  const dock = page.locator('[data-home-dock]');
+  await expect(dock).toHaveAttribute('data-off', 'true');
+  await page.locator('#menu [data-pick-service="nasi-box"][data-pick-package="standar"]').click();
+  await expect(page.locator('[data-order-form]').getByLabel('Paket')).toHaveValue('standar');
+  const top = () => page.evaluate(() => (window.__lenis ? window.__lenis.scrollTo(0, { immediate: true }) : window.scrollTo(0, 0)));
+  await page.waitForTimeout(1500);
+  await top();
+  await expect(dock).toHaveAttribute('data-off', 'false');
+  await expect(dock.locator('[data-home-dock-total]')).toHaveText('Rp2.175.000');
+  await expect(dock.locator('[data-home-dock-send]')).toHaveAttribute('href', /^https:\/\/wa\.me\/\d+\?text=.*Standar/);
+  await page.locator('#pesan').scrollIntoViewIfNeeded();
+  await expect(dock).toHaveAttribute('data-off', 'true');
+});
+
 test.describe('corporate coupon', () => {
   test('validates, then falls back to WhatsApp when email is not configured', async ({ page }) => {
     const opened = await captureOpen(page);

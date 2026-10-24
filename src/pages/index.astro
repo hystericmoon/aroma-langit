@@ -9,28 +9,113 @@ import Kitchen from '../components/home/Kitchen.astro';
 import Proof from '../components/home/Proof.astro';
 import Corporate from '../components/home/Corporate.astro';
 import CalculatorTeaser from '../components/home/CalculatorTeaser.astro';
+import StickyOrderBar from '../components/ui/StickyOrderBar.astro';
+import Icon from '../components/ui/Icon.astro';
+import { getSite } from '../lib/content';
+
+const site = await getSite();
 ---
 
 <Base
   title="Aroma Langit · Katering halal di Bogor"
   description="Nasi box, bento, snack box, prasmanan dan tumpeng dari dapur bersertifikat halal di Pasir Kuda, Bogor. Lihat harga, susun pesanan, kirim lewat WhatsApp."
 >
-  {/* Brand book §7 home recipe: hero → event tiles → price list beside the order panel →
-      gallery → (how to order) → kitchen and certificates → navy band → (corporate form). */}
+  {/* Brand book §8 home recipe: hero → event tiles → menu & harga beside the estimator → trust
+      stamps and clients → footer, with the sticky order bar on phones. The gallery, how to order
+      and the corporate form are not in the recipe; they stay after it. */}
   <Hero />
   <CalculatorTeaser />
   <div class="wrap price-and-order">
     <MenuSheet />
     <OrderLabel />
   </div>
-  <Showcase />
-  <Steps />
   <Kitchen />
   <Proof />
+  <Showcase />
+  <Steps />
   <Corporate />
+
+  <StickyOrderBar
+    total="Rp0"
+    sub=""
+    action={{ href: `https://wa.me/${site.csPhone}`, label: 'Kirim ke WhatsApp' }}
+    actionAttrs={{ target: '_blank', rel: 'noopener', 'data-home-dock-send': true }}
+    class="home-dock"
+    attrs={{ 'data-home-dock': true, hidden: true }}
+    totalAttrs={{ 'data-home-dock-total': true }}
+    subAttrs={{ 'data-home-dock-sub': true }}
+  >
+    <Icon name="chat" slot="icon" />
+  </StickyOrderBar>
 </Base>
 
+<script>
+  // Phone order bar (brand book §8): appears once the visitor picks a package or edits the
+  // estimator, shows the running total, and sends the estimator's WhatsApp message. It steps
+  // aside while the estimator is on screen (the nota is there) and while the keyboard is open.
+  import { subscribe } from '../lib/orderStore';
+  import { estimate, formatRupiah } from '../lib/order';
+
+  const dock = document.querySelector<HTMLElement>('[data-home-dock]');
+  const form = document.querySelector<HTMLFormElement>('[data-order-form]');
+  const estimator = document.getElementById('pesan');
+  if (dock && form && estimator) {
+    const total = dock.querySelector<HTMLElement>('[data-home-dock-total]')!;
+    const sub = dock.querySelector<HTMLElement>('[data-home-dock-sub]');
+    const send = dock.querySelector<HTMLAnchorElement>('[data-home-dock-send]')!;
+    const text = form.querySelector<HTMLInputElement>('[data-order-text]')!;
+    const base = send.href.split('?')[0];
+
+    let engaged = false;
+    let estimatorVisible = false;
+    const sync = () => {
+      const on = engaged && !estimatorVisible;
+      dock.dataset.off = String(!on);
+      dock.inert = !on;
+      document.documentElement.classList.toggle('has-dock', on && window.innerWidth < 1024);
+    };
+    const engage = () => {
+      if (engaged) return;
+      engaged = true;
+      sync();
+    };
+
+    subscribe((o) => {
+      total.textContent = formatRupiah(estimate({ name: o.pkgName, price: o.price, unit: o.unit, minOrder: o.minOrder }, o.qty).total);
+      if (sub) sub.textContent = `${o.qty} ${o.unit} · ${o.serviceName} ${o.pkgName}`;
+      send.href = `${base}?text=${encodeURIComponent(text.value)}`;
+    });
+    window.addEventListener('aroma:pick', engage);
+    form.addEventListener('input', engage);
+    form.addEventListener('change', engage);
+
+    new IntersectionObserver(([e]) => {
+      estimatorVisible = e.isIntersecting;
+      sync();
+    }).observe(estimator);
+
+    dock.dataset.off = 'true';
+    dock.inert = true;
+    dock.hidden = false;
+  }
+</script>
+
 <style>
+  :global(.home-dock) {
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+  :global(.home-dock[data-off='true']) {
+    transform: translateY(110%);
+  }
+  /* Typing raises the keyboard; radios and selects do not. */
+  @media (max-width: 1023px) {
+    :global(html:has([data-order-form] input:not([type='radio'], [type='checkbox'], [type='hidden']):focus) .home-dock) {
+      transform: translateY(110%);
+    }
+  }
+  :global(html.has-dock) {
+    scroll-padding-bottom: 96px;
+  }
   .price-and-order {
     display: grid;
     gap: var(--spacing-5);

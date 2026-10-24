@@ -709,6 +709,75 @@ select.ui-input {
   font: 700 20px/1.4 var(--font-sans);
 }
 
+/* ---------- ServiceCard ---------- */
+.ui-service-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border: var(--hairline);
+  border-radius: var(--radius-card);
+  background: var(--color-card);
+  color: var(--color-ink);
+  text-decoration: none;
+}
+.ui-service-card__photo {
+  order: -1;
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-bottom: var(--hairline);
+  background: var(--color-kraft);
+}
+.ui-service-card__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Chips on a photo sit on a solid fill (brand book §6). */
+.ui-service-card__chips {
+  position: absolute;
+  inset: auto 10px 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.ui-service-card__chips .ui-chip {
+  gap: 0;
+}
+.ui-chip__amount {
+  font-family: var(--font-mono);
+}
+.ui-service-card__body {
+  display: grid;
+  gap: 2px;
+  padding: 14px 16px 16px;
+}
+.ui-service-card__title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-1);
+  font: 700 16px/1.3 var(--font-sans);
+}
+.ui-service-card__title svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+.ui-service-card__meta {
+  font: 400 13px/1.4 var(--font-sans);
+  color: var(--color-ink-muted);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ui-service-card:hover .ui-service-card__title {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+  }
+}
+
 /* ---------- Trust stamps ---------- */
 /* Round 84px stamps (Halal: pandan ring; Laik Higiene: ink ring) with the certificate number in
    mono beside them. */
@@ -767,7 +836,8 @@ select.ui-input {
   .ui-price-list,
   .ui-figure__img,
   .ui-photo-frame,
-  .ui-band__inner {
+  .ui-band__inner,
+  .ui-service-card {
     border: 1px solid CanvasText;
   }
   .ui-price-row:has(.ui-pick[aria-pressed='true'])::before {
