@@ -129,6 +129,12 @@ export const areaLabel: Record<Area, string> = {
   'luar-bogor': 'Luar Kota Bogor',
 };
 
+/** The delivery line on the nota: included in Kota Bogor, quoted by the team elsewhere. */
+export const shippingLabel: Record<Area, string> = {
+  'kota-bogor': 'Termasuk',
+  'luar-bogor': 'Dihitung tim kami',
+};
+
 export function buildMessage(o: OrderDraft): string {
   const e = estimate(o.pkg, o.qty);
   const lines = [

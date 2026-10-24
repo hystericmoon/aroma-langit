@@ -1,6 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
-import Photo from '../components/Photo.astro';
+import Figure from '../components/ui/Figure.astro';
+import SectionHeading from '../components/ui/SectionHeading.astro';
+import NavyBand from '../components/ui/NavyBand.astro';
 import Coupon from '../components/Coupon.astro';
 import { photos } from '../data/photos';
 import { getServices, getSite } from '../lib/content';
@@ -41,7 +43,7 @@ const uses = [
   title="Katering kantor dan perusahaan di Bogor"
   description="Katering harian untuk kantor, pabrik dan sekolah di Bogor: makan siang, rapat, pelatihan dan acara perusahaan. Dapur bersertifikat halal BPJPH dan laik higiene, menu disusun ahli gizi."
 >
-  <section class="head field-orange" aria-labelledby="k-title">
+  <section class="head" aria-labelledby="k-title">
     <div class="wrap head-grid">
       <div class="head-copy">
         <h1 id="k-title" class="t-display k-title">
@@ -52,33 +54,29 @@ const uses = [
           Makan siang harian, rapat dan acara untuk perusahaan, pabrik dan sekolah. Dimasak di dapur bersertifikat halal dan laik higiene, dengan menu yang disusun ahli gizi.
         </p>
         <div class="actions">
-          <a class="btn" href="#kupon">Minta penawaran</a>
-          <a class="link ph" href="/kalkulator/?acara=rapat">Hitung kebutuhan rapat</a>
+          <a class="ui-btn ui-btn--primary" href="#kupon">Minta penawaran</a>
+          <a class="ui-link ui-link--tap ph" href="/kalkulator/?acara=rapat">Hitung kebutuhan rapat</a>
         </div>
       </div>
-      <figure class="head-photo">
-        <Photo photo={photos.dapurBaki} sizes="(min-width: 1024px) 44vw, 100vw" priority widths={[480, 720, 1080, 1440]} />
-      </figure>
+      <Figure photo={photos.dapurBaki} ratio="4/3" class="head-photo" sizes="(min-width: 1024px) 44vw, 100vw" priority widths={[480, 720, 1080, 1440]} />
     </div>
   </section>
 
-  <section class="uses field-paper" aria-labelledby="u-title">
+  <section class="uses" aria-labelledby="u-title">
     <div class="wrap">
-      <h2 id="u-title" class="t-h2" data-split>Untuk setiap jam di kantor</h2>
+      <SectionHeading id="u-title" title="Untuk setiap jam di kantor" split />
       <ul role="list" class="u-list">
         {
           uses.map((u, i) => (
             <li class:list={['use', i % 2 && 'flip']} data-reveal>
-              <figure class="u-photo">
-                <Photo photo={u.photo} sizes="(min-width: 1024px) 42vw, 100vw" widths={[480, 720, 960]} />
-              </figure>
+              <Figure photo={u.photo} ratio="3/2" class="u-photo" sizes="(min-width: 1024px) 42vw, 100vw" widths={[480, 720, 960]} />
               <div class="u-copy">
                 <h3 class="u-title">{u.title}</h3>
-                <p class="t-body measure">{u.text}</p>
+                <p class="t-body measure u-text">{u.text}</p>
                 <ul role="list" class="u-links">
                   {u.links.map((l) => (
                     <li>
-                      <a class="link" href={l.href}>{l.label}</a>
+                      <a class="ui-link" href={l.href}>{l.label}</a>
                     </li>
                   ))}
                 </ul>
@@ -90,37 +88,34 @@ const uses = [
     </div>
   </section>
 
-  <section class="why field-ink on-dark" aria-labelledby="y-title">
-    <div class="wrap y-grid">
-      <h2 id="y-title" class="t-h2" data-split>Untuk bagian pengadaan</h2>
-      <dl class="y-list" data-reveal>
+  <NavyBand id="y-title" label="Untuk bagian pengadaan" class="why">
+    <dl class="y-list" data-reveal>
+      <div>
+        <dt>Halal BPJPH</dt>
+        <dd class="tab">{site.halal.number}</dd>
+      </div>
+      <div>
+        <dt>Laik Higiene Jasaboga {site.hygiene.grade}</dt>
+        <dd class="tab">{site.hygiene.number}</dd>
+      </div>
+      <div>
+        <dt>Badan usaha</dt>
+        <dd>{site.legalName}</dd>
+      </div>
+      {nutritionist && (
         <div>
-          <dt>Halal BPJPH</dt>
-          <dd class="tab">{site.halal.number}</dd>
+          <dt>Ahli gizi</dt>
+          <dd>{nutritionist.name}, {nutritionist.role}</dd>
         </div>
-        <div>
-          <dt>Laik Higiene Jasaboga {site.hygiene.grade}</dt>
-          <dd class="tab">{site.hygiene.number}</dd>
-        </div>
-        <div>
-          <dt>Badan usaha</dt>
-          <dd>{site.legalName}</dd>
-        </div>
-        {nutritionist && (
-          <div>
-            <dt>Ahli gizi</dt>
-            <dd>{nutritionist.name}, {nutritionist.role}</dd>
-          </div>
-        )}
-        <div class="wide">
-          <dt>Pernah melayani</dt>
-          <dd class="clients">{site.clients.join(' · ')}</dd>
-        </div>
-      </dl>
-    </div>
-  </section>
+      )}
+      <div class="wide">
+        <dt>Pernah melayani</dt>
+        <dd class="clients">{site.clients.join(' · ')}</dd>
+      </div>
+    </dl>
+  </NavyBand>
 
-  <section class="form field-paper" aria-labelledby="kupon-title" style="--coupon-ground: var(--paper)">
+  <section class="form" aria-labelledby="kupon-title">
     <div class="wrap">
       <Coupon id="kupon" />
     </div>
@@ -128,36 +123,34 @@ const uses = [
 </Base>
 
 <style>
-  .head {
-    padding-block: clamp(40px, 6vw, 88px) clamp(64px, 8vw, 120px);
-  }
+  /* Korporat (brand book §7 recipe): read-mode page with a procurement panel (the page's one
+     NavyBand) and an order-mode quote request. */
   .head-grid {
     display: grid;
-    gap: 40px;
+    gap: var(--spacing-4);
+    padding-block: var(--spacing-4) var(--section-space);
   }
   .head-copy {
     display: grid;
-    gap: 28px;
+    gap: var(--spacing-3);
     align-content: center;
-  }
-  .k-title {
-    font-size: clamp(3.25rem, 0.8rem + 9vw, 9rem);
   }
   .k-title .intro-line {
     display: block;
     overflow: clip;
-    padding-bottom: 0.06em;
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
   }
   .k-title .intro-line > span {
     display: block;
-    animation: rise 1100ms var(--ease-out) both;
+    animation: rise 250ms var(--ease-out) both;
   }
   .k-title .intro-line:nth-child(2) > span {
-    animation-delay: 110ms;
+    animation-delay: 60ms;
   }
   @keyframes rise {
     from {
-      transform: translateY(105%);
+      transform: translateY(40%);
     }
   }
   .lead {
@@ -167,101 +160,72 @@ const uses = [
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 12px 28px;
+    gap: var(--spacing-2) var(--spacing-3);
   }
   .ph {
     display: inline-flex;
     align-items: center;
-    min-height: 48px;
+    min-height: var(--tap-min);
   }
-  .head-photo {
-    aspect-ratio: 4 / 5;
-    overflow: hidden;
-    background: var(--ink);
-  }
-  .head-photo :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .uses,
-  .why,
-  .form {
-    padding-block: var(--section);
+
+  .uses {
+    padding-bottom: var(--section-space);
   }
   .u-list {
     display: grid;
-    gap: clamp(56px, 8vw, 120px);
-    margin-top: clamp(40px, 6vw, 88px);
+    gap: var(--spacing-5);
+    margin-top: var(--spacing-3);
   }
   .use {
     display: grid;
-    gap: 28px;
+    gap: var(--spacing-3);
     align-items: center;
-  }
-  .u-photo {
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    background: var(--paper-2);
-  }
-  .u-photo :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
   }
   .u-copy {
     display: grid;
-    gap: 16px;
+    gap: 12px;
   }
   .u-title {
-    font-size: clamp(1.75rem, 1.2rem + 2vw, 3rem);
-    font-weight: 800;
-    letter-spacing: -0.035em;
-    line-height: 1;
+    font: 400 32px/1.1 var(--font-display);
+  }
+  .u-text {
+    color: var(--color-ink-muted);
   }
   .u-links {
     display: grid;
-    gap: 2px;
+    gap: 4px;
   }
   .u-links a {
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
+    min-height: var(--tap-min);
   }
-  .y-grid {
-    display: grid;
-    gap: 40px;
-  }
-  .y-grid h2 {
-    max-width: 14ch;
-  }
+
   .y-list {
     display: grid;
-    gap: 2px;
-  }
-  .y-list div {
-    padding: 20px 24px;
-    background: var(--ink-2);
+    gap: var(--spacing-3);
+    margin: 0;
   }
   .y-list dt {
-    font-size: var(--step-small);
-    font-weight: 700;
-    color: var(--peach);
+    font: 600 12px/1.3 var(--font-sans);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
   .y-list dd {
-    margin-top: 4px;
-    font-size: 1.25rem;
-    font-weight: 800;
-    overflow-wrap: anywhere;
+    margin: 6px 0 0;
+    font: 300 24px/1.3 var(--font-display);
   }
   .y-list .clients {
-    font-size: 1.0625rem;
-    font-weight: 700;
-    line-height: 1.6;
+    font-size: 20px;
   }
+
+  .form {
+    padding-block: var(--section-space) 0;
+  }
+
   @media (min-width: 768px) {
     .y-list {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .y-list .wide {
       grid-column: 1 / -1;
@@ -269,23 +233,16 @@ const uses = [
   }
   @media (min-width: 1024px) {
     .head-grid {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--spacing-5);
       align-items: center;
-      gap: clamp(40px, 5vw, 96px);
     }
     .use {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      gap: clamp(40px, 6vw, 120px);
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: var(--spacing-5);
     }
-    .use.flip .u-photo {
+    .use.flip :global(.u-photo) {
       order: 2;
-    }
-    .use.flip {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    }
-    .y-grid {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-      gap: clamp(40px, 6vw, 120px);
     }
   }
 </style>

@@ -15,10 +15,11 @@ const viewBox = variant === 'wordmark' ? '0 2540 3000 531' : art.viewBox;
 // An empty title marks the logo as decoration next to text that already names it.
 const a11y: Record<string, string> = title ? { role: 'img', 'aria-label': title } : { 'aria-hidden': 'true' };
 const fills = {
-  color: ['var(--orange)', 'var(--brown)'],
-  'on-orange': ['var(--paper)', 'var(--ink)'],
-  'on-ink': ['var(--orange)', 'var(--paper)'],
-  ink: ['var(--ink)', 'var(--ink)'],
+  // The logo's own brown is not a brand-book colour, so the two-colour version uses ink.
+  color: ['var(--color-orange)', 'var(--color-ink)'],
+  'on-orange': ['var(--color-paper)', 'var(--color-ink)'],
+  'on-ink': ['var(--color-orange)', 'var(--color-paper)'],
+  ink: ['var(--color-ink)', 'var(--color-ink)'],
 }[tone];
 ---
 

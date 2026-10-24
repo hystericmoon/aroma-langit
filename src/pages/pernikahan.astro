@@ -1,6 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
-import Photo from '../components/Photo.astro';
+import Figure from '../components/ui/Figure.astro';
+import SectionHeading from '../components/ui/SectionHeading.astro';
+import PriceRow from '../components/ui/PriceRow.astro';
+import Chip from '../components/ui/Chip.astro';
+import Icon from '../components/ui/Icon.astro';
 import Terms from '../components/Terms.astro';
 import { photos } from '../data/photos';
 import { getSite } from '../lib/content';
@@ -17,7 +21,7 @@ const p0 = weddingPortions(start);
   title="Katering pernikahan di Bogor"
   description="Paket katering pernikahan Aroma Langit untuk 100 sampai 1.000 tamu: Platinum, Gold, Silver dan Bronze mulai Rp45.000 per pax, menu Nusantara, Oriental dan Western, plus paket lamaran dan akad."
 >
-  <section class="head field-ink on-dark" aria-labelledby="w-title">
+  <section class="head field-navy on-navy" aria-labelledby="w-title">
     <div class="wrap head-grid">
       <div class="head-copy">
         <h1 id="w-title" class="t-display w-title">
@@ -28,29 +32,27 @@ const p0 = weddingPortions(start);
           Dari lamaran, akad sampai resepsi. Menu Nusantara, Oriental atau Western untuk 100 sampai 1.000 tamu, dan food tasting sebelum Anda membayar uang muka.
         </p>
         <div class="actions">
-          <a class="btn btn-orange" href="#porsi">Hitung porsi tamu</a>
-          <a class="btn btn-paper" href={waLink(site.marketingPhone, 'Halo Aroma Langit, saya ingin konsultasi katering pernikahan.')} rel="noopener">Konsultasi via WhatsApp</a>
+          <a class="ui-btn ui-btn--primary" href="#porsi">Hitung porsi tamu</a>
+          <a class="ui-btn ui-btn--secondary" href={waLink(site.marketingPhone, 'Halo Aroma Langit, saya ingin konsultasi katering pernikahan.')} rel="noopener"><Icon name="chat" />Konsultasi via WhatsApp</a>
         </div>
       </div>
-      <figure class="head-photo">
-        <Photo photo={photos.prasmananMalam} sizes="(min-width: 1024px) 44vw, 100vw" priority widths={[480, 720, 1000]} />
-      </figure>
+      <Figure photo={photos.prasmananMalam} ratio="4/3" class="head-photo" sizes="(min-width: 1024px) 44vw, 100vw" priority widths={[480, 720, 1000]} />
     </div>
   </section>
 
-  <section class="invites field-orange" aria-labelledby="pk-title">
+  <section class="invites" aria-labelledby="pk-title">
     <div class="wrap">
-      <div class="sec-head">
-        <h2 id="pk-title" class="t-h2" data-split>Empat paket resepsi</h2>
-        <p class="t-lead sec-lead">Harga per tamu untuk prasmanan lengkap dengan meja saji, dekorasi meja, peralatan saji dan alat makan.</p>
-      </div>
-      <ul role="list" class="cards" data-reveal>
+      <SectionHeading
+        id="pk-title"
+        title="Empat paket resepsi"
+        context="Harga per tamu untuk prasmanan lengkap dengan meja saji, dekorasi meja, peralatan saji dan alat makan."
+        split
+      />
+      <ul role="list" class="ui-price-list cards" data-reveal>
         {
           weddingCatering.map((w) => (
-            <li class="invite field-paper edge-y">
-              <h3 class="inv-name">{w.name}</h3>
-              <p class="inv-price tab">{formatRupiah(w.price)}<span class="per">/pax</span></p>
-              <p class="inv-min t-small">Minimum {w.minOrder} pax</p>
+            <li class="invite">
+              <PriceRow as="div" name={w.name} meta={`Minimum ${w.minOrder} pax`} price={formatRupiah(w.price)} unit="pax" />
               <p class="inv-note">{w.note}</p>
             </li>
           ))
@@ -69,107 +71,94 @@ const p0 = weddingPortions(start);
     </div>
   </section>
 
-  <section id="porsi" class="calc field-paper" aria-labelledby="calc-title">
+  <section id="porsi" class="calc" aria-labelledby="calc-title">
     <div class="wrap calc-grid">
       <div class="calc-copy">
-        <h2 id="calc-title" class="t-h2" data-split>Hitung porsi tamu</h2>
-        <p class="t-body measure">
+        <SectionHeading id="calc-title" title="Hitung porsi tamu" split />
+        <p class="t-body measure muted">
           Rumus dari katalog kami: 60% undangan dihitung sebagai porsi prasmanan, dan 40% undangan dikali lima sebagai porsi gubukan, karena tamu biasanya mencicipi beberapa stall.
         </p>
-        <p>Ingin menambah snack box atau tumpeng untuk lamaran? <a class="link calc-link" href="/kalkulator/?acara=pernikahan">Susun di kalkulator katering</a>.</p>
+        <p class="t-meta">Ingin menambah snack box atau tumpeng untuk lamaran? <a class="ui-link calc-link" href="/kalkulator/?acara=pernikahan">Susun di kalkulator katering</a>.</p>
       </div>
-      <form class="calc-card field-ink on-dark" data-calc data-phone={site.marketingPhone} novalidate>
-        <div class="calc-in">
-          <label for="inv" class="calc-label">Jumlah undangan</label>
-          <input id="inv" type="number" inputmode="numeric" min="0" max="20000" step="10" value={start} class="tab" data-inv />
-          <input type="range" min="100" max="2000" step="50" value={start} aria-label="Geser jumlah undangan" data-inv-range />
+      <form class="calc-card field-kraft" data-calc data-phone={site.marketingPhone} novalidate>
+        <div class="ui-field">
+          <label for="inv">Jumlah undangan</label>
+          <input id="inv" class="ui-input ui-input--number" type="number" inputmode="numeric" min="0" max="20000" step="10" value={start} data-inv />
+          <input type="range" class="range" min="100" max="2000" step="50" value={start} aria-label="Geser jumlah undangan" data-inv-range />
         </div>
         <div class="calc-out tab" aria-live="polite">
           <div><p class="o-num" data-buffet>{p0.buffet.toLocaleString('id-ID')}</p><p class="o-lab">porsi prasmanan</p></div>
           <div><p class="o-num" data-stall>{p0.stall.toLocaleString('id-ID')}</p><p class="o-lab">porsi gubukan</p></div>
         </div>
-        <div class="calc-pkgs">
-          <label for="wpkg" class="calc-label">Paket prasmanan</label>
-          <select id="wpkg" data-wpkg>
+        <div class="ui-field">
+          <label for="wpkg">Paket prasmanan</label>
+          <select id="wpkg" class="ui-input" data-wpkg>
             {weddingCatering.map((w, i) => <option value={w.price} selected={i === 1}>{w.name} · {formatRupiah(w.price)}/pax</option>)}
           </select>
-          <p class="calc-est">Perkiraan prasmanan <strong class="tab" data-est>{formatRupiah(p0.buffet * weddingCatering[1].price)}</strong></p>
-          <p class="t-small calc-note">Belum termasuk gubukan. Harga gubukan mulai Rp10.000 per porsi, tergantung menunya.</p>
         </div>
-        <button type="submit" class="calc-send">
+        <p class="calc-est">Perkiraan prasmanan <strong class="tab" data-est>{formatRupiah(p0.buffet * weddingCatering[1].price)}</strong></p>
+        <p class="t-meta calc-note">Belum termasuk gubukan. Harga gubukan mulai Rp10.000 per porsi, tergantung menunya.</p>
+        <button type="submit" class="ui-btn ui-btn--primary calc-send">
           Kirim hitungan ini ke marketing
-          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 10h13M11 4l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2"></path></svg>
+          <Icon name="arrow-right" />
         </button>
       </form>
     </div>
   </section>
 
-  <section class="bundles field-paper-2" aria-labelledby="b-title">
+  <section class="bundles" aria-labelledby="b-title">
     <div class="wrap b-grid">
-      <div>
-        <h2 id="b-title" class="t-h2" data-split>Tidak mau menghitung?</h2>
-        <p class="t-lead b-lead">Paket bundling untuk 300 tamu sudah mencakup prasmanan dan gubukan.</p>
-      </div>
-      <ul role="list" class="b-list" data-reveal>
-        {
-          weddingBundles.map((b) => (
-            <li>
-              <span class="b-name">{b.name}</span>
-              <span class="b-guests t-small">{b.guests} tamu</span>
-              <span class="b-price tab">{formatRupiahShort(b.price)}</span>
-            </li>
-          ))
-        }
+      <SectionHeading id="b-title" title="Tidak mau menghitung?" context="Paket bundling untuk 300 tamu sudah mencakup prasmanan dan gubukan." split />
+      <ul role="list" class="ui-price-list b-list" data-reveal>
+        {weddingBundles.map((b) => <PriceRow name={b.name} meta={`${b.guests} tamu`} price={formatRupiahShort(b.price)} />)}
       </ul>
     </div>
   </section>
 
-  <section class="engage field-ink on-dark" aria-labelledby="e-title">
+  <section class="engage" aria-labelledby="e-title">
     <div class="wrap e-grid">
-      <figure class="e-photo">
-        <Photo photo={photos.pernikahan} sizes="(min-width: 1024px) 40vw, 100vw" widths={[480, 800]} />
-      </figure>
+      <Figure photo={photos.pernikahan} ratio="4/3" class="e-photo" sizes="(min-width: 1024px) 40vw, 100vw" widths={[480, 800]} />
       <div class="e-copy">
-        <h2 id="e-title" class="t-h2" data-split>Lamaran dan akad</h2>
-        <p class="t-body measure">Paket lamaran untuk 50 tamu, dari hidangan dan karpet sampai kebaya atau gaun di paket Jasmine. Paket akad dan all-in wedding ada di katalog layanan.</p>
-        <ul role="list" class="e-list">
-          {
-            engagementPackages.map((e) => (
-              <li>
-                <span class="e-name">Paket {e.name}</span>
-                <span class="t-small e-g">{e.guests} tamu</span>
-                <span class="e-price tab">{formatRupiahShort(e.price)}</span>
-              </li>
-            ))
-          }
+        <SectionHeading id="e-title" title="Lamaran dan akad" split />
+        <p class="t-body measure muted">Paket lamaran untuk 50 tamu, dari hidangan dan karpet sampai kebaya atau gaun di paket Jasmine. Paket akad dan all-in wedding ada di katalog layanan.</p>
+        <ul role="list" class="ui-price-list e-list">
+          {engagementPackages.map((e) => <PriceRow name={`Paket ${e.name}`} meta={`${e.guests} tamu`} price={formatRupiahShort(e.price)} />)}
         </ul>
         <div class="downloads">
-          {site.weddingCatalogs.map((c) => <a class="link dl" href={c.url} download>{c.label} (PDF)</a>)}
+          {site.weddingCatalogs.map((c) => <a class="ui-link dl" href={c.url} download><Icon name="download" />{c.label} (PDF)</a>)}
         </div>
       </div>
     </div>
   </section>
 
-  <section class="events field-paper" aria-labelledby="ev-title">
+  <section class="events" aria-labelledby="ev-title">
     <div class="wrap">
-      <h2 id="ev-title" class="t-h2" data-split>Dari meja saji kami</h2>
+      <SectionHeading id="ev-title" title="Dari meja saji kami" split />
       <div class="ev-grid">
-        <figure class="ev ev-big"><Photo photo={photos.prasmananOutdoor} sizes="(min-width: 1024px) 50vw, 100vw" widths={[480, 720, 1000]} /></figure>
-        <figure class="ev"><Photo photo={photos.prasmananTeh} sizes="(min-width: 1024px) 25vw, 50vw" widths={[480, 720]} /></figure>
-        <figure class="ev"><Photo photo={photos.hidanganFlatlay} sizes="(min-width: 1024px) 25vw, 50vw" widths={[480, 720]} /></figure>
-        <figure class="ev"><Photo photo={photos.dapurBaki} sizes="(min-width: 1024px) 25vw, 50vw" widths={[480, 720]} /></figure>
-        <figure class="ev"><Photo photo={photos.korporatBuffet} sizes="(min-width: 1024px) 25vw, 50vw" widths={[480, 640]} /></figure>
+        <Figure photo={photos.prasmananOutdoor} ratio="3/2" class="ev-big" sizes="(min-width: 1024px) 50vw, 100vw" widths={[480, 720, 1000]} />
+        <Figure photo={photos.prasmananTeh} ratio="1/1" sizes="(min-width: 1024px) 25vw, 50vw" widths={[480, 720]} />
+        <Figure photo={photos.hidanganFlatlay} ratio="1/1" sizes="(min-width: 1024px) 25vw, 50vw" widths={[480, 720]} />
+        <Figure photo={photos.dapurBaki} ratio="1/1" sizes="(min-width: 1024px) 25vw, 50vw" widths={[480, 720]} />
+        <Figure photo={photos.korporatBuffet} ratio="1/1" sizes="(min-width: 1024px) 25vw, 50vw" widths={[480, 640]} />
       </div>
-      <p class="t-small ev-cap">Prasmanan dan hidangan Aroma Langit di berbagai acara.</p>
+      <p class="t-caption ev-cap">Prasmanan dan hidangan Aroma Langit di berbagai acara.</p>
     </div>
   </section>
 
-  <section class="stalls field-orange" aria-labelledby="s-title">
+  <section class="stalls" aria-labelledby="s-title">
     <div class="wrap">
-      <h2 id="s-title" class="t-h2" data-split>Gubukan khas</h2>
-      <p class="t-lead s-lead">Sebagian dari puluhan pilihan stall, harga per porsi. Laksa, asinan dan soto mie Bogor tentu ada.</p>
+      <SectionHeading id="s-title" title="Gubukan khas" context="Sebagian dari puluhan pilihan stall, harga per porsi. Laksa, asinan dan soto mie Bogor tentu ada." split />
       <ul role="list" class="chips" data-reveal>
-        {foodStalls.map((f) => <li><span>{f.name}</span><span class="tab chip-price">{formatRupiahShort(f.price)}</span></li>)}
+        {
+          foodStalls.map((f) => (
+            <li>
+              <Chip variant="outline" class="stall">
+                <span>{f.name}</span>
+                <span class="tab chip-price">{formatRupiahShort(f.price)}</span>
+              </Chip>
+            </li>
+          ))
+        }
       </ul>
     </div>
   </section>
@@ -226,304 +215,158 @@ const p0 = weddingPortions(start);
 </script>
 
 <style>
-  .head {
-    padding-block: clamp(40px, 6vw, 88px) clamp(64px, 8vw, 120px);
-  }
+  /* Pernikahan (brand book §7 recipe): almost entirely read mode, a navy hero band, large
+     Newsreader headings and photos, with an order-mode portion calculator. */
   .head-grid {
     display: grid;
-    gap: 40px;
+    gap: var(--spacing-4);
+    padding-block: var(--spacing-5);
   }
   .head-copy {
     display: grid;
-    gap: 28px;
+    gap: var(--spacing-3);
     align-content: center;
-  }
-  .w-title {
-    font-size: clamp(3rem, 0.6rem + 8.6vw, 8.5rem);
   }
   .w-title .intro-line {
     display: block;
     overflow: clip;
-    padding-bottom: 0.06em;
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
   }
   .w-title .intro-line > span {
     display: block;
-    animation: rise 1100ms var(--ease-out) both;
+    animation: rise 250ms var(--ease-out) both;
   }
   .w-title .intro-line:nth-child(2) > span {
-    animation-delay: 110ms;
+    animation-delay: 60ms;
   }
   @keyframes rise {
     from {
-      transform: translateY(105%);
+      transform: translateY(40%);
     }
   }
   .lead {
-    max-width: 34ch;
-    color: var(--peach);
+    max-width: 38ch;
   }
   .actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-  }
-  .head-photo {
-    aspect-ratio: 4 / 5;
-    overflow: hidden;
-    background: var(--ink-2);
-  }
-  .head-photo :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    gap: 12px;
   }
 
   .invites,
   .calc,
   .bundles,
   .engage,
+  .events,
   .stalls {
-    padding-block: var(--section);
+    padding-block: var(--section-space) 0;
   }
-  .sec-head {
-    display: grid;
-    gap: 20px;
-    align-items: end;
-  }
-  .sec-lead {
-    max-width: 40ch;
+  .stalls {
+    padding-bottom: var(--section-space);
   }
   .cards {
-    display: grid;
-    gap: 16px;
-    margin-top: clamp(40px, 5vw, 72px);
+    margin-top: var(--spacing-3);
   }
   .invite {
-    display: grid;
-    gap: 8px;
-    justify-items: center;
-    text-align: center;
-    padding: 56px 28px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--color-rule-soft);
   }
-  .inv-name {
-    font-size: clamp(1.75rem, 1.3rem + 1.4vw, 2.5rem);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-  }
-  .inv-price {
-    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
-    font-weight: 800;
-  }
-  .per {
-    font-size: var(--step-small);
-    font-weight: 600;
-    color: var(--muted);
-  }
-  .inv-min {
-    color: var(--muted);
+  .invite :global(.ui-price-row) {
+    border-bottom: 0;
+    padding-bottom: 4px;
   }
   .inv-note {
-    margin-top: 10px;
-    max-width: 28ch;
-    font-size: 1rem;
+    max-width: 62ch;
+    font-size: 14px;
+    color: var(--color-ink-muted);
   }
   .cuisines {
     display: grid;
-    gap: 2px;
-    margin-top: 16px;
-  }
-  .cuisine {
-    padding: 20px 24px;
-    background: var(--ink);
-    color: var(--paper);
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-4);
   }
   .cu-name {
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: var(--orange);
+    font: 400 22px/1.2 var(--font-display);
   }
   .cu-items {
     margin-top: 4px;
-    font-weight: 600;
+    font-size: 15px;
+    color: var(--color-ink-muted);
+  }
+  .muted {
+    color: var(--color-ink-muted);
   }
 
   .calc-grid {
     display: grid;
-    gap: 40px;
+    gap: var(--spacing-4);
+    align-items: start;
   }
   .calc-copy {
     display: grid;
-    gap: 20px;
-    align-content: start;
+    gap: var(--spacing-2);
   }
+  /* Order mode: the portion calculator on the kraft order zone */
   .calc-card {
     display: grid;
-    gap: 2px;
-    background: var(--ink-2);
+    gap: var(--spacing-3);
+    padding: var(--spacing-3);
+    border: var(--hairline);
+    border-radius: var(--radius-card);
   }
-  .calc-card > * {
-    background: var(--ink);
-    padding: 24px clamp(20px, 3vw, 36px);
-  }
-  .calc-link {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-  }
-  .calc-label {
-    display: block;
-    font-size: var(--step-small);
-    font-weight: 700;
-    color: var(--peach);
-    margin-bottom: 10px;
-  }
-  .calc-in input[type='number'] {
+  /* The slider is not one of the brand book's components (flagged); it uses ink. */
+  .range {
     width: 100%;
-    min-height: 64px;
-    padding: 0 18px;
-    border: 0;
-    border-radius: 0;
-    background: var(--ink-2);
-    color: var(--paper);
-    font-size: 2rem;
-    font-weight: 800;
-  }
-  .calc-in input[type='range'] {
-    width: 100%;
-    margin-top: 18px;
-    accent-color: var(--orange);
-    height: 32px;
+    min-height: var(--tap-min);
+    accent-color: var(--color-ink);
   }
   .calc-out {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .calc-out > div {
+    padding: var(--spacing-2);
+    border: var(--hairline);
+    border-radius: var(--radius-input);
+    background: var(--color-card);
   }
   .o-num {
-    font-size: clamp(2.25rem, 1.6rem + 2.6vw, 3.75rem);
-    font-weight: 800;
-    letter-spacing: -0.035em;
-    line-height: 1;
-    color: var(--orange);
+    font: 600 22px/1.2 var(--font-mono);
   }
   .o-lab {
-    margin-top: 6px;
-    font-weight: 600;
-  }
-  .calc-pkgs select {
-    width: 100%;
-    min-height: 54px;
-    padding: 0 44px 0 16px;
-    border: 0;
-    border-radius: 0;
-    background: var(--ink-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M3 6l5 5 5-5' fill='none' stroke='%23f6d9b8' stroke-width='2.2'/%3E%3C/svg%3E") no-repeat right 16px center;
-    color: var(--paper);
-    font-weight: 700;
-    appearance: none;
+    margin-top: 2px;
+    font-size: 13px;
+    color: var(--color-ink-muted);
   }
   .calc-est {
-    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 12px;
     font-weight: 600;
   }
   .calc-est strong {
-    display: block;
-    font-size: 1.75rem;
-    font-weight: 800;
+    font: 600 18px/1.3 var(--font-mono);
   }
-  .calc-note {
-    margin-top: 6px;
-    color: var(--peach);
-  }
-  .calc-card .calc-send {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    min-height: 64px;
-    border: 0;
-    background: var(--orange);
-    color: var(--ink);
-    font-weight: 800;
-    font-size: 1.0625rem;
-    cursor: pointer;
-    transition: background var(--dur) var(--ease);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .calc-send:hover {
-      background: #f59a45;
-    }
-  }
-  .calc-card :focus-visible {
-    outline-color: var(--peach);
+  .calc-send {
+    width: 100%;
   }
 
-  .field-paper-2 {
-    background: var(--paper-2);
-  }
   .b-grid {
     display: grid;
-    gap: 40px;
-  }
-  .b-lead {
-    margin-top: 20px;
-    max-width: 30ch;
-  }
-  .b-list,
-  .e-list {
-    display: grid;
-    gap: 2px;
-  }
-  .b-list li,
-  .e-list li {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-areas: 'name price' 'guests price';
-    align-items: center;
-    padding: 20px 24px;
-    background: var(--paper);
-  }
-  .b-name,
-  .e-name {
-    grid-area: name;
-    font-weight: 800;
-    font-size: 1.25rem;
-  }
-  .b-guests,
-  .e-g {
-    grid-area: guests;
-    color: var(--muted);
-  }
-  .b-price,
-  .e-price {
-    grid-area: price;
-    font-size: 1.5rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
+    gap: var(--spacing-3);
   }
 
   .e-grid {
     display: grid;
-    gap: 40px;
-  }
-  .e-photo {
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    background: var(--ink-2);
-  }
-  .e-photo :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    gap: var(--spacing-4);
+    align-items: start;
   }
   .e-copy {
     display: grid;
-    gap: 24px;
-    align-content: start;
-  }
-  .e-list li {
-    background: var(--ink-2);
-  }
-  .e-g {
-    color: var(--peach);
+    gap: var(--spacing-2);
   }
   .downloads {
     display: grid;
@@ -532,100 +375,70 @@ const p0 = weddingPortions(start);
   .dl {
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
-    justify-self: start;
+    gap: var(--spacing-1);
+    min-height: var(--tap-min);
   }
 
-  .events {
-    padding-block: var(--section);
-  }
   .ev-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
-    margin-top: clamp(32px, 4vw, 56px);
+    margin-top: var(--spacing-3);
   }
-  .ev {
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    background: var(--paper-2);
-  }
-  .ev-big {
+  .ev-grid :global(.ev-big) {
     grid-column: 1 / -1;
-    aspect-ratio: 16 / 9;
-  }
-  .ev :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
   }
   .ev-cap {
-    margin-top: 12px;
-    color: var(--muted);
+    margin-top: 10px;
   }
-  @media (min-width: 1024px) {
-    .ev-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-    .ev-big {
-      grid-column: span 2;
-      grid-row: span 2;
-      aspect-ratio: auto;
-    }
-  }
-  .s-lead {
-    margin-top: 20px;
-    max-width: 40ch;
-  }
+
   .chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-top: clamp(32px, 4vw, 56px);
+    gap: var(--spacing-1);
+    margin-top: var(--spacing-3);
   }
-  .chips li {
-    display: inline-flex;
-    gap: 12px;
-    align-items: baseline;
-    padding: 12px 18px;
-    background: var(--paper);
-    font-weight: 700;
+  .chips :global(.stall) {
+    gap: 8px;
+    font-size: 13px;
   }
   .chip-price {
-    font-size: var(--step-small);
-    color: var(--muted);
+    font-weight: 400;
+    color: var(--color-ink-muted);
   }
 
-  @media (min-width: 640px) {
-    .cards {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  @media (min-width: 768px) {
     .cuisines {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
   @media (min-width: 1024px) {
     .head-grid {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--spacing-5);
       align-items: center;
-      gap: clamp(40px, 5vw, 96px);
     }
-    .sec-head {
-      grid-template-columns: 1fr 1fr;
+    .calc-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(360px, 480px);
+      gap: var(--spacing-5);
     }
-    .cards {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-    .calc-grid,
     .b-grid {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-      gap: clamp(40px, 6vw, 120px);
-      align-items: start;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+      gap: var(--spacing-5);
     }
     .e-grid {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-      gap: clamp(40px, 6vw, 120px);
-      align-items: center;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: var(--spacing-5);
+    }
+    .ev-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .ev-grid :global(.ev-big) {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+    .ev-grid :global(.ev-big .ui-figure__img) {
+      height: 100%;
     }
   }
 </style>

@@ -1,0 +1,18 @@
+---
+// One line of the Nota: a label and an amount in mono. The surcharge variant is chili and
+// always carries words, never colour alone.
+interface Props {
+  label: string;
+  amount: string;
+  variant?: 'default' | 'surcharge';
+  hidden?: boolean;
+  attrs?: Record<string, string | boolean | undefined>;
+  amountAttrs?: Record<string, string | boolean | undefined>;
+}
+const { label, amount, variant = 'default', hidden, attrs, amountAttrs } = Astro.props;
+---
+
+<div class:list={['ui-nota__line', variant === 'surcharge' && 'ui-nota__line--surcharge']} hidden={hidden} {...attrs}>
+  <dt>{label}</dt>
+  <dd {...amountAttrs}>{amount}</dd>
+</div>

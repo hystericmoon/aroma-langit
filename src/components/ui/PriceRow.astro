@@ -1,0 +1,41 @@
+---
+// PriceRow (brand book §7, both modes): Newsreader name and meta (read), dotted leader,
+// orange-ink price, and a small "Pilih" pill (order). Selected: orange with a check and
+// aria-pressed="true"; the button's accessible name names the package.
+import Icon from './Icon.astro';
+
+interface Props {
+  name: string;
+  /** Visually hidden prefix for screen readers, e.g. the service title. */
+  srPrefix?: string;
+  meta?: string;
+  /** Price and unit, already formatted from data. */
+  price: string;
+  unit?: string;
+  pickLabel?: string;
+  pickAttrs?: Record<string, string | boolean | undefined>;
+  selected?: boolean;
+  as?: 'li' | 'div';
+  class?: string;
+}
+const { name, srPrefix, meta, price, unit, pickLabel, pickAttrs, selected = false, as = 'li', class: cls } = Astro.props;
+const El = as;
+---
+
+<El class:list={['ui-price-row', cls]}>
+  <div class="ui-price-row__name">
+    <span class="t-item-name">{srPrefix && <span class="sr-only">{srPrefix} </span>}{name}</span>
+    {meta && <small>{meta}</small>}
+  </div>
+  <span class="ui-price-row__leader" aria-hidden="true"></span>
+  <span class="ui-price-row__price tab">{price}{unit && <span class="ui-price-row__unit">/{unit}</span>}</span>
+  {
+    pickLabel && (
+      <button type="button" class="ui-btn ui-btn--secondary ui-btn--small ui-pick" aria-pressed={selected ? 'true' : 'false'} aria-label={pickLabel} {...pickAttrs}>
+        <span class="ui-pick__text">Pilih</span>
+        <Icon name="check" class="ui-pick__check" />
+      </button>
+    )
+  }
+  <slot />
+</El>

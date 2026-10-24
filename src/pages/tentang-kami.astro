@@ -1,6 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
-import Photo from '../components/Photo.astro';
+import Figure from '../components/ui/Figure.astro';
+import SectionHeading from '../components/ui/SectionHeading.astro';
+import NavyBand from '../components/ui/NavyBand.astro';
 import Kitchen from '../components/home/Kitchen.astro';
 import { photos } from '../data/photos';
 import { getSite } from '../lib/content';
@@ -17,7 +19,7 @@ const pillars = [
   title="Tentang kami"
   description="Aroma Langit berawal dari rumah makan prasmanan di Jatinangor pada 2017 dan kini menjadi dapur katering bersertifikat halal di Bogor. Kenali cerita, tim dan dapur kami."
 >
-  <section class="head field-orange" aria-labelledby="a-title">
+  <section class="head" aria-labelledby="a-title">
     <div class="wrap head-grid">
       <h1 id="a-title" class="t-display a-title">
         <span class="intro-line"><span>Tentang</span></span>
@@ -27,21 +29,19 @@ const pillars = [
         <p class="t-lead">
           Aroma Langit lahir dari mimpi sederhana: menggapai cita-cita setinggi langit sambil menebarkan aroma masakan yang membuat orang betah duduk lebih lama.
         </p>
-        <p class="t-body measure">
+        <p class="t-body measure muted">
           Kami mulai sebagai rumah makan prasmanan bercita rasa Nusantara di Jatinangor, Sumedang, pada Februari 2017. Ayam Bakar Kalasan, Rendang, Nila Bumbu Cobek, Gepuk dan Sayur Urap menjadi andalan kami saat menjamu mahasiswa dan warga sekitar.
         </p>
       </div>
     </div>
   </section>
 
-  <section class="story field-paper" aria-labelledby="s-title">
+  <section class="story" aria-labelledby="s-title">
     <div class="wrap">
-      <h2 id="s-title" class="t-h2 story-title" data-split>Dari rumah makan ke katering</h2>
+      <SectionHeading id="s-title" title="Dari rumah makan ke katering" split />
     </div>
     <div class="wrap story-grid">
-      <figure class="story-photo">
-        <Photo photo={photos.hidanganFlatlay} sizes="(min-width: 1024px) 46vw, 100vw" widths={[480, 720, 994]} />
-      </figure>
+      <Figure photo={photos.hidanganFlatlay} ratio="3/2" class="story-photo" sizes="(min-width: 1024px) 46vw, 100vw" widths={[480, 720, 994]} />
       <div class="story-copy" data-reveal>
         <p class="t-body measure">
           Di akhir 2017 kami memutuskan fokus pada jasaboga dan memindahkan dapur ke Cinambo, Bandung. Sejak itu kami melayani pelanggan perorangan, instansi pemerintah dan swasta, sampai perusahaan besar.
@@ -53,31 +53,28 @@ const pillars = [
     </div>
   </section>
 
-  <section class="timeline field-ink on-dark" aria-labelledby="t-title">
-    <div class="wrap">
-      <h2 id="t-title" class="t-h2" data-split>Perjalanan kami</h2>
-      <ol role="list" class="stubs" data-reveal>
-        {
-          site.milestones.map((m) => (
-            <li class="stub">
-              <p class="when">{m.when}</p>
-              <p class="what">{m.text}</p>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
-  </section>
+  <NavyBand id="t-title" label="Perjalanan kami" class="timeline">
+    <ol role="list" class="stubs" data-reveal>
+      {
+        site.milestones.map((m) => (
+          <li class="stub">
+            <p class="when">{m.when}</p>
+            <p class="what">{m.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </NavyBand>
 
-  <section class="pillars field-paper" aria-labelledby="p-title">
+  <section class="pillars" aria-labelledby="p-title">
     <div class="wrap">
-      <h2 id="p-title" class="t-h2 p-title" data-split>Tiga hal di setiap sajian</h2>
+      <SectionHeading id="p-title" title="Tiga hal di setiap sajian" split />
       <ul role="list" class="p-list" data-reveal>
         {
           pillars.map((p) => (
             <li>
               <h3 class="p-name">{p.name}</h3>
-              <p class="t-body">{p.text}</p>
+              <p class="t-body muted">{p.text}</p>
             </li>
           ))
         }
@@ -85,13 +82,13 @@ const pillars = [
     </div>
   </section>
 
-  <section class="team field-orange" aria-labelledby="tm-title">
+  <section class="team" aria-labelledby="tm-title">
     <div class="wrap">
-      <h2 id="tm-title" class="t-h2" data-split>Orang-orang di balik dapur</h2>
+      <SectionHeading id="tm-title" title="Orang-orang di balik dapur" split />
       <ul role="list" class="cards" data-reveal>
         {
           site.team.map((t) => (
-            <li class="card field-paper edge-top">
+            <li class="card">
               <p class="role">{t.role}</p>
               <h3 class="name">{t.name}</h3>
               <p class="t-body bio">{t.bio}</p>
@@ -106,152 +103,143 @@ const pillars = [
 </Base>
 
 <style>
-  .head {
-    padding-block: clamp(40px, 6vw, 88px) clamp(64px, 8vw, 120px);
-  }
+  /* Tentang kami: read mode throughout; the timeline is the page's one NavyBand. */
   .head-grid {
     display: grid;
-    gap: 40px;
-  }
-  .a-title {
-    font-size: clamp(3rem, 0.4rem + 6.6vw, 7rem);
+    gap: var(--spacing-3);
+    padding-block: var(--spacing-4) var(--section-space);
   }
   .a-title .intro-line {
     display: block;
     overflow: clip;
-    padding-bottom: 0.06em;
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
   }
   .a-title .intro-line > span {
     display: block;
-    animation: rise 1100ms var(--ease-out) both;
+    animation: rise 250ms var(--ease-out) both;
   }
   .a-title .intro-line:nth-child(2) > span {
-    animation-delay: 110ms;
+    animation-delay: 60ms;
   }
   @keyframes rise {
     from {
-      transform: translateY(105%);
+      transform: translateY(40%);
     }
   }
   .head-copy {
     display: grid;
-    gap: 20px;
+    gap: var(--spacing-2);
     align-content: end;
-    max-width: 40rem;
   }
-  .story,
-  .timeline,
-  .pillars,
-  .team {
-    padding-block: var(--section);
+  .muted {
+    color: var(--color-ink-muted);
   }
-  .story-title {
-    max-width: 16ch;
-    margin-bottom: clamp(32px, 4vw, 56px);
+
+  .story {
+    padding-bottom: var(--section-space);
   }
   .story-grid {
     display: grid;
-    gap: 40px;
-    align-items: center;
-  }
-  .story-photo {
-    aspect-ratio: 16 / 10;
-    overflow: hidden;
-    background: var(--paper-2);
-  }
-  .story-photo :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-3);
+    align-items: start;
   }
   .story-copy {
     display: grid;
-    gap: 20px;
+    gap: var(--spacing-2);
   }
+
+  /* On navy, rules are paper (ink is not visible there; flagged). */
   .stubs {
     display: grid;
-    gap: 2px;
-    margin-top: clamp(40px, 5vw, 72px);
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-paper);
   }
   .stub {
     display: grid;
-    gap: 6px;
-    padding: 24px;
-    background: var(--ink-2);
+    gap: 4px;
+    padding: var(--spacing-2) 0;
+    border-bottom: 1px solid var(--color-paper);
   }
   .when {
-    font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--orange);
+    font: 300 28px/1.2 var(--font-display);
   }
   .what {
-    font-weight: 600;
-    max-width: 40ch;
+    font-size: 15px;
   }
-  .p-title {
-    max-width: 14ch;
+
+  .pillars,
+  .team {
+    padding-block: var(--section-space) 0;
   }
   .p-list {
     display: grid;
-    gap: 40px;
-    margin-top: clamp(40px, 5vw, 72px);
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-3);
   }
   .p-list li {
     display: grid;
-    gap: 12px;
     align-content: start;
+    gap: var(--spacing-1);
+    padding-top: var(--spacing-2);
+    border-top: var(--hairline);
   }
   .p-name {
-    font-size: clamp(2.5rem, 1.4rem + 4vw, 5rem);
-    font-weight: 800;
-    letter-spacing: -0.045em;
-    line-height: 0.95;
-    color: var(--brown);
+    font: 400 32px/1.1 var(--font-display);
   }
+
   .cards {
     display: grid;
-    gap: 16px;
-    margin-top: clamp(40px, 5vw, 72px);
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-3);
   }
   .card {
     display: grid;
-    gap: 8px;
+    gap: var(--spacing-1);
     align-content: start;
-    padding: 48px clamp(20px, 3vw, 36px) 32px;
+    padding-top: var(--spacing-2);
+    border-top: var(--hairline);
   }
   .role {
-    font-weight: 700;
-    color: var(--muted);
+    font: 600 12px/1.3 var(--font-sans);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
   }
   .name {
-    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
-    font-weight: 800;
-    letter-spacing: -0.025em;
+    font: 400 26px/1.15 var(--font-display);
   }
   .bio {
-    margin-top: 8px;
+    font-size: 15px;
+    color: var(--color-ink-muted);
   }
+
   @media (min-width: 768px) {
-    .stubs {
+    .p-list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .cards {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .p-list,
-    .cards {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+    .stub {
+      grid-template-columns: 180px minmax(0, 1fr);
+      gap: var(--spacing-3);
+      align-items: baseline;
     }
   }
   @media (min-width: 1024px) {
     .head-grid {
-      grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: var(--spacing-5);
       align-items: end;
-      gap: clamp(40px, 5vw, 96px);
     }
     .story-grid {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      gap: clamp(40px, 6vw, 120px);
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: var(--spacing-5);
     }
-    .stubs {
+    .cards {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }

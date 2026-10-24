@@ -1,10 +1,10 @@
 ---
 import '../styles/global.css';
+import '../styles/ui.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import { getServices, getSite } from '../lib/content';
 import { isStaging } from '../lib/siteEnv';
-import fontUrl from '@fontsource-variable/plus-jakarta-sans/files/plus-jakarta-sans-latin-wght-normal.woff2?url';
 
 interface Props {
   title: string;
@@ -49,6 +49,8 @@ const business = {
   sameAs: site.socials.map((s) => s.url),
   hasMenu: new URL('/#menu', Astro.site).href,
 };
+const fontsHref =
+  'https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap';
 ---
 
 <!doctype html>
@@ -61,10 +63,22 @@ const business = {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {(noindex || isStaging) && <meta name="robots" content="noindex" />}
-    <meta name="theme-color" content="#ec7f18" />
+    <meta name="theme-color" content="#faf6ef" />
+    <noscript>
+      <style>
+        /* Without JavaScript every tab panel shows, so no price or menu is out of reach. */
+        [data-tabs] > [role='tablist'] { display: none !important; }
+        [data-tabs] [role='tabpanel'][hidden] { display: block !important; }
+      </style>
+    </noscript>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {/* Brand book §9 fonts, loaded without blocking the first paint: the stylesheet is
+        preloaded and applied once it arrives (display=swap), with a plain link for no-JS. */}
+    <link rel="preload" as="style" href={fontsHref} onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href={fontsHref} /></noscript>
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="id_ID" />
     <meta property="og:site_name" content="Aroma Langit" />
@@ -94,7 +108,7 @@ const business = {
 <style>
   main {
     display: block;
-    padding-top: 76px;
+    padding-top: 73px; /* fixed header: 72px bar + 1px hairline */
     outline: none;
   }
 </style>

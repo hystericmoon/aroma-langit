@@ -1,0 +1,29 @@
+---
+// Button (brand book §7, order mode). One primary per screen; verbs in sentence case.
+// Renders <a> when href is given, otherwise <button>. Icon-only buttons need an aria-label.
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = (HTMLAttributes<'a'> & HTMLAttributes<'button'>) & {
+  variant?: 'primary' | 'secondary' | 'link';
+  size?: 'default' | 'small';
+  icon?: boolean;
+};
+
+const { variant = 'secondary', size = 'default', icon = false, href, type = 'button', class: cls, ...rest } = Astro.props;
+const classes =
+  variant === 'link'
+    ? ['ui-link', cls]
+    : ['ui-btn', `ui-btn--${variant}`, size === 'small' && 'ui-btn--small', icon && 'ui-btn--icon', cls];
+---
+
+{
+  href ? (
+    <a href={href} class:list={classes} {...rest}>
+      <slot />
+    </a>
+  ) : (
+    <button type={type} class:list={classes} {...rest}>
+      <slot />
+    </button>
+  )
+}

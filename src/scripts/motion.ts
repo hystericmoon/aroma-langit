@@ -37,7 +37,7 @@ function initReveals() {
     const split = SplitText.create(el, { type: 'lines', mask: 'lines', linesClass: 'split-line', autoSplit: true,
       onSplit(self) {
         return gsap.from(self.lines, {
-          yPercent: 110, duration: 1.1, ease: 'power4.out', stagger: 0.06,
+          yPercent: 110, duration: 0.25, ease: 'power3.out', stagger: 0.03,
           scrollTrigger: { trigger: el, start: 'top 97%', once: true },
         });
       },
@@ -51,37 +51,18 @@ function initReveals() {
     if (!belowFold(group)) return;
     const items = group.querySelectorAll<HTMLElement>('[data-reveal-item]');
     const targets = items.length ? Array.from(items) : Array.from(group.children);
-    gsap.set(targets, { opacity: 0, y: 28 });
+    gsap.set(targets, { opacity: 0, y: 12 });
     let done = false;
     const reveal = (instant = false) => {
       if (done) return;
       done = true;
       gsap.to(targets, {
-        opacity: 1, y: 0, duration: instant ? 0.2 : 0.9, ease: 'power3.out', stagger: instant ? 0 : 0.075,
+        opacity: 1, y: 0, duration: instant ? 0.15 : 0.25, ease: 'power3.out', stagger: instant ? 0 : 0.04,
         clearProps: 'transform,opacity',
       });
     };
     ScrollTrigger.create({ trigger: group, start: 'top 94%', once: true, onEnter: () => reveal() });
     group.addEventListener('focusin', () => reveal(true), { once: true });
-  });
-
-  document.querySelectorAll<HTMLElement>('[data-sticker]').forEach((el, i) => {
-    if (!belowFold(el)) return;
-    const rest = Number(el.dataset.sticker || (i % 2 ? 3 : -3));
-    // The resting tilt lives in CSS; this adds an overshoot on top of it.
-    gsap.set(el, { scale: 0.8, rotate: rest * 3, opacity: 0 });
-    ScrollTrigger.create({
-      trigger: el, start: 'top 85%', once: true,
-      onEnter: () => gsap.to(el, { scale: 1, rotate: 0, opacity: 1, duration: 0.45, ease: 'back.out(2.2)', clearProps: 'transform' }),
-    });
-  });
-
-  document.querySelectorAll<HTMLElement>('[data-parallax]').forEach((el) => {
-    const amount = Number(el.dataset.parallax || 8);
-    gsap.fromTo(el, { yPercent: -amount }, {
-      yPercent: amount, ease: 'none',
-      scrollTrigger: { trigger: el.parentElement ?? el, start: 'top bottom', end: 'bottom top', scrub: true },
-    });
   });
 }
 

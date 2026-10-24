@@ -3,13 +3,14 @@ import Base from '../layouts/Base.astro';
 import ItemRow from '../components/calculator/ItemRow.astro';
 import ReceiptLine from '../components/calculator/ReceiptLine.astro';
 import Logo from '../components/Logo.astro';
-import Photo from '../components/Photo.astro';
-import { photos } from '../data/photos';
-import type { Photo as PhotoT } from '../data/types';
 import { getPresets, getServices, getSite } from '../lib/content';
 import { buildCatalog, computePlan, planFromPreset, quantityFor, type PlanItem } from '../lib/calculator';
 import { weddingCatering } from '../data/wedding';
-import { formatRupiah, areaLabel, formatDateLong } from '../lib/order';
+import { formatRupiah, areaLabel, formatDateLong, shippingLabel } from '../lib/order';
+import EventTile from '../components/ui/EventTile.astro';
+import Choice from '../components/ui/Choice.astro';
+import Icon from '../components/ui/Icon.astro';
+import StickyOrderBar from '../components/ui/StickyOrderBar.astro';
 
 const services = await getServices();
 const site = await getSite();
@@ -26,20 +27,13 @@ const qtyText = (item: PlanItem) => {
 };
 const blank: PlanItem = { id: '__ID__', label: '', service: catalog[0].slug, pkg: catalog[0].packages[0].id, variant: '', mode: 'per-guest', perGuest: 1, fixed: 1 };
 const data = { catalog, presets, csPhone: site.csPhone, marketingPhone: site.marketingPhone };
-// Each preset shows a photo of its main dish: the first line that is not a snack.
-const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
-  const main = p.items.find((i) => i.service !== 'snack-box') ?? p.items[0];
-  if (!main) return photos.hidanganFlatlay;
-  if (main.service === 'pernikahan') return photos.pernikahan;
-  return services.find((s) => s.slug === main.service)?.photo ?? photos.hidanganFlatlay;
-};
 ---
 
 <Base
   title="Kalkulator katering"
   description="Hitung kebutuhan katering acara Anda: pilih jenis acara, atur jumlah tamu, ubah menu dan jumlahnya, lalu kirim rinciannya ke WhatsApp Aroma Langit."
 >
-  <section class="head field-orange" aria-labelledby="calc-title">
+  <section class="head" aria-labelledby="calc-title">
     <div class="wrap head-grid">
       <h1 id="calc-title" class="t-display c-title">
         <span class="intro-line"><span>Kalkulator</span></span>
@@ -51,9 +45,9 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
     </div>
   </section>
 
-  <section class="app field-paper" id="hitung" aria-label="Kalkulator">
+  <section class="app" id="hitung" aria-label="Kalkulator">
     <noscript>
-      <p class="wrap noscript t-lead">Kalkulator ini memerlukan JavaScript. Anda tetap bisa melihat <a class="link" href={site.pricelistUrl}>daftar harga (PDF)</a> atau bertanya lewat <a class="link" href={`https://wa.me/${site.csPhone}`}>WhatsApp</a>.</p>
+      <p class="wrap noscript">Kalkulator ini memerlukan JavaScript. Anda tetap bisa melihat <a class="ui-link" href={site.pricelistUrl}>daftar harga (PDF)</a> atau bertanya lewat <a class="ui-link" href={`https://wa.me/${site.csPhone}`}>WhatsApp</a>.</p>
     </noscript>
     <div class="wrap app-grid">
       <form class="controls" data-calc-form novalidate>
@@ -61,14 +55,17 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
           <legend class="step">Jenis acara</legend>
           <div class="preset-list">
             {
-              presets.map((p, i) => (
-                <label class="preset" style={`--i:${i}`}>
-                  <input type="radio" name="preset" value={p.id} checked={p.id === first.id} data-preset />
-                  <span class="p-photo"><Photo photo={presetPhoto(p)} sizes="(min-width: 1024px) 240px, (min-width: 640px) 45vw, 104px" widths={[240, 480, 720]} alt="" /></span>
-                  <span class="p-name">{p.title}</span>
-                  <span class="p-desc">{p.description}</span>
-                  <span class="p-guests tab">{p.items.length ? `${p.guests} ${p.guestWord}` : 'Kosong'}</span>
-                </label>
+              presets.map((p) => (
+                <EventTile
+                  name="preset"
+                  value={p.id}
+                  checked={p.id === first.id}
+                  title={p.title}
+                  desc={p.description}
+                  price={p.items.length ? `${p.guests} ${p.guestWord}` : 'Kosong'}
+                  inputAttrs={{ 'data-preset': true }}
+                  class="preset"
+                />
               ))
             }
           </div>
@@ -78,16 +75,16 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
         <div class="block guests">
           <label class="step" for="calc-guests">Jumlah <span data-guest-word>{first.guestWord}</span></label>
           <div class="guest-row">
-            <div class="stepper">
-              <button type="button" class="step-btn" data-guest-step="-1" aria-label="Kurangi jumlah tamu">
-                <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M4 10h12" stroke="currentColor" stroke-width="2.4"></path></svg>
+            <div class="ui-stepper">
+              <button type="button" class="ui-btn ui-btn--secondary ui-btn--icon" data-guest-step="-1" aria-label="Kurangi jumlah tamu">
+                <Icon name="minus" />
               </button>
-              <input id="calc-guests" class="tab" type="number" inputmode="numeric" min="1" max="5000" value={plan.guests} data-guests />
-              <button type="button" class="step-btn" data-guest-step="1" aria-label="Tambah jumlah tamu">
-                <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M4 10h12M10 4v12" stroke="currentColor" stroke-width="2.4"></path></svg>
+              <input id="calc-guests" class="ui-input ui-input--number" type="number" inputmode="numeric" min="1" max="5000" value={plan.guests} data-guests />
+              <button type="button" class="ui-btn ui-btn--secondary ui-btn--icon" data-guest-step="1" aria-label="Tambah jumlah tamu">
+                <Icon name="plus" />
               </button>
             </div>
-            <input type="range" min="10" max="1000" step="5" value={plan.guests} aria-label="Geser jumlah tamu" data-guests-range />
+            <input type="range" class="range" min="10" max="1000" step="5" value={plan.guests} aria-label="Geser jumlah tamu" data-guests-range />
           </div>
         </div>
 
@@ -100,65 +97,70 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
             {plan.items.map((it) => <ItemRow item={it} catalog={catalog} qtyText={qtyText(it)} />)}
           </ol>
           <p class="empty" data-empty hidden>Belum ada menu. Tambahkan yang pertama.</p>
-          <button type="button" class="add" data-add>
-            <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path d="M4 10h12M10 4v12" stroke="currentColor" stroke-width="2.4"></path></svg>
+          <button type="button" class="ui-btn ui-btn--secondary add" data-add>
+            <Icon name="plus" />
             Tambah menu
           </button>
         </div>
 
         <div class="block logistics">
-          <div class="lg">
+          <div class="ui-field">
             <label class="step" for="calc-date">Tanggal acara</label>
-            <input id="calc-date" type="date" data-date aria-describedby="calc-date-help" />
-            <p id="calc-date-help" class="help" data-date-help>Pilih tanggal untuk memeriksa waktu pemesanan.</p>
+            <input id="calc-date" class="ui-input" type="date" data-date aria-describedby="calc-date-help" />
+            <p id="calc-date-help" class="ui-help help" data-date-help>Pilih tanggal untuk memeriksa waktu pemesanan.</p>
           </div>
-          <fieldset class="lg">
-            <legend class="step">Diantar ke</legend>
-            <div class="seg area">
-              <label><input type="radio" name="calc-area" value="kota-bogor" checked data-area /><span>Kota Bogor</span></label>
-              <label><input type="radio" name="calc-area" value="luar-bogor" data-area /><span>Luar Kota Bogor</span></label>
-            </div>
-          </fieldset>
+          <Choice
+            name="calc-area"
+            legend="Diantar ke"
+            legendClass="step"
+            options={[
+              { value: 'kota-bogor', label: 'Kota Bogor', checked: true, attrs: { 'data-area': true } },
+              { value: 'luar-bogor', label: 'Luar Kota Bogor', attrs: { 'data-area': true } },
+            ]}
+          />
         </div>
       </form>
 
       <aside class="side" aria-labelledby="nota-title">
-        <div class="receipt edge-top" id="nota" data-receipt>
+        {/* Nota (brand book §7). TODO(data): the DP 50% line and the settlement note are not
+            shown; see src/components/ui/Nota.astro. */}
+        <div class="ui-nota receipt" id="nota" data-receipt>
           <header class="r-head">
-            <Logo variant="mark" class="r-mark" title="" />
             <div>
-              <h2 id="nota-title" class="r-title">Nota perkiraan</h2>
+              <h2 id="nota-title" class="ui-nota__eyebrow r-title">Nota perkiraan</h2>
               <p class="r-event" data-r-event>{first.title}</p>
             </div>
+            <Logo variant="mark" tone="ink" class="r-mark" title="" />
           </header>
-          <dl class="r-meta tab">
-            <div><dt>Jumlah</dt><dd data-r-guests>{plan.guests} {first.guestWord}</dd></div>
-            <div><dt>Tanggal</dt><dd data-r-date>Belum dipilih</dd></div>
-            <div><dt>Diantar ke</dt><dd data-r-area>{areaLabel[plan.area]}</dd></div>
+          <dl class="ui-nota__lines r-meta">
+            <div class="ui-nota__line"><dt>Jumlah</dt><dd data-r-guests>{plan.guests} {first.guestWord}</dd></div>
+            <div class="ui-nota__line"><dt>Tanggal</dt><dd data-r-date>Belum dipilih</dd></div>
+            <div class="ui-nota__line"><dt>Diantar ke</dt><dd data-r-area>{areaLabel[plan.area]}</dd></div>
           </dl>
           <ol class="lines" role="list" data-lines>
             {result.lines.map((l) => <ReceiptLine line={l} />)}
           </ol>
           <p class="r-empty" data-r-empty hidden>Tambahkan menu untuk melihat perkiraannya.</p>
-          <dl class="r-sums tab">
-            <div><dt>Subtotal</dt><dd data-r-sub>{formatRupiah(result.subtotal)}</dd></div>
-            <div data-r-extra-row hidden><dt>Biaya di bawah minimum</dt><dd data-r-extra>{formatRupiah(result.surcharge)}</dd></div>
-            <div><dt>Ongkos kirim</dt><dd data-r-ship>Termasuk</dd></div>
+          <dl class="ui-nota__lines r-sums tab">
+            <div class="ui-nota__line"><dt>Subtotal</dt><dd data-r-sub>{formatRupiah(result.subtotal)}</dd></div>
+            <div class="ui-nota__line ui-nota__line--surcharge" data-r-extra-row hidden><dt>Biaya di bawah minimum</dt><dd data-r-extra>{formatRupiah(result.surcharge)}</dd></div>
+            <div class="ui-nota__line"><dt>Ongkos kirim</dt><dd data-r-ship>{shippingLabel[plan.area]}</dd></div>
           </dl>
-          <div class="r-total">
-            <p class="r-total-label">Perkiraan total</p>
-            <p class="r-total-value tab" data-r-total>{formatRupiah(result.total)}</p>
+          <div class="ui-nota__tear" aria-hidden="true"></div>
+          <div class="ui-nota__total r-total">
+            <p class="ui-nota__total-label">Perkiraan total</p>
+            <p class="ui-nota__total-value" data-r-total>{formatRupiah(result.total)}</p>
             <p class="r-per tab" data-r-per>{formatRupiah(result.perGuest)} per {first.guestWord}</p>
           </div>
           <p class="r-lead" data-r-lead>
             Pesan paling lambat H-{result.leadDays}. Tanggal paling cepat: {formatDateLong(result.earliest)}.
           </p>
           <div class="r-actions">
-            <button type="button" class="btn r-send" data-send>Kirim ke WhatsApp</button>
+            <button type="button" class="ui-btn ui-btn--primary r-send" data-send><Icon name="chat" />Kirim ke WhatsApp</button>
             <div class="r-small">
-              <button type="button" class="r-link" data-share>Salin tautan</button>
-              <button type="button" class="r-link" data-print>Cetak</button>
-              <button type="button" class="r-link" data-reset>Mulai ulang</button>
+              <button type="button" class="ui-link r-link" data-share>Salin tautan</button>
+              <button type="button" class="ui-link r-link" data-print>Cetak</button>
+              <button type="button" class="ui-link r-link" data-reset>Mulai ulang</button>
             </div>
           </div>
           <p class="r-note">Perkiraan dari situs. Total akhir dikonfirmasi tim kami lewat WhatsApp.</p>
@@ -168,12 +170,15 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
     </div>
   </section>
 
-  <div class="dock" data-dock hidden>
-    <div class="dock-in">
-      <p class="dock-total tab"><span class="sr-only">Perkiraan total </span><strong data-dock-total>{formatRupiah(result.total)}</strong> <span data-dock-per>{formatRupiah(result.perGuest)}/{first.guestWord}</span></p>
-      <a class="dock-btn" href="#nota">Lihat nota</a>
-    </div>
-  </div>
+  <StickyOrderBar
+    total={formatRupiah(result.total)}
+    sub={`${formatRupiah(result.perGuest)}/${first.guestWord}`}
+    action={{ href: '#nota', label: 'Lihat nota' }}
+    class="dock"
+    attrs={{ 'data-dock': true, hidden: true }}
+    totalAttrs={{ 'data-dock-total': true }}
+    subAttrs={{ 'data-dock-per': true }}
+  />
 
   <template id="item-tpl"><ItemRow item={blank} catalog={catalog} /></template>
   <script type="application/json" id="calc-data" set:html={JSON.stringify(data)} />
@@ -184,901 +189,381 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
 </script>
 
 <style>
-  .head {
-    padding-block: clamp(40px, 6vw, 88px) clamp(48px, 6vw, 88px);
-  }
+  /* Kalkulator (brand book §7 recipe): almost entirely order mode. */
   .head-grid {
     display: grid;
-    gap: 28px;
-    align-items: end;
-  }
-  .c-title {
-    font-size: clamp(3rem, 0.6rem + 8vw, 8.5rem);
+    gap: var(--spacing-3);
+    padding-block: var(--spacing-4);
   }
   .c-title .intro-line {
     display: block;
     overflow: clip;
-    padding-bottom: 0.06em;
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
   }
   .c-title .intro-line > span {
     display: block;
-    animation: rise 1100ms var(--ease-out) both;
+    animation: rise 250ms var(--ease-out) both;
   }
   .c-title .intro-line:nth-child(2) > span {
-    animation-delay: 110ms;
+    animation-delay: 60ms;
   }
   @keyframes rise {
     from {
-      transform: translateY(105%);
+      transform: translateY(40%);
     }
   }
   .head-lead {
-    max-width: 38ch;
+    max-width: 40ch;
   }
 
   .app {
-    padding-block: clamp(48px, 6vw, 88px) var(--section);
+    padding-bottom: var(--section-space);
   }
   .noscript {
-    margin-bottom: 32px;
+    padding-block: var(--spacing-3);
   }
   .app-grid {
     display: grid;
-    gap: 48px;
+    gap: var(--spacing-4);
+    align-items: start;
   }
   .controls {
     display: grid;
-    gap: clamp(40px, 5vw, 64px);
+    gap: var(--spacing-3);
     min-width: 0;
   }
+  /* Each step of the form sits on the kraft order zone. */
   .block {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 18px;
+    gap: var(--spacing-2);
     min-width: 0;
     margin: 0;
-    padding: 0;
-    border: 0;
+    padding: var(--spacing-3);
+    border: var(--hairline);
+    border-radius: var(--radius-card);
+    background: var(--color-kraft);
   }
-  .step {
-    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
+  .controls :global(.step) {
     padding: 0;
+    font: 600 12px/1.3 var(--font-sans);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
   legend.step {
-    margin-bottom: 18px;
+    float: left;
+    width: 100%;
+    margin-bottom: var(--spacing-2);
+  }
+  legend.step + * {
+    clear: both;
+  }
+  .logistics :global(legend.step) {
+    float: none;
+    margin-bottom: 0;
   }
 
-  /* Presets: a radio group shown as event tickets with a photo of the main dish */
+  /* Presets: radio EventTiles (no photos; the tile spec has none). */
   .preset-list {
     display: grid;
-    gap: 2px;
-    background: var(--paper-2);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
-  .preset {
-    position: relative;
-    display: grid;
-    grid-template-columns: 104px minmax(0, 1fr);
-    grid-template-rows: auto auto 1fr;
-    gap: 2px 14px;
-    padding: 12px 16px 12px 12px;
-    background: var(--paper);
-    cursor: pointer;
-    transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
-    animation: ticket-in 600ms var(--ease-out) both;
-    animation-delay: calc(var(--i, 0) * 60ms + 200ms);
-  }
-  @keyframes ticket-in {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-  }
-  .preset input {
-    position: absolute;
-    z-index: 2;
-    opacity: 0;
-    inset: 0;
-    margin: 0;
-    cursor: pointer;
-  }
-  .p-photo {
-    grid-row: 1 / -1;
-    width: 104px;
-    aspect-ratio: 4 / 3;
-    align-self: start;
-    overflow: hidden;
-    background: var(--paper-2);
-  }
-  .p-photo :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 700ms var(--ease-out);
-  }
-  .p-name {
-    font-weight: 800;
-    font-size: 1.125rem;
-    letter-spacing: -0.01em;
-    line-height: 1.25;
-  }
-  .p-guests {
-    font-size: var(--step-small);
-    font-weight: 700;
-    color: var(--muted);
-  }
-  .p-desc {
-    font-size: 1rem;
-    line-height: 1.45;
-  }
-  @media (min-width: 640px) {
-    .preset-list {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .preset {
-      grid-template-columns: minmax(0, 1fr) auto;
-      grid-template-rows: auto auto 1fr;
-      gap: 4px 12px;
-      padding: 0 0 18px;
-    }
-    .p-photo {
-      grid-row: 1;
-      grid-column: 1 / -1;
-      width: 100%;
-      aspect-ratio: 2 / 1;
-      margin-bottom: 10px;
-    }
-    .p-name {
-      padding-left: 18px;
-    }
-    .p-guests {
-      grid-row: 2;
-      grid-column: 2;
-      padding-right: 18px;
-      align-self: center;
-    }
-    .p-desc {
-      grid-column: 1 / -1;
-      padding-inline: 18px;
-    }
-  }
-  @media (min-width: 640px) and (max-width: 1023px) {
-    .preset:last-child:nth-child(odd) {
-      grid-column: 1 / -1;
-    }
-    .preset:last-child:nth-child(odd) .p-photo {
-      aspect-ratio: 4 / 1;
-    }
-  }
-  @media (min-width: 1024px) {
-    .preset-list {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-    .preset:last-child:nth-child(3n + 1) {
-      grid-column: 1 / -1;
-    }
-    .preset:last-child:nth-child(3n + 1) .p-photo {
-      aspect-ratio: 5 / 1;
-    }
-    .preset:last-child:nth-child(3n + 2) {
-      grid-column: span 2;
-    }
-    .preset:last-child:nth-child(3n + 2) .p-photo {
-      aspect-ratio: 4 / 1;
-    }
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .preset:hover {
-      background: var(--paper-2);
-    }
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .preset:hover .p-photo :global(img) {
-      transform: scale(1.06);
-    }
-  }
-  .preset:has(input:checked) {
-    background: var(--ink);
-    color: var(--paper);
-  }
-  .preset:has(input:checked) .p-guests {
-    color: var(--peach);
-  }
-  .preset:has(input:focus-visible) {
-    outline: 3px solid var(--ink);
-    outline-offset: 2px;
-    z-index: 1;
+  .preset-list :global(.ui-tile) {
+    min-height: 112px;
+    padding: 14px;
   }
   .status {
-    min-height: 1.5em;
-    margin-top: 10px;
-    font-weight: 600;
+    min-height: 1.4em;
+    font-size: 14px;
+  }
+  .status:empty {
+    display: none;
   }
   .status :global(button) {
-    margin-left: 8px;
-    min-height: 44px;
-    padding: 0 6px;
+    margin-left: 6px;
+    padding: 0;
     border: 0;
     background: none;
-    font-weight: 800;
+    color: var(--color-ink);
+    font: inherit;
+    font-weight: 600;
     text-decoration: underline;
-    text-underline-offset: 0.2em;
+    text-underline-offset: 4px;
     cursor: pointer;
   }
 
-  /* Guests */
   .guest-row {
     display: grid;
-    gap: 16px;
+    gap: var(--spacing-2);
     align-items: center;
   }
-  @media (min-width: 640px) {
-    .guest-row {
-      grid-template-columns: 260px 1fr;
-      gap: 28px;
-    }
-  }
-  .stepper {
-    display: grid;
-    grid-template-columns: 56px minmax(0, 1fr) 56px;
-    gap: 2px;
-  }
-  .step-btn {
-    display: grid;
-    place-items: center;
-    min-height: 60px;
-    border: 0;
-    background: var(--ink);
-    color: var(--paper);
-    cursor: pointer;
-    transition: transform var(--dur-fast) var(--ease);
-  }
-  .step-btn:active {
-    transform: scale(0.94);
-  }
-  .stepper input {
+  /* The slider is not one of the brand book's components (flagged); it uses ink. */
+  .range {
     width: 100%;
-    min-height: 60px;
-    border: 0;
-    border-radius: 0;
-    background: var(--paper-2);
-    color: var(--ink);
-    font-size: 1.75rem;
-    font-weight: 800;
-    text-align: center;
-    -moz-appearance: textfield;
-  }
-  input[type='number']::-webkit-outer-spin-button,
-  input[type='number']::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  input[type='range'] {
-    width: 100%;
-    height: 44px;
-    margin: 0;
-    background: transparent;
-    appearance: none;
-    -webkit-appearance: none;
-    cursor: pointer;
-  }
-  input[type='range']::-webkit-slider-runnable-track {
-    height: 10px;
-    background: var(--paper-2);
-  }
-  input[type='range']::-moz-range-track {
-    height: 10px;
-    background: var(--paper-2);
-  }
-  input[type='range']::-moz-range-progress {
-    height: 10px;
-    background: var(--orange);
-  }
-  input[type='range']::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 28px;
-    height: 28px;
-    margin-top: -9px;
-    background: var(--ink);
-    border: 0;
-    border-radius: 0;
-    transition: transform var(--dur-fast) var(--ease);
-  }
-  input[type='range']::-moz-range-thumb {
-    width: 28px;
-    height: 28px;
-    background: var(--ink);
-    border: 0;
-    border-radius: 0;
-  }
-  input[type='range']:active::-webkit-slider-thumb {
-    transform: scale(1.15);
-  }
-  input[type='range']:focus-visible {
-    outline: 3px solid var(--ink);
-    outline-offset: 2px;
+    min-height: var(--tap-min);
+    accent-color: var(--color-ink);
   }
 
-  /* Items */
   .items-head {
     display: grid;
-    gap: 6px;
+    gap: 4px;
   }
   .items-hint {
-    max-width: 52ch;
+    font-size: 14px;
+    color: var(--color-ink-muted);
   }
   .items {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
     gap: 12px;
+    margin: 0;
+    padding: 0;
   }
   .items :global(.item) {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 16px;
-    padding: 20px clamp(16px, 2.5vw, 28px) 18px;
-    background: var(--paper-2);
+    gap: var(--spacing-2);
+    padding: var(--spacing-2);
+    border: var(--hairline);
+    border-radius: var(--radius-card);
+    background: var(--color-card);
   }
-  /* Only a line the visitor adds animates in; re-rendered rows stay still. */
   .items :global(.item.is-new) {
-    animation: item-in 220ms cubic-bezier(0.23, 1, 0.32, 1);
+    animation: item-in 200ms var(--ease-out) both;
   }
   @keyframes item-in {
     from {
       opacity: 0;
-      transform: translateY(-8px);
+      transform: translateY(6px);
     }
   }
   .items :global(.item-top) {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--spacing-1);
   }
   .items :global(.item-label) {
     flex: 1;
-    width: 100%;
     min-width: 0;
-    min-height: 48px;
+    height: var(--tap-min);
     padding: 0 10px;
     margin-left: -10px;
-    border: 0;
+    border: 1px solid transparent;
+    border-radius: var(--radius-input);
     background: transparent;
-    font-size: 1.375rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--ink);
+    color: var(--color-ink);
+    font: 700 17px/1.3 var(--font-sans);
   }
-  @media (hover: hover) and (pointer: fine) {
-    .items :global(.item-label:hover) {
-      background: var(--paper);
-    }
-  }
+  .items :global(.item-label:hover),
   .items :global(.item-label:focus-visible) {
-    background: var(--paper);
-    outline: 3px solid var(--ink);
-    outline-offset: 0;
-  }
-  .items :global(.remove) {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: 48px;
-    height: 48px;
-    border: 0;
-    background: var(--paper);
-    color: var(--ink);
-    cursor: pointer;
-    transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .items :global(.remove:hover) {
-      background: var(--ink);
-      color: var(--paper);
-    }
+    border-color: var(--color-ink);
+    background: var(--color-card);
   }
   .items :global(.item-grid) {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px 12px;
+    gap: 12px;
   }
+  .items :global(.f[hidden]) {
+    display: none;
+  }
+  .items :global(.qty-row) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-1) 12px;
+  }
+  .items :global(.per[hidden]),
+  .items :global(.fixed[hidden]) {
+    display: none;
+  }
+  .items :global(.per .ui-input) {
+    width: auto;
+    min-width: 160px;
+  }
+  .items :global(.qty-out) {
+    font: 600 14px/1.3 var(--font-mono);
+  }
+  .items :global(.item-note) {
+    font-size: 13px;
+    color: var(--color-ink-muted);
+  }
+  .items :global(.item-note:empty) {
+    display: none;
+  }
+  .items :global(.item-note.warn) {
+    color: var(--color-chili);
+    font-weight: 600;
+  }
+  .empty {
+    font-size: 14px;
+    color: var(--color-ink-muted);
+  }
+  .add {
+    justify-self: start;
+  }
+
+  .logistics {
+    gap: var(--spacing-3);
+  }
+  .help:global(.warn) {
+    color: var(--color-chili);
+    font-weight: 600;
+  }
+
+  /* The Nota */
+  .side {
+    min-width: 0;
+  }
+  .r-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: var(--spacing-2);
+  }
+  .r-head :global(.r-mark) {
+    width: 36px;
+    flex: none;
+  }
+  .r-event {
+    margin-top: 4px;
+    font: 400 22px/1.2 var(--font-display);
+  }
+  .r-meta dd {
+    font-family: var(--font-sans);
+    text-align: right;
+    white-space: normal;
+  }
+  .r-meta {
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-rule-soft);
+  }
+  .lines {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+  }
+  .lines :global(.line) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 12px;
+    font-size: 14px;
+  }
+  .lines :global(.line.is-new) {
+    animation: item-in 200ms var(--ease-out) both;
+  }
+  .lines :global(.l-name) {
+    font-weight: 600;
+  }
+  .lines :global(.l-amt) {
+    font-family: var(--font-mono);
+    white-space: nowrap;
+  }
+  .lines :global(.l-detail) {
+    grid-column: 1 / -1;
+    font-size: 13px;
+    color: var(--color-ink-muted);
+  }
+  .lines :global(.l-extra) {
+    grid-column: 1 / -1;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-chili);
+  }
+  .r-empty {
+    font-size: 14px;
+    color: var(--color-ink-muted);
+  }
+  .r-sums {
+    padding-top: 10px;
+    border-top: 1px solid var(--color-rule-soft);
+  }
+  .r-per {
+    flex-basis: 100%;
+    margin: 0;
+    text-align: right;
+    font: 400 13px/1.3 var(--font-mono);
+    color: var(--color-ink-muted);
+  }
+  .r-lead,
+  .r-note {
+    font-size: 13px;
+    color: var(--color-ink-muted);
+  }
+  .r-actions {
+    display: grid;
+    gap: 12px;
+  }
+  .r-send {
+    width: 100%;
+  }
+  .r-small {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0 var(--spacing-3);
+  }
+  .r-link {
+    min-height: var(--tap-min);
+    min-width: var(--tap-min);
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* Phones: the sticky order bar follows until the nota is on screen, and steps aside while
+     the keyboard is up. */
+  :global(.dock) {
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+  :global(.dock[data-off='true']) {
+    transform: translateY(110%);
+  }
+  @media (max-width: 1023px) {
+    :global(html:has([data-calc-form] input:focus) .dock) {
+      transform: translateY(110%);
+    }
+  }
+  :global(html.has-dock) {
+    scroll-padding-bottom: 96px;
+  }
+
   @media (min-width: 640px) {
+    .preset-list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .guest-row {
+      grid-template-columns: auto 1fr;
+      gap: var(--spacing-3);
+    }
     .items :global(.item-grid) {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .items :global(.f-wide) {
       grid-column: 1 / -1;
     }
-  }
-  .items :global(.f) {
-    display: grid;
-    gap: 6px;
-    min-width: 0;
-    min-inline-size: 0;
-    margin: 0;
-    padding: 0;
-    border: 0;
-  }
-  .items :global(.f[hidden]) {
-    display: none;
-  }
-  .items :global(.f > label),
-  .items :global(.f > legend) {
-    padding: 0;
-    margin-bottom: 6px;
-    font-size: var(--step-small);
-    font-weight: 700;
-  }
-  .controls select,
-  .controls input[type='date'],
-  .items :global(select),
-  .items :global(.fixed input) {
-    width: 100%;
-    min-height: 52px;
-    padding: 0 14px;
-    border: 0;
-    border-radius: 0;
-    background: var(--paper);
-    color: var(--ink);
-    font-size: 1rem;
-    font-weight: 600;
-    appearance: none;
-  }
-  .items :global(select) {
-    padding-right: 40px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M3 6l5 5 5-5' fill='none' stroke='%233c2418' stroke-width='2.2'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
-    text-overflow: ellipsis;
-  }
-  .items :global(.qty-row) {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px 12px;
-  }
-  .items :global(.qty-row > .seg) {
-    flex: 0 0 auto;
-    display: grid;
-    grid-template-columns: auto auto;
-    gap: 2px;
-  }
-  .items :global(.per),
-  .items :global(.fixed) {
-    flex: 1 1 160px;
-    min-width: 0;
-  }
-  .items :global(.per[hidden]),
-  .items :global(.fixed[hidden]) {
-    display: none;
-  }
-  .items :global(.fixed) {
-    display: grid;
-    grid-template-columns: 52px minmax(0, 1fr) 52px;
-    gap: 2px;
-  }
-  .items :global(.fixed input) {
-    text-align: center;
-    font-weight: 800;
-    -moz-appearance: textfield;
-  }
-  .items :global(.qty-step) {
-    display: grid;
-    place-items: center;
-    min-height: 52px;
-    border: 0;
-    background: var(--ink);
-    color: var(--paper);
-    cursor: pointer;
-  }
-  .items :global(.qty-out) {
-    flex: 1 1 auto;
-    min-width: 6em;
-    font-size: 1.125rem;
-    font-weight: 800;
-    text-align: right;
-  }
-  .items :global(.item-note) {
-    min-height: 1.4em;
-    font-size: 1rem;
-    font-weight: 600;
-  }
-  .items :global(.item-note.warn)::before {
-    content: '';
-    display: inline-block;
-    width: 9px;
-    height: 9px;
-    margin-right: 8px;
-    background: var(--orange);
-    rotate: 45deg;
-  }
-  .seg {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2px;
-  }
-  .seg label,
-  .items :global(.seg label) {
-    position: relative;
-    cursor: pointer;
-  }
-  .seg input,
-  .items :global(.seg input) {
-    position: absolute;
-    inset: 0;
-    margin: 0;
-    opacity: 0;
-    cursor: pointer;
-  }
-  .seg span,
-  .items :global(.seg span) {
-    display: grid;
-    place-items: center;
-    min-height: 52px;
-    padding: 0 14px;
-    background: var(--paper);
-    font-weight: 700;
-    white-space: nowrap;
-    transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
-  }
-  .seg input:checked + span,
-  .items :global(.seg input:checked + span) {
-    background: var(--ink);
-    color: var(--paper);
-  }
-  .seg input:focus-visible + span,
-  .items :global(.seg input:focus-visible + span) {
-    outline: 3px solid var(--ink);
-    outline-offset: 2px;
-  }
-  .area span {
-    background: var(--paper-2);
-  }
-  .empty {
-    padding: 28px;
-    background: var(--paper-2);
-    font-weight: 600;
-  }
-  .add {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    min-height: 64px;
-    border: 0;
-    background: var(--orange);
-    color: var(--ink);
-    font-size: 1.125rem;
-    font-weight: 800;
-    cursor: pointer;
-    transition: transform var(--dur-fast) var(--ease), background var(--dur) var(--ease);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .add:hover {
-      background: #f59a45;
-    }
-  }
-  .add:active {
-    transform: scale(0.98);
-  }
-  .add[disabled] {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .logistics {
-    gap: 28px;
-  }
-  @media (min-width: 640px) {
     .logistics {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  .lg {
-    display: grid;
-    gap: 12px;
-    align-content: start;
-    margin: 0;
-    padding: 0;
-    border: 0;
-  }
-  .lg .step {
-    font-size: 1.25rem;
-  }
-  .lg legend.step {
-    margin-bottom: 12px;
-  }
-  .controls input[type='date'] {
-    background: var(--paper-2);
-    font-variant-numeric: tabular-nums;
-  }
-  .controls input[aria-invalid='true'] {
-    outline: 3px solid var(--orange);
-    outline-offset: -3px;
-  }
-  .help {
-    font-size: 1rem;
-    font-weight: 600;
-  }
-  .help.warn::before {
-    content: '';
-    display: inline-block;
-    width: 9px;
-    height: 9px;
-    margin-right: 8px;
-    background: var(--orange);
-    rotate: 45deg;
-  }
-
-  /* The receipt */
-  .side {
-    min-width: 0;
-  }
-  .receipt {
-    --pad: clamp(20px, 3vw, 36px);
-    --zig: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='10'%3E%3Cpath d='M0 0h20L10 10z'/%3E%3C/svg%3E");
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 18px;
-    padding: 40px var(--pad) 40px;
-    background: var(--paper);
-    color: var(--ink);
-    -webkit-mask: var(--scallop) top left / 36px 18px repeat-x, var(--zig) bottom left / 20px 10px repeat-x, var(--solid) center / 100% calc(100% - 27px) no-repeat;
-    mask: var(--scallop) top left / 36px 18px repeat-x, var(--zig) bottom left / 20px 10px repeat-x, var(--solid) center / 100% calc(100% - 27px) no-repeat;
-    -webkit-mask-position: top left, bottom left, center 17px;
-    mask-position: top left, bottom left, center 17px;
-  }
-  .side {
-    background: var(--orange);
-    padding: 24px clamp(12px, 2vw, 24px) 32px;
-  }
-  .r-head {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .r-head :global(.r-mark) {
-    width: 52px;
-    flex: none;
-  }
-  .r-title {
-    font-size: 1.5rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-  }
-  .r-event {
-    font-weight: 600;
-  }
-  .r-meta {
-    display: grid;
-    gap: 2px;
-    background: var(--paper-2);
-    padding: 2px;
-  }
-  .r-meta div {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 8px 12px;
-    background: var(--paper);
-    font-size: 1rem;
-  }
-  .r-meta dt {
-    font-weight: 600;
-  }
-  .r-meta dd {
-    font-weight: 700;
-    text-align: right;
-  }
-  .lines {
-    display: grid;
-    gap: 2px;
-    background: var(--paper-2);
-  }
-  .lines :global(.line) {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 2px 14px;
-    padding: 12px 0;
-    background: var(--paper);
-  }
-  .lines :global(.line.is-new) {
-    animation: print 520ms var(--ease-out) both;
-    animation-delay: calc(var(--i, 0) * 60ms);
-  }
-  @keyframes print {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-  }
-  .lines :global(.l-name) {
-    min-width: 0;
-    font-weight: 800;
-    overflow-wrap: anywhere;
-  }
-  .lines :global(.l-amt) {
-    font-weight: 800;
-    text-align: right;
-  }
-  .lines :global(.l-detail),
-  .lines :global(.l-extra) {
-    grid-column: 1 / -1;
-    font-size: 1rem;
-    font-weight: 500;
-    line-height: 1.45;
-  }
-  .lines :global(.l-extra) {
-    font-weight: 700;
-  }
-  .r-empty {
-    padding: 18px;
-    background: var(--paper-2);
-    font-weight: 600;
-  }
-  .r-sums {
-    display: grid;
-    gap: 4px;
-  }
-  .r-sums div {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    font-weight: 600;
-  }
-  .r-sums div[hidden] {
-    display: none;
-  }
-  .r-sums dd {
-    font-weight: 700;
-  }
-  .r-total {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: baseline;
-    gap: 2px 16px;
-    margin-inline: calc(-1 * var(--pad));
-    padding: 18px var(--pad);
-    background: var(--ink);
-    color: var(--paper);
-  }
-  .r-total-label {
-    font-weight: 700;
-  }
-  .r-total-value {
-    font-size: clamp(1.5rem, 1rem + 2.4vw, 2rem);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1.05;
-    text-align: right;
-  }
-  .r-per {
-    grid-column: 1 / -1;
-    text-align: right;
-    color: var(--peach);
-    font-weight: 600;
-    font-size: var(--step-small);
-  }
-  .r-lead {
-    font-weight: 600;
-  }
-  .r-actions {
-    display: grid;
-    gap: 10px;
-  }
-  .r-send {
-    width: 100%;
-  }
-  .r-send[disabled] {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .r-small {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2px;
-  }
-  .r-link {
-    flex: 1 1 auto;
-    min-height: 48px;
-    padding: 0 12px;
-    border: 0;
-    background: var(--paper-2);
-    color: var(--ink);
-    font-weight: 700;
-    cursor: pointer;
-    transition: background var(--dur-fast) var(--ease);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .r-link:hover {
-      background: var(--paper-3);
-    }
-  }
-  .r-note {
-    font-weight: 500;
-  }
-
-  /* Phone: a total bar that follows until the receipt is on screen */
-  .dock {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 30;
-    padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom, 0px));
-    background: var(--ink);
-    color: var(--paper);
-    transform: translateY(0);
-    transition: transform 360ms var(--ease-out);
-  }
-  .dock[data-off='true'] {
-    transform: translateY(calc(100% + var(--gutter) + 24px));
-  }
-  /* On a phone the keyboard is up while a field is being typed in; keep the bar out of its way. */
-  @media (max-width: 1023px) {
-    :global(html:has([data-calc-form] input:focus)) .dock {
-      transform: translateY(calc(100% + var(--gutter) + 24px));
-    }
-  }
-  :global(html.has-dock) {
-    scroll-padding-bottom: 96px;
-  }
-  .dock-in {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .dock-total {
-    min-width: 0;
-  }
-  .dock-total strong {
-    font-size: clamp(1.125rem, 0.8rem + 1.6vw, 1.375rem);
-    font-weight: 800;
-    margin-right: 6px;
-  }
-  .dock-total span {
-    color: var(--peach);
-    font-size: var(--step-small);
-    font-weight: 600;
-  }
-  .dock-btn {
-    flex: none;
-    white-space: nowrap;
-    display: inline-flex;
-    align-items: center;
-    min-height: 48px;
-    padding: 0 18px;
-    background: var(--orange);
-    color: var(--ink);
-    font-weight: 800;
-    text-decoration: none;
-  }
-
-  @media (min-width: 1024px) {
-    .head-grid {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      gap: clamp(40px, 5vw, 96px);
-    }
-    .app-grid {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      gap: clamp(32px, 4vw, 72px);
       align-items: start;
     }
-    /* Sticky only while the whole receipt fits on screen (set by the script). */
-    .side.fits {
-      position: sticky;
-      top: 92px;
+  }
+  @media (min-width: 1024px) {
+    .head-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+      align-items: end;
+      gap: var(--spacing-5);
     }
-    .dock {
-      left: auto;
-      right: var(--gutter);
-      bottom: var(--gutter);
-      width: min(440px, 40vw);
-      padding: 12px 12px 12px 20px;
+    .app-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(360px, 440px);
+      gap: var(--spacing-4);
+    }
+    /* The nota stays in view while the form scrolls, when it fits the screen. */
+    .side:global(.fits) {
+      position: sticky;
+      top: 97px;
     }
   }
 
@@ -1089,15 +574,14 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
     :global(.skip),
     .head,
     .controls,
-    .dock,
+    :global(.dock),
     .r-actions,
     .noscript {
       display: none !important;
     }
     :global(body),
-    .app,
-    .side {
-      background: #fff !important;
+    .app {
+      background: var(--color-card) !important;
     }
     :global(main) {
       padding-top: 0;
@@ -1107,23 +591,10 @@ const presetPhoto = (p: (typeof presets)[number]): PhotoT => {
     }
     .side {
       position: static;
-      padding: 0;
     }
     .receipt {
-      max-height: none;
-      overflow: visible;
-      -webkit-mask: none;
-      mask: none;
+      border: 0;
       padding: 0;
-    }
-    .r-total {
-      margin: 0;
-      color: #000;
-      background: #fff;
-      border-top: 2px solid #000;
-    }
-    .r-per {
-      color: #000;
     }
   }
 </style>

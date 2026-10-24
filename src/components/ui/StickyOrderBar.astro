@@ -1,0 +1,25 @@
+---
+// StickyOrderBar (brand book §7, order mode): phones only. Paper, top hairline, the running
+// total in mono and one primary button. The page script hides it while the estimator is on
+// screen and while the keyboard is open; it respects the safe area.
+interface Props {
+  total: string;
+  /** Small line under the total, e.g. the price per guest. */
+  sub?: string;
+  action: { href: string; label: string };
+  attrs?: Record<string, string | boolean | undefined>;
+  totalAttrs?: Record<string, string | boolean | undefined>;
+  subAttrs?: Record<string, string | boolean | undefined>;
+  class?: string;
+}
+const { total, sub, action, attrs, totalAttrs, subAttrs, class: cls } = Astro.props;
+---
+
+<div class:list={['ui-orderbar', cls]} {...attrs}>
+  <p class="ui-orderbar__sum tab">
+    <small>Perkiraan total</small>
+    <strong {...totalAttrs}>{total}</strong>
+    {sub && <span {...subAttrs}>{sub}</span>}
+  </p>
+  <a class="ui-btn ui-btn--primary ui-btn--small" href={action.href}>{action.label}</a>
+</div>

@@ -65,7 +65,10 @@ test.describe('order label', () => {
 
   test('menu rows fill the label', async ({ page }) => {
     await page.goto('/');
-    await page.locator('[data-pick-service="bento"][data-pick-package="premium"]').click();
+    await page.locator('#menu').getByRole('tab', { name: 'Bento' }).click();
+    const pick = page.locator('#menu [data-pick-service="bento"][data-pick-package="premium"]');
+    await pick.click();
+    await expect(pick).toHaveAttribute('aria-pressed', 'true');
     const form = page.locator('[data-order-form]');
     await expect(form.getByLabel('Layanan')).toHaveValue('bento');
     await expect(form.getByLabel('Paket')).toHaveValue('premium');

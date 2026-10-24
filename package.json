@@ -13,11 +13,11 @@
     "test:e2e": "playwright test",
     "seed": "vitest run --config vitest.seed.config.ts",
     "package:hosting": "npm run build && node scripts/package-hosting.mjs",
-    "package:hosting:staging": "npm run build:staging && node scripts/package-hosting.mjs --staging"
+    "package:hosting:staging": "npm run build:staging && node scripts/package-hosting.mjs --staging",
+    "screenshots": "node scripts/screenshots.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
-    "@fontsource-variable/plus-jakarta-sans": "^5.3.0",
     "@sanity/client": "^8.10.1",
     "@sanity/image-url": "^2.1.1",
     "astro": "^7.4.2",

@@ -1,5 +1,7 @@
 ---
-import Photo from '../Photo.astro';
+import Figure from '../ui/Figure.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import Tabs from '../ui/Tabs.astro';
 import { getServices } from '../../lib/content';
 import { formatRupiah } from '../../lib/order';
 
@@ -7,42 +9,28 @@ const services = (await getServices()).filter((s) => s.gallery.length > 0);
 const from = (s: (typeof services)[number]) => Math.min(...s.packages.map((p) => p.price));
 ---
 
-<section class="show field-ink on-dark" aria-labelledby="show-title">
+<section class="show" aria-labelledby="show-title">
   <div class="wrap">
-    <h2 id="show-title" class="t-h2 show-title" data-split>Seperti ini sampainya.</h2>
-    <div class="tabs" role="tablist" aria-label="Pilih layanan">
-      {
-        services.map((s, i) => (
-          <button
-            type="button"
-            role="tab"
-            id={`tab-${s.slug}`}
-            aria-controls={`panel-${s.slug}`}
-            aria-selected={i === 0 ? 'true' : 'false'}
-            tabindex={i === 0 ? 0 : -1}
-            class="tab-btn"
-          >
-            {s.title}
-          </button>
-        ))
-      }
-    </div>
+    <SectionHeading id="show-title" title="Seperti ini sampainya." split />
+    <Tabs label="Pilih layanan" class="show-tabs" tabs={services.map((s) => ({ id: `tab-${s.slug}`, label: s.title, controls: `panel-${s.slug}` }))} />
     {
       services.map((s, i) => (
         <div class="panel" role="tabpanel" id={`panel-${s.slug}`} aria-labelledby={`tab-${s.slug}`} hidden={i !== 0} data-panel>
-          <div class="plate" data-cycle>
+          <div class="photos">
             {[s.photo, ...s.gallery.filter((g) => g !== s.photo)].slice(0, 4).map((ph, k) => (
-              <div class:list={['frame', k === 0 && 'is-on']}>
-                <Photo photo={ph} sizes="(min-width: 1024px) 46vw, 92vw" widths={[480, 720, 960, 1280]} />
-              </div>
+              <Figure
+                photo={ph}
+                ratio={k === 0 ? '3/2' : '1/1'}
+                class={k === 0 ? 'big' : 'small'}
+                sizes={k === 0 ? '(min-width: 1024px) 46vw, 92vw' : '(min-width: 1024px) 15vw, 30vw'}
+                widths={k === 0 ? [480, 720, 960, 1280] : [240, 360, 480]}
+              />
             ))}
           </div>
           <div class="copy">
-            <div class="copy-top">
-              <h3 class="panel-title">{s.title}</h3>
-              <p class="t-lead panel-tag">{s.tagline}</p>
-              <p class="t-body measure panel-intro">{s.intro}</p>
-            </div>
+            <h3 class="t-heading-2 panel-title">{s.title}</h3>
+            <p class="t-lead panel-tag">{s.tagline}</p>
+            <p class="t-body measure panel-intro">{s.intro}</p>
             <dl class="facts tab">
               <div>
                 <dt>Mulai</dt>
@@ -58,12 +46,11 @@ const from = (s: (typeof services)[number]) => Math.min(...s.packages.map((p) =>
               </div>
             </dl>
             <div class="cells">
-              <a class="cell cell-a" href={`/katering/${s.slug}/`}>
-                Lihat isi menu
-                <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 10h13M11 4l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" /></svg>
-              </a>
-              <a class="cell cell-b" href={`/?layanan=${s.slug}#pesan`} data-pick-service={s.slug}>
+              <a class="ui-btn ui-btn--secondary" href={`/?layanan=${s.slug}#pesan`} data-pick-service={s.slug}>
                 Pesan {s.title}
+              </a>
+              <a class="ui-link ui-link--tap" href={`/katering/${s.slug}/`}>
+                Lihat isi menu
               </a>
             </div>
           </div>
@@ -77,26 +64,14 @@ const from = (s: (typeof services)[number]) => Math.min(...s.packages.map((p) =>
   const root = document.querySelector<HTMLElement>('.show')!;
   const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
   const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-panel]'));
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   function select(i: number, focus = false) {
     tabs.forEach((t, k) => {
       t.setAttribute('aria-selected', String(k === i));
       t.tabIndex = k === i ? 0 : -1;
     });
-    panels.forEach((p, k) => {
-      p.hidden = k !== i;
-      p.classList.remove('entering', 'fresh');
-    });
-    // Arrow keys switch instantly; a click gets a short entrance.
-    if (focus) {
-      tabs[i].focus();
-      return;
-    }
-    const panel = panels[i];
-    panel.classList.add('entering', 'fresh');
-    requestAnimationFrame(() => requestAnimationFrame(() => panel.classList.remove('entering')));
-    window.setTimeout(() => panel.classList.remove('fresh'), 400);
+    panels.forEach((p, k) => (p.hidden = k !== i));
+    if (focus) tabs[i].focus();
   }
   tabs.forEach((t, i) => {
     t.addEventListener('click', () => select(i));
@@ -121,214 +96,75 @@ const from = (s: (typeof services)[number]) => Math.min(...s.packages.map((p) =>
       e.preventDefault();
       window.dispatchEvent(new CustomEvent('aroma:pick', { detail: { service: a.dataset.pickService } }));
       const target = document.getElementById('pesan')!;
-      if (window.__lenis) window.__lenis.scrollTo(target, { offset: -88, duration: 1.4 });
+      if (window.__lenis) window.__lenis.scrollTo(target, { offset: -88, duration: 1.2 });
       else target.scrollIntoView();
     }),
   );
-
-  // Slow crossfade between the photographs of the visible panel.
-  let visible = false;
-  new IntersectionObserver((es) => (visible = es[0].isIntersecting)).observe(root);
-  window.setInterval(() => {
-    if (!visible || document.hidden || reduce.matches) return;
-    const panel = panels.find((p) => !p.hidden);
-    const frames = panel ? Array.from(panel.querySelectorAll<HTMLElement>('.frame')) : [];
-    if (frames.length < 2) return;
-    const cur = frames.findIndex((f) => f.classList.contains('is-on'));
-    frames[cur]?.classList.remove('is-on');
-    frames[(cur + 1) % frames.length].classList.add('is-on');
-  }, 5600);
 </script>
 
 <style>
+  /* Photo gallery (brand book §7 home recipe): read mode, Figures, with pill Tabs per service. */
   .show {
-    padding-block: var(--section);
+    padding-block: var(--section-space);
   }
-  .show-title {
-    max-width: 14ch;
-  }
-  .tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2px;
-    margin-top: 40px;
-  }
-  .tabs::-webkit-scrollbar {
-    display: none;
-  }
-  .tab-btn {
-    flex: none;
-    min-height: 52px;
-    padding: 0 22px;
-    border: 0;
-    background: var(--ink-2);
-    color: var(--peach);
-    font-size: 1.0625rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .tab-btn:hover {
-      background: var(--ink-3);
-      color: var(--paper);
-    }
-  }
-  .tab-btn[aria-selected='true'] {
-    background: var(--orange);
-    color: var(--ink);
+  .show :global(.show-tabs) {
+    margin-block: var(--spacing-3);
   }
   .panel {
     display: grid;
-    gap: 32px;
-    margin-top: 2px;
+    gap: var(--spacing-4);
   }
   .panel[hidden] {
     display: none;
   }
-  .panel.entering .frame.is-on {
-    opacity: 0;
-  }
-  .panel.entering .copy {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  .copy {
-    transition: opacity 200ms var(--ease), transform 240ms var(--ease-out);
-  }
-  /* A tab switch fades the photo quickly; the slow crossfade is for autoplay only. */
-  .panel.fresh .frame {
-    transition-duration: 200ms;
-  }
-  .plate {
-    position: relative;
-    aspect-ratio: 1 / 1;
-    background: var(--ink-2);
-    overflow: hidden;
-  }
-  .frame {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    transition: opacity 1600ms var(--ease);
-  }
-  .frame.is-on {
-    opacity: 1;
-  }
-  .frame :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transform: scale(1.04);
-    transition: transform 7000ms linear;
-  }
-  .frame.is-on :global(img) {
-    transform: scale(1.1);
-  }
-  .copy {
-    display: flex;
-    flex-direction: column;
-    gap: 32px;
-  }
-  .copy-top {
+  .photos {
     display: grid;
-    gap: 18px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
   }
-  .panel-title {
-    font-size: clamp(2rem, 1.4rem + 2.4vw, 3.5rem);
-    font-weight: 800;
-    letter-spacing: -0.035em;
-    line-height: 1;
+  .photos :global(.big) {
+    grid-column: 1 / -1;
   }
-  .panel-tag {
-    color: var(--peach);
-    max-width: 28ch;
-  }
-  .panel-intro {
-    color: var(--paper);
+  .copy {
+    display: grid;
+    gap: var(--spacing-2);
+    align-content: start;
   }
   .facts {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 2px;
+    margin: var(--spacing-1) 0 0;
+    border-top: var(--hairline);
   }
   .facts div {
-    padding: 16px;
-    background: var(--ink-2);
+    display: grid;
+    gap: 2px;
+    padding: 12px 12px 0 0;
+  }
+  .facts div + div {
+    padding-left: 12px;
+    border-left: 1px solid var(--color-rule-soft);
   }
   .facts dt {
-    font-size: var(--step-small);
-    color: var(--peach);
+    font-size: 13px;
+    color: var(--color-ink-muted);
   }
   .facts dd {
-    font-size: 1.125rem;
-    font-weight: 700;
+    margin: 0;
+    font-weight: 600;
   }
   .cells {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2px;
-    margin-top: auto;
-  }
-  .cell {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    min-height: 72px;
-    padding: 0 20px;
-    font-weight: 700;
-    text-decoration: none;
-    transition: background var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
-  }
-  .cell:active {
-    transform: scale(0.98);
-  }
-  .cell-a {
-    background: var(--paper);
-    color: var(--ink);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .cell-a:hover {
-      background: var(--peach);
-    }
-  }
-  .cell-b {
-    background: var(--orange);
-    color: var(--ink);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .cell-b:hover {
-      background: #f59a45;
-    }
-  }
-  .cell svg {
-    transition: transform var(--dur) var(--ease-out);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .cell:hover svg {
-      transform: translateX(4px);
-    }
-  }
-  @media (max-width: 559px) {
-    .facts {
-      grid-template-columns: 1fr;
-    }
-    .cells {
-      grid-template-columns: 1fr;
-    }
-    .cell {
-      min-height: 60px;
-    }
+    gap: var(--spacing-2) var(--spacing-3);
+    margin-top: var(--spacing-1);
   }
   @media (min-width: 1024px) {
     .panel {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: clamp(40px, 5vw, 96px);
-      min-height: 72svh;
-    }
-    .plate {
-      align-self: start;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: var(--spacing-5);
+      align-items: start;
     }
   }
 </style>

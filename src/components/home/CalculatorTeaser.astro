@@ -3,6 +3,8 @@ import { getPresets, getServices } from '../../lib/content';
 import { buildCatalog, computePlan, planFromPreset } from '../../lib/calculator';
 import { weddingCatering } from '../../data/wedding';
 import { formatRupiah } from '../../lib/order';
+import SectionHeading from '../ui/SectionHeading.astro';
+import EventTile from '../ui/EventTile.astro';
 
 const presets = await getPresets();
 const catalog = buildCatalog(await getServices(), weddingCatering);
@@ -14,29 +16,25 @@ const rows = presets
   });
 ---
 
-<section class="teaser field-orange" aria-labelledby="teaser-title">
-  <div class="wrap t-grid">
-    <div class="t-copy">
-      <h2 id="teaser-title" class="t-h2" data-split>Satu acara, banyak menu?</h2>
-      <p class="t-lead t-lead-text">
-        Kalkulator katering menyusun seluruh acara sekaligus: snack pagi, makan siang, tumpeng untuk dipotong. Mulai dari contoh acara di bawah, lalu ubah sesuka Anda.
-      </p>
-      <a class="btn" href="/kalkulator/">
-        Buka kalkulator
-        <svg class="btn-arrow" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13M11 4l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2"></path></svg>
-      </a>
-    </div>
-    <ul role="list" class="t-list" data-reveal>
+<section class="teaser" aria-labelledby="teaser-title">
+  <div class="wrap">
+    <SectionHeading
+      id="teaser-title"
+      title="Satu acara, banyak menu?"
+      context="Kalkulator katering menyusun seluruh acara sekaligus: snack pagi, makan siang, tumpeng untuk dipotong. Mulai dari contoh acara di bawah, lalu ubah sesuka Anda."
+      link={{ href: '/kalkulator/', label: 'Buka kalkulator' }}
+      split
+    />
+    <ul role="list" class="ui-tiles t-list" data-reveal>
       {
         rows.map((r) => (
           <li>
-            <a class="t-row" href={`/kalkulator/?acara=${r.id}`}>
-              <span class="t-name">{r.title}</span>
-              <span class="t-meta tab">
-                {r.guests} {r.guestWord} · sekitar {formatRupiah(r.perGuest)} per {r.guestWord}
-              </span>
-              <svg class="t-arrow" viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path d="M3 10h13M11 4l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2"></path></svg>
-            </a>
+            <EventTile
+              href={`/kalkulator/?acara=${r.id}`}
+              title={r.title}
+              desc={`${r.guests} ${r.guestWord}`}
+              price={`sekitar ${formatRupiah(r.perGuest)} per ${r.guestWord}`}
+            />
           </li>
         ))
       }
@@ -45,78 +43,11 @@ const rows = presets
 </section>
 
 <style>
+  /* EventTiles (brand book §7 home recipe): order mode, straight after the hero. */
   .teaser {
-    padding-block: var(--section);
-  }
-  .t-grid {
-    display: grid;
-    gap: 40px;
-  }
-  .t-copy {
-    display: grid;
-    gap: 24px;
-    align-content: start;
-    justify-items: start;
-  }
-  .t-copy h2 {
-    max-width: 12ch;
-  }
-  .t-lead-text {
-    max-width: 36ch;
+    padding-block: var(--spacing-4) var(--section-space);
   }
   .t-list {
-    display: grid;
-    gap: 2px;
-    background: var(--orange);
-  }
-  .t-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 2px 20px;
-    padding: 20px 24px;
-    background: var(--paper);
-    text-decoration: none;
-    transition: background var(--dur) var(--ease);
-  }
-  .t-name {
-    font-size: clamp(1.25rem, 1rem + 0.8vw, 1.625rem);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-  }
-  .t-meta {
-    grid-column: 1;
-    font-weight: 600;
-  }
-  .t-name,
-  .t-meta {
-    transition: transform var(--dur) var(--ease-out);
-  }
-  .t-arrow {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    transition: transform var(--dur) var(--ease-out);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .t-row:hover {
-      background: var(--ink);
-      color: var(--paper);
-    }
-    .t-row:hover :is(.t-name, .t-meta) {
-      transform: translateX(8px);
-    }
-    .t-row:hover .t-arrow {
-      transform: translateX(4px);
-    }
-  }
-  .t-row:focus-visible {
-    outline-offset: -4px;
-  }
-  @media (min-width: 1024px) {
-    .t-grid {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-      gap: clamp(40px, 6vw, 120px);
-      align-items: start;
-    }
+    margin-top: var(--spacing-3);
   }
 </style>

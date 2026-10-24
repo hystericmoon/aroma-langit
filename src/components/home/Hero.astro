@@ -1,122 +1,93 @@
 ---
 import BoxSlot from '../BoxSlot.astro';
+import Icon from '../ui/Icon.astro';
 import { photos } from '../../data/photos';
 import { getSite } from '../../lib/content';
 
 const site = await getSite();
 ---
 
-<section class="hero field-orange" data-box-scroll aria-labelledby="hero-title">
+<section class="hero" data-box-scroll aria-labelledby="hero-title">
   <div class="pin" data-box-pin>
-    <div class="card field-paper">
-      <div class="stripe-band intro-wipe" aria-hidden="true"></div>
-      <div class="card-body">
+    <div class="wrap hero-grid">
+      <div class="copy">
         <h1 id="hero-title" class="t-display hero-title">
           <span class="intro-line"><span>Katering halal</span></span>
-          <span class="intro-line"><span>dari Bogor.</span></span>
+          <span class="intro-line"><span>dari <em>Bogor.</em></span></span>
         </h1>
         <p class="t-lead hero-sub intro-fade">
           Nasi box, tumpeng dan prasmanan untuk rapat, syukuran sampai resepsi. Dimasak di dapur kami di Pasir Kuda, harga sudah termasuk antar se-Kota Bogor.
         </p>
         <div class="hero-actions intro-fade">
-          <a class="btn" href="#pesan">
+          <a class="ui-btn ui-btn--primary" href="#pesan">
             Susun pesanan
-            <svg class="btn-arrow" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13M11 4l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" /></svg>
+            <Icon name="arrow-right" />
           </a>
-          <a class="link hero-link" href="#menu">Lihat menu &amp; harga</a>
+          <a class="ui-link hero-link" href="#menu">Lihat menu &amp; harga</a>
         </div>
+        <ul role="list" class="facts intro-fade">
+          <li><strong>Halal BPJPH</strong><span class="tab">{site.halal.number}</span></li>
+          <li><strong>Laik Higiene</strong><span>Jasaboga {site.hygiene.grade}</span></li>
+          <li><strong>Sejak 2017</strong><span>Jatinangor, Bandung, Bogor</span></li>
+        </ul>
       </div>
-      <ul role="list" class="facts intro-fade">
-        <li><strong>Halal BPJPH</strong><span class="tab">{site.halal.number}</span></li>
-        <li><strong>Laik Higiene</strong><span>Jasaboga {site.hygiene.grade}</span></li>
-        <li><strong>Sejak 2017</strong><span>Jatinangor, Bandung, Bogor</span></li>
-      </ul>
-    </div>
-
-    <div class="stage field-ink">
-      <BoxSlot
-        mode="hero"
-        fallback={photos.nasiboxRendang}
-        sizes="(min-width: 1024px) 50vw, 100vw"
-        priority
-        class="hero-slot"
-        label="Nasi box Aroma Langit yang terbuka, berisi nasi kuning, ayam bakar, perkedel, sambal, lalapan, jeruk dan kerupuk"
-      />
-      <p class="hint t-small" aria-hidden="true">
-        <span class="hint-dot"></span>
-        Gulir untuk membuka kotak
-      </p>
+      <div class="stage">
+        <BoxSlot
+          mode="hero"
+          fallback={photos.nasiboxRendang}
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          priority
+          class="hero-slot"
+          label="Nasi box Aroma Langit yang terbuka, berisi nasi kuning, ayam bakar, perkedel, sambal, lalapan, jeruk dan kerupuk"
+        />
+        <p class="hint t-meta" aria-hidden="true">Gulir untuk membuka kotak</p>
+      </div>
     </div>
   </div>
 </section>
 
 <style>
-  .hero {
-    padding: 12px var(--gutter) 0;
-  }
-  .pin {
+  /* Hero (brand book §7 home recipe): read mode. Figure 4:3 + display heading + stats strip +
+     the screen's one primary button. */
+  .hero-grid {
     display: grid;
-    gap: 12px;
+    gap: var(--spacing-4);
+    padding-block: var(--spacing-4) var(--section-space);
   }
-  .card {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    order: 2;
-    margin-top: -40px;
-    margin-inline: 8px;
-  }
-  .card-body {
-    container-type: inline-size;
+  .copy {
     display: grid;
-    gap: 24px;
-    padding: clamp(28px, 4vw, 64px) clamp(20px, 4vw, 64px) 32px;
-  }
-  .hero-title {
-    font-size: clamp(2.4rem, 14.2cqi, 7.5rem);
-    white-space: nowrap;
+    gap: var(--spacing-3);
+    align-content: center;
   }
   .hero-title .intro-line {
     display: block;
     overflow: clip;
-    padding-bottom: 0.06em;
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
   }
   .hero-title .intro-line > span {
     display: block;
-    animation: rise 1100ms var(--ease-out) both;
+    animation: rise 250ms var(--ease-out) both;
   }
   .hero-title .intro-line:nth-child(2) > span {
-    animation-delay: 110ms;
+    animation-delay: 60ms;
+  }
+  .hero-title em {
+    font-style: italic;
   }
   @keyframes rise {
     from {
-      transform: translateY(105%);
+      transform: translateY(40%);
     }
   }
   .intro-fade {
-    animation: fade-up 600ms var(--ease-out) both;
-    animation-delay: 120ms;
-  }
-  .hero-actions.intro-fade {
-    animation-delay: 180ms;
-  }
-  .facts.intro-fade {
-    animation-delay: 240ms;
+    animation: fade-up 250ms var(--ease-out) both;
+    animation-delay: 100ms;
   }
   @keyframes fade-up {
     from {
       opacity: 0;
-      transform: translateY(16px);
-    }
-  }
-  .intro-wipe {
-    animation: wipe 1000ms var(--ease-out) both;
-    transform-origin: left;
-  }
-  @keyframes wipe {
-    from {
-      transform: scaleX(0);
+      transform: translateY(8px);
     }
   }
   .hero-sub {
@@ -126,99 +97,102 @@ const site = await getSite();
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 12px 28px;
+    gap: var(--spacing-2) var(--spacing-3);
   }
   .hero-link {
     display: inline-flex;
     align-items: center;
-    min-height: 48px;
+    min-height: var(--tap-min);
   }
+  /* Stats strip: not specified in the brand book (flagged); hairline-separated facts.
+     Rows on phones, three columns from 600px. */
   .facts {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2px;
-    margin-top: auto;
-    background: var(--paper);
+    border-top: var(--hairline);
   }
   .facts li {
-    display: grid;
-    gap: 2px;
-    padding: 16px 20px;
-    background: var(--paper-2);
-    font-size: var(--step-small);
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-2);
+    padding: 10px 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--color-ink-muted);
+  }
+  .facts li + li {
+    border-top: 1px solid var(--color-rule-soft);
+  }
+  .facts li span {
+    text-align: right;
+  }
+  @media (min-width: 600px) {
+    .facts {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .facts li {
+      display: grid;
+      gap: 2px;
+      padding: 12px 12px 0 0;
+    }
+    .facts li span {
+      text-align: left;
+      overflow-wrap: anywhere;
+    }
+    .facts li + li {
+      padding-left: 12px;
+      border-top: 0;
+      border-left: 1px solid var(--color-rule-soft);
+    }
   }
   .facts strong {
-    font-size: 1rem;
-  }
-  .facts span {
-    color: var(--muted);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-ink);
   }
   .stage {
-    position: relative;
-    order: 1;
-    min-height: 56svh;
+    display: grid;
+    gap: 10px;
+    align-content: center;
   }
   .stage :global(.hero-slot) {
-    position: absolute;
-    inset: 0;
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background: var(--color-kraft);
   }
   .hint {
-    position: absolute;
-    z-index: 2;
-    left: 20px;
-    bottom: 56px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 14px;
-    background: var(--ink);
-    color: var(--peach);
-    pointer-events: none;
-  }
-  .hint-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--orange);
-    animation: bob 1600ms var(--ease) infinite;
-  }
-  @keyframes bob {
-    50% {
-      transform: translateY(6px);
-    }
+    display: none;
   }
 
   @media (min-width: 1024px) {
+    /* Desktop only: the hero pins while the box opens. Phones never pin (no scroll-jacking). */
     .hero {
       height: 175svh;
-      padding-top: 12px;
     }
     .pin {
       position: sticky;
-      top: 88px;
-      height: calc(100svh - 100px);
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+      top: 73px;
+      height: calc(100svh - 73px);
+      display: flex;
+      align-items: center;
     }
-    .card {
-      order: 1;
-      margin: 0;
-    }
-    .card-body {
-      align-content: center;
-      flex: 1;
-    }
-    .stage {
-      order: 2;
-      min-height: 0;
+    .hero-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      align-items: center;
+      gap: var(--spacing-5);
+      padding-block: var(--spacing-4);
     }
     .hint {
-      left: 32px;
-      bottom: 28px;
+      display: block;
     }
   }
-  @media (min-width: 1024px) and (max-height: 720px) {
-    .facts {
-      display: none;
+  /* Under reduced motion the box does not open on scroll, so there is nothing to pin for. */
+  @media (min-width: 1024px) and (max-height: 760px), (prefers-reduced-motion: reduce) {
+    .hero {
+      height: auto;
+    }
+    .pin {
+      position: static;
+      height: auto;
     }
   }
 </style>

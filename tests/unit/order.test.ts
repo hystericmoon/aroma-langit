@@ -81,6 +81,14 @@ describe('dates', () => {
   });
 });
 
+describe('shippingLabel', () => {
+  it('includes delivery in Kota Bogor and leaves it to the team elsewhere', async () => {
+    const { shippingLabel } = await import('../../src/lib/order');
+    expect(shippingLabel['kota-bogor']).toBe('Termasuk');
+    expect(shippingLabel['luar-bogor']).toBe('Dihitung tim kami');
+  });
+});
+
 describe('buildMessage', () => {
   it('writes every fact the customer service needs', () => {
     const msg = buildMessage({

@@ -1,0 +1,22 @@
+---
+// NavyBand (brand book §7, read mode): full bleed navy, an eyebrow label and paper text in
+// Newsreader Light. Once per page, plus the footer. The label is the band's heading.
+interface Props {
+  id: string;
+  label: string;
+  /** Heading level of the label; h2 by default. */
+  level?: 'h1' | 'h2';
+  class?: string;
+}
+const { id, label, level = 'h2', class: cls } = Astro.props;
+const H = level;
+---
+
+<section class:list={['ui-band on-navy', cls]} aria-labelledby={id}>
+  <div class="wrap ui-band__inner">
+    <H id={id} class="ui-band__label">{label}</H>
+    <div class="ui-band__body">
+      <slot />
+    </div>
+  </div>
+</section>

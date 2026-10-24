@@ -1,6 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
+import SectionHeading from '../components/ui/SectionHeading.astro';
+import Icon from '../components/ui/Icon.astro';
 import { getServices } from '../lib/content';
 import { formatRupiah } from '../lib/order';
 const services = await getServices();
@@ -11,28 +13,31 @@ const from = (s: (typeof services)[number]) => {
 ---
 
 <Base title="Halaman tidak ditemukan" description="Halaman yang Anda cari tidak ada di situs Aroma Langit." noindex closing={false}>
-  <section class="nf field-orange" aria-labelledby="nf-title">
+  <section class="nf" aria-labelledby="nf-title">
     <div class="wrap nf-grid">
       <h1 id="nf-title" class="t-display" data-split>Kotaknya kosong.</h1>
       <div class="nf-copy">
         <p class="t-lead">Halaman ini tidak ada, atau sudah pindah. Layanan aqiqah dan pemasok grosir juga sudah tidak kami buka.</p>
-        <a class="btn" href="/">Kembali ke beranda</a>
+        <a class="ui-btn ui-btn--primary" href="/">Kembali ke beranda</a>
       </div>
     </div>
   </section>
 
-  <section class="menu field-paper" aria-labelledby="nf-menu">
+  <section class="menu" aria-labelledby="nf-menu">
     <div class="wrap">
-      <h2 id="nf-menu" class="t-h2">Kotak yang masih kami isi</h2>
+      <SectionHeading id="nf-menu" title="Kotak yang masih kami isi" />
       <ul role="list" class="tiles">
         {
-          services.map((s, i) => (
-            <li style={`--i:${i}`}>
+          services.map((s) => (
+            <li>
               <a class="tile" href={`/katering/${s.slug}/`}>
                 <span class="tile-photo">
                   <Photo photo={s.photo} sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw" widths={[480, 720, 960]} alt="" />
                 </span>
-                <span class="tile-name">{s.title}</span>
+                <span class="tile-name">
+                  {s.title}
+                  <Icon name="arrow-right" />
+                </span>
                 <span class="tile-from tab">{from(s)}</span>
               </a>
             </li>
@@ -44,33 +49,60 @@ const from = (s: (typeof services)[number]) => {
 </Base>
 
 <style>
-  .nf {
-    padding-block: clamp(72px, 12vw, 160px) clamp(56px, 8vw, 112px);
-  }
+  /* 404: read mode. The service links are photo links like "Layanan lain" (flagged). */
   .nf-grid {
     display: grid;
-    gap: 32px;
+    gap: var(--spacing-4);
+    padding-block: var(--spacing-5) var(--section-space);
   }
   .nf-copy {
     display: grid;
-    gap: 24px;
+    gap: var(--spacing-3);
     justify-items: start;
     max-width: 36rem;
   }
-  @media (min-width: 1024px) {
-    .nf-grid {
-      grid-template-columns: 1.3fr 1fr;
-      align-items: end;
-    }
-  }
   .menu {
-    padding-block: var(--section);
+    padding-bottom: var(--section-space);
   }
   .tiles {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 32px 24px;
-    margin-top: 40px;
+    gap: var(--spacing-3) 12px;
+    margin-top: var(--spacing-3);
+  }
+  .tile {
+    display: grid;
+    gap: 6px;
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .tile-photo {
+    display: block;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    background: var(--color-kraft);
+  }
+  .tile-photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .tile-name {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-1);
+    margin-top: 4px;
+    font: 400 24px/1.2 var(--font-display);
+  }
+  .tile:hover .tile-name {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+  }
+  .tile-from {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-orange-ink);
   }
   @media (min-width: 640px) {
     .tiles {
@@ -78,64 +110,13 @@ const from = (s: (typeof services)[number]) => {
     }
   }
   @media (min-width: 1024px) {
+    .nf-grid {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      align-items: end;
+      gap: var(--spacing-5);
+    }
     .tiles {
       grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-  /* The tiles deal in like boxes on a counter; reduced motion skips it (global rule). */
-  .tiles li {
-    animation: deal 520ms var(--ease-out) both;
-    animation-delay: calc(240ms + var(--i, 0) * 60ms);
-  }
-  @keyframes deal {
-    from {
-      opacity: 0;
-      transform: translateY(24px);
-    }
-  }
-  .nf-copy {
-    animation: deal 520ms var(--ease-out) both;
-    animation-delay: 120ms;
-  }
-  .tile {
-    display: grid;
-    gap: 4px;
-    color: var(--ink);
-    text-decoration: none;
-    transition: transform var(--dur-fast) var(--ease-out);
-  }
-  .tile:active {
-    transform: scale(0.98);
-  }
-  .tile-photo {
-    display: block;
-    aspect-ratio: 4 / 3;
-    margin-bottom: 12px;
-    overflow: hidden;
-    background: var(--paper-3);
-  }
-  .tile-photo :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 600ms var(--ease-out);
-  }
-  .tile-name {
-    font-size: clamp(1.375rem, 1.1rem + 0.8vw, 1.75rem);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-  }
-  .tile-from {
-    font-weight: 600;
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .tile:hover .tile-photo :global(img) {
-      transform: scale(1.04);
-    }
-    .tile:hover .tile-name {
-      text-decoration: underline;
-      text-decoration-thickness: 2px;
-      text-underline-offset: 0.18em;
     }
   }
 </style>

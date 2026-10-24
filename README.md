@@ -2,7 +2,7 @@
 
 The website of Aroma Langit, a halal-certified catering kitchen in Bogor. Built with **Astro 7**, **Three.js**, **GSAP + Lenis** and **Sanity** as the CMS, deployed as a static site on **Cloudflare Pages**.
 
-The art direction is "the page is the box": every section is a piece of the stationery that comes with an Aroma Langit nasi box. The lid is the hero, the price list is a printed menu sheet, the order form is the label sticker, and the footer is the back of the box.
+The design system is **Editorial + Nota** ([docs/design-system/brand-book.md](docs/design-system/brand-book.md)): what people read looks like a newspaper about the kitchen (square photos, Newsreader headings, double rules), and what people tap or order looks like the order slip (pill buttons, white fields, a receipt-style nota). Tokens are in `src/styles/global.css` (from `docs/design-system/tokens.json`), the components in `src/components/ui/`, their styles in `src/styles/ui.css`. Full-page screenshots of every page at 390 and 1440px are in [screenshots/](screenshots/).
 
 ## What is on the site
 
@@ -32,7 +32,8 @@ npm run build:staging  # staging build in dist/ (new.aromalangit.id): SITE_ENV=s
 npm run preview    # serve dist/
 npm run check      # Astro + TypeScript diagnostics
 npm test           # unit tests (Vitest): pricing, dates, WhatsApp message, calculator, content loader
-npm run test:e2e   # end-to-end (Playwright): every page, links, a11y (axe), order flow, calculator, fallbacks
+npm run test:e2e   # end-to-end (Playwright): every page, links, a11y (axe, tap targets, focus rings), order flow, calculator, fallbacks
+npm run screenshots  # after a build: full-page screenshots of every page at 390 and 1440px into screenshots/
 ```
 
 ## Content: bundled data and Sanity
@@ -111,9 +112,9 @@ Without them the function answers 503, and the form opens WhatsApp to marketing 
 ## Quality gates (all passing at handover)
 
 - `astro check`: 0 errors, 0 warnings
-- Vitest: 34/34
-- Playwright: 111 passed (desktop 1440, tablet 768, phone 390), including axe WCAG 2.1 AA scans of every page, a crawl of every internal link and anchor, the order flow, the calculator (presets, undo, editing, surcharge, share link, reload, wedding routing, phone dock), keyboard navigation, no-JS and reduced-motion runs
-- Lighthouse (mobile): homepage 94 / 100 / 100 / 100, calculator 97 / 100 / 100 / 100 (Performance / Accessibility / Best Practices / SEO)
+- Vitest: 51/51, including every design-system component rendered and checked for its markup and ARIA
+- Playwright: 173 passed (desktop 1440, tablet 768, phone 390), including axe WCAG 2.2 AA scans of every page, 44×44 tap targets and a focus ring on every keyboard stop, a crawl of every internal link and anchor, the order flow, the calculator (presets, undo, editing, surcharge, share link, reload, wedding routing, phone dock), keyboard navigation, no-JS and reduced-motion runs
+- Lighthouse (mobile, local build): performance 91–99 on every page (home 91, nasi box 94, calculator 98), 100 for accessibility, best practices and SEO
 
 ## Before launch, please confirm
 

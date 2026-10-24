@@ -1,0 +1,26 @@
+---
+// Figure (brand book §7, read mode): square-cornered photo (1:1, 3:2 or 4:3) with an italic
+// caption that says what and where. Alt describes the food; the caption adds context.
+import Photo from '../Photo.astro';
+import type { Photo as PhotoData } from '../../data/types';
+
+interface Props {
+  photo: PhotoData;
+  ratio?: '1/1' | '3/2' | '4/3';
+  caption?: string;
+  sizes: string;
+  widths?: number[];
+  priority?: boolean;
+  alt?: string;
+  position?: string;
+  class?: string;
+}
+const { photo, ratio = '3/2', caption, sizes, widths, priority, alt, position, class: cls } = Astro.props;
+---
+
+<figure class:list={['ui-figure', cls]} style={`--ratio: ${ratio}`}>
+  <div class="ui-figure__img">
+    <Photo photo={photo} sizes={sizes} widths={widths} priority={priority} alt={alt} position={position} />
+  </div>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
