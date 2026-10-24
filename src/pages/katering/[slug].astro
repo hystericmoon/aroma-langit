@@ -1,6 +1,10 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Photo from '../../components/Photo.astro';
+import Figure from '../../components/ui/Figure.astro';
+import SectionHeading from '../../components/ui/SectionHeading.astro';
+import Chip from '../../components/ui/Chip.astro';
+import Icon from '../../components/ui/Icon.astro';
 import PackageSheet from '../../components/PackageSheet.astro';
 import Terms from '../../components/Terms.astro';
 import { getServices, getSite } from '../../lib/content';
@@ -57,41 +61,37 @@ const schema = [
   description={`${service.title} Aroma Langit: ${service.packages.length} paket dari ${formatRupiah(lo)} sampai ${formatRupiah(hi)} per ${service.unit}. ${service.tagline} Halal BPJPH, antar se-Kota Bogor.`}
   schema={schema}
 >
-  <section class="head field-orange" aria-labelledby="svc-title">
+  <section class="head" aria-labelledby="svc-title">
     <div class="wrap head-grid">
       <div class="head-copy">
         <h1 id="svc-title" class="t-display svc-title">
           <span class="intro-line"><span>{service.title}</span></span>
         </h1>
         <p class="t-lead tagline">{service.tagline}</p>
-        <p class="t-body measure">{service.intro}</p>
+        <p class="t-body measure intro">{service.intro}</p>
         <dl class="facts tab">
           <div><dt>Harga</dt><dd>{lo === hi ? formatRupiah(lo) : `${formatRupiah(lo)}–${formatRupiah(hi)}`}<span class="per">/{service.unit}</span></dd></div>
           <div><dt>Minimum</dt><dd>{minLo > 1 ? `${minLo} ${service.unit}` : `1 ${service.unit}`}</dd></div>
           <div><dt>Pesan paling lambat</dt><dd>H-{service.leadDays}</dd></div>
         </dl>
         <div class="actions">
-          <a class="btn" href={`/?layanan=${service.slug}#pesan`}>Susun pesanan {service.title}</a>
-          <a class="link pdf" href={site.pricelistUrl} download>Unduh daftar harga (PDF)</a>
+          <a class="ui-btn ui-btn--primary" href={`/?layanan=${service.slug}#pesan`}>Susun pesanan {service.title}</a>
+          <a class="ui-link pdf" href={site.pricelistUrl} download>Unduh daftar harga (PDF)</a>
         </div>
       </div>
-      <figure class="head-photo">
-        <div class="pan" data-parallax="5">
-          <Photo photo={service.photo} sizes="(min-width: 1024px) 46vw, 100vw" priority widths={[480, 720, 960, 1280, 1600]} />
-        </div>
-      </figure>
+      <Figure photo={service.photo} ratio="4/3" class="head-photo" sizes="(min-width: 1024px) 46vw, 100vw" priority widths={[480, 720, 960, 1280, 1600]} />
     </div>
   </section>
 
-  <section class="packages field-paper-2" aria-labelledby="pkg-title">
+  <section class="packages" aria-labelledby="pkg-title">
     <div class="wrap">
-      <div class="pk-head">
-        <h2 id="pkg-title" class="t-h2" data-split>{service.packages.length} paket {service.title.toLowerCase()}</h2>
-        <p class="t-lead pk-lead">
-          {service.packages.length > 1 ? 'Diurutkan dari yang paling lengkap.' : ''} Harga per {service.unit}, sudah termasuk antar se-Kota Bogor untuk pesanan yang memenuhi minimum.
-        </p>
-      </div>
-      <div class="sheet field-paper edge-y">
+      <SectionHeading
+        id="pkg-title"
+        title={`${service.packages.length} paket ${service.title.toLowerCase()}`}
+        context={`${service.packages.length > 1 ? 'Diurutkan dari yang paling lengkap. ' : ''}Harga per ${service.unit}, sudah termasuk antar se-Kota Bogor untuk pesanan yang memenuhi minimum.`}
+        split
+      />
+      <div class="sheet">
         {service.packages.map((p, i) => <PackageSheet pkg={p} serviceSlug={service.slug} serviceTitle={service.title} index={i} />)}
       </div>
     </div>
@@ -99,15 +99,19 @@ const schema = [
 
   {
     service.choices && service.choices.length > 0 && (
-      <section class="choices field-ink on-dark" aria-labelledby="choice-title">
-        <div class="wrap choice-grid">
-          <h2 id="choice-title" class="t-h2" data-split>Pilih sendiri isinya.</h2>
+      <section class="choices" aria-labelledby="choice-title">
+        <div class="wrap">
+          <SectionHeading id="choice-title" title="Pilih sendiri isinya." split />
           <div class="choice-lists">
             {service.choices.map((c) => (
               <div class="choice">
                 <h3 class="choice-h">{c.label}</h3>
                 <ul role="list" class="chips">
-                  {c.items.map((it) => <li>{it}</li>)}
+                  {c.items.map((it) => (
+                    <li>
+                      <Chip variant="outline">{it}</Chip>
+                    </li>
+                  ))}
                 </ul>
               </div>
             ))}
@@ -119,14 +123,12 @@ const schema = [
 
   {
     gallery.length > 0 && (
-      <section class="gallery field-paper" aria-labelledby="gal-title">
+      <section class="gallery" aria-labelledby="gal-title">
         <div class="wrap">
-          <h2 id="gal-title" class="t-h2 gal-title" data-split>Dari dapur kami.</h2>
+          <SectionHeading id="gal-title" title="Dari dapur kami." split />
           <div class:list={['gal', `gal-${Math.min(gallery.length, 4)}`]} data-reveal>
             {gallery.slice(0, 4).map((g) => (
-              <figure class="gal-item">
-                <Photo photo={g} sizes="(min-width: 1024px) 30vw, 50vw" widths={[480, 720, 960]} />
-              </figure>
+              <Figure photo={g} ratio="1/1" sizes="(min-width: 1024px) 30vw, 50vw" widths={[480, 720, 960]} />
             ))}
           </div>
         </div>
@@ -136,9 +138,9 @@ const schema = [
 
   <Terms service={service} />
 
-  <section class="others field-orange" aria-labelledby="others-title">
+  <section class="others" aria-labelledby="others-title">
     <div class="wrap">
-      <h2 id="others-title" class="t-h2" data-split>Layanan lain</h2>
+      <SectionHeading id="others-title" title="Layanan lain" split />
       <ul role="list" class="o-list" data-reveal>
         {
           others.map((o) => (
@@ -147,7 +149,10 @@ const schema = [
                 <span class="o-img">
                   <Photo photo={o.photo} sizes="(min-width: 1024px) 18vw, 45vw" widths={[360, 540]} alt="" />
                 </span>
-                <span class="o-name">{o.title}</span>
+                <span class="o-name">
+                  {o.title}
+                  <Icon name="arrow-right" />
+                </span>
                 <span class="o-price tab">mulai {formatRupiah(Math.min(...o.packages.map((p) => p.price)))}</span>
               </a>
             </li>
@@ -158,254 +163,187 @@ const schema = [
   </section>
 </Base>
 
-<script>
-  import '../../scripts/tabs';
-</script>
-
 <style>
-  .head {
-    padding-block: clamp(40px, 6vw, 88px) clamp(64px, 8vw, 120px);
-  }
+  /* Service page (brand book §7 recipe): SectionHeading → PriceRows with menu Tabs → Figures →
+     terms list. Read mode except the package actions. */
   .head-grid {
     display: grid;
-    gap: 40px;
+    gap: var(--spacing-4);
+    padding-block: var(--spacing-4) var(--section-space);
   }
   .head-copy {
     display: grid;
-    gap: 24px;
+    gap: var(--spacing-3);
     align-content: center;
-  }
-  .svc-title {
-    font-size: clamp(3.5rem, 1rem + 9vw, 9.5rem);
   }
   .svc-title .intro-line {
     display: block;
     overflow: clip;
-    padding-bottom: 0.06em;
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
   }
   .svc-title .intro-line > span {
     display: block;
-    animation: rise 1100ms var(--ease-out) both;
+    animation: rise 250ms var(--ease-out) both;
   }
   @keyframes rise {
     from {
-      transform: translateY(105%);
+      transform: translateY(40%);
     }
   }
-  .tagline {
-    max-width: 26ch;
-    font-weight: 650;
+  .intro {
+    color: var(--color-ink-muted);
   }
   .facts {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 2px;
+    margin: 0;
+    border-top: var(--hairline);
   }
   .facts div {
-    padding: 14px 18px;
-    background: var(--paper);
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-2);
+    padding: 10px 0;
+  }
+  .facts div + div {
+    border-top: 1px solid var(--color-rule-soft);
   }
   .facts dt {
-    font-size: var(--step-small);
-    font-weight: 600;
-    color: var(--muted);
+    font-size: 13px;
+    color: var(--color-ink-muted);
   }
   .facts dd {
-    font-weight: 800;
-    font-size: 1.125rem;
+    margin: 0;
+    font-weight: 600;
   }
   .per {
-    font-weight: 600;
-    font-size: var(--step-small);
-    color: var(--muted);
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--color-ink-muted);
   }
   .actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 12px 28px;
+    gap: var(--spacing-2) var(--spacing-3);
   }
   .pdf {
     display: inline-flex;
     align-items: center;
-    min-height: 48px;
-  }
-  .head-photo {
-    aspect-ratio: 4 / 5;
-    overflow: hidden;
-    background: var(--ink);
-  }
-  .pan {
-    height: 110%;
-    margin-top: -5%;
-  }
-  .pan :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    min-height: var(--tap-min);
   }
 
-  .field-paper-2 {
-    background: var(--paper-2);
-  }
-  .packages {
-    padding-block: var(--section);
-  }
-  .pk-head {
-    display: grid;
-    gap: 20px;
-    align-items: end;
-  }
-  .pk-lead {
-    max-width: 40ch;
+  .packages,
+  .choices,
+  .gallery,
+  .others {
+    padding-block: 0 var(--section-space);
   }
   .sheet {
-    display: grid;
-    gap: clamp(64px, 7vw, 112px);
-    margin-top: clamp(40px, 5vw, 72px);
-    padding: clamp(56px, 6vw, 96px) clamp(20px, 4.5vw, 72px);
+    margin-top: var(--spacing-3);
   }
 
-  .choices {
-    padding-block: var(--section);
-  }
-  .choice-grid {
-    display: grid;
-    gap: 40px;
-  }
   .choice-lists {
     display: grid;
-    gap: 40px;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-3);
   }
   .choice-h {
-    font-size: 1.25rem;
-    font-weight: 800;
-    margin-bottom: 14px;
-    color: var(--peach);
+    margin-bottom: 12px;
+    font: 400 22px/1.2 var(--font-display);
   }
   .chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-  }
-  .chips li {
-    padding: 10px 16px;
-    background: var(--ink-2);
-    font-weight: 700;
+    gap: var(--spacing-1);
   }
 
-  .gallery {
-    padding-block: var(--section);
-  }
-  .gal-title {
-    margin-bottom: clamp(32px, 4vw, 56px);
-  }
   .gal {
     display: grid;
-    gap: 12px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .gal-item {
-    aspect-ratio: 4 / 5;
-    overflow: hidden;
-    background: var(--paper-2);
-  }
-  .gal-1 .gal-item {
-    aspect-ratio: 16 / 9;
-    grid-column: 1 / -1;
-  }
-  .gal-3 .gal-item:first-child {
-    grid-column: 1 / -1;
-    aspect-ratio: 16 / 9;
-  }
-  .gal-item :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 900ms var(--ease-out);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .gal-item:hover :global(img) {
-      transform: scale(1.04);
-    }
+    gap: 12px;
+    margin-top: var(--spacing-3);
   }
 
-  .others {
-    padding-block: var(--section);
-  }
+  /* Photo links to the other services: read mode (not one of the 12 components, flagged). */
   .o-list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    margin-top: clamp(32px, 4vw, 56px);
+    gap: var(--spacing-3) 12px;
+    margin-top: var(--spacing-3);
   }
   .o-card {
     display: grid;
-    gap: 4px;
-    padding-bottom: 14px;
-    background: var(--paper);
+    gap: 6px;
+    color: var(--color-ink);
     text-decoration: none;
-    transition: transform var(--dur) var(--ease-out);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .o-card:hover {
-      transform: translateY(-4px);
-    }
   }
   .o-img {
     display: block;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 1;
     overflow: hidden;
-    background: var(--ink);
+    background: var(--color-kraft);
   }
   .o-img :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 900ms var(--ease-out);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .o-card:hover .o-img :global(img) {
-      transform: scale(1.05);
-    }
   }
   .o-name {
-    padding: 10px 14px 0;
-    font-weight: 800;
-    font-size: 1.125rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-1);
+    margin-top: 4px;
+    font: 400 22px/1.2 var(--font-display);
+  }
+  .o-card:hover .o-name {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
   }
   .o-price {
-    padding: 0 14px;
-    font-size: var(--step-small);
-    color: var(--muted);
+    font-size: 14px;
     font-weight: 600;
+    color: var(--color-orange-ink);
   }
 
+  @media (min-width: 600px) {
+    .facts {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .facts div {
+      display: grid;
+      gap: 2px;
+      padding: 12px 12px 0 0;
+    }
+    .facts div + div {
+      padding-left: 12px;
+      border-top: 0;
+      border-left: 1px solid var(--color-rule-soft);
+    }
+  }
   @media (min-width: 1024px) {
     .head-grid {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      gap: clamp(40px, 5vw, 96px);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+      gap: var(--spacing-5);
       align-items: center;
     }
-    .pk-head {
-      grid-template-columns: 1fr 1fr;
-    }
-    .choice-grid {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    .choice-lists {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--spacing-4);
     }
     .gal {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .gal-3 {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
     .gal-2 {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .gal-3 .gal-item:first-child {
-      grid-column: span 2;
-      grid-row: span 2;
-      aspect-ratio: auto;
-    }
-    .gal-4 {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+    .gal-1 {
+      grid-template-columns: minmax(0, 0.6fr);
     }
     .o-list {
       grid-template-columns: repeat(5, minmax(0, 1fr));
