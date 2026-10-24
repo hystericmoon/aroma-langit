@@ -1,26 +1,28 @@
 ---
-import NavyBand from '../ui/NavyBand.astro';
+import Band from '../ui/Band.astro';
 import { getSite } from '../../lib/content';
 
 const site = await getSite();
 ---
 
-<NavyBand id="proof-title" label="Mereka sudah makan dari dapur kami" class="proof">
+<Band id="proof-title" label="Mereka sudah makan dari dapur kami" class="proof">
   <p class="ui-band__text names" data-reveal>
     {
       site.clients.map((c, i) => (
         <>
           <span class="name">{c}</span>
-          {i < site.clients.length - 1 && <span aria-hidden="true"> · </span>}
+          {i < site.clients.length - 1 && <>{' '}<span aria-hidden="true">·</span>{' '}</>}
         </>
       ))
     }
   </p>
   <p class="more">serta berbagai instansi pemerintah, kampus, BUMN dan perusahaan swasta lainnya.</p>
-</NavyBand>
+</Band>
 
 <style>
-  /* The home page's one NavyBand (brand book §7). Client names only with permission. */
+  /* Clients, beside the trust stamps (brand book §8 home recipe). Client names only with
+     permission. The spaces sit outside the hidden separators so screen readers keep the names
+     apart. */
   .names {
     text-wrap: pretty;
   }
@@ -29,6 +31,5 @@ const site = await getSite();
   }
   .more {
     margin-top: var(--spacing-2);
-    font-size: 15px;
   }
 </style>

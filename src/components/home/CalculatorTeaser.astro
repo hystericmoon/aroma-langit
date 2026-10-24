@@ -14,6 +14,8 @@ const rows = presets
     const r = computePlan(planFromPreset(p, catalog), catalog);
     return { ...p, perGuest: r.perGuest, total: r.total };
   });
+// The empty preset is the "Susun sendiri" tile, on kraft (brand book §8).
+const custom = presets.find((p) => p.items.length === 0);
 ---
 
 <section class="teaser" aria-labelledby="teaser-title">
@@ -33,19 +35,27 @@ const rows = presets
               href={`/kalkulator/?acara=${r.id}`}
               title={r.title}
               desc={`${r.guests} ${r.guestWord}`}
-              price={`sekitar ${formatRupiah(r.perGuest)} per ${r.guestWord}`}
+              price={`±\u00a0${formatRupiah(r.perGuest)}`}
+              unit={r.guestWord}
             />
           </li>
         ))
+      }
+      {
+        custom && (
+          <li>
+            <EventTile href={`/kalkulator/?acara=${custom.id}`} title={custom.title} desc={custom.description} class="ui-tile--kraft" />
+          </li>
+        )
       }
     </ul>
   </div>
 </section>
 
 <style>
-  /* EventTiles (brand book §7 home recipe): order mode, straight after the hero. */
+  /* EventTiles (brand book §8 home recipe), straight after the hero. */
   .teaser {
-    padding-block: var(--spacing-4) var(--section-space);
+    padding-bottom: var(--section-space);
   }
   .t-list {
     margin-top: var(--spacing-3);

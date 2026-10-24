@@ -8,7 +8,8 @@ import QuantityStepper from '../../src/components/ui/QuantityStepper.astro';
 import Tabs from '../../src/components/ui/Tabs.astro';
 import EventTile from '../../src/components/ui/EventTile.astro';
 import Figure from '../../src/components/ui/Figure.astro';
-import NavyBand from '../../src/components/ui/NavyBand.astro';
+import Band from '../../src/components/ui/Band.astro';
+import TrustStamps from '../../src/components/ui/TrustStamps.astro';
 import Nota from '../../src/components/ui/Nota.astro';
 import NotaLine from '../../src/components/ui/NotaLine.astro';
 import NotaTotal from '../../src/components/ui/NotaTotal.astro';
@@ -108,7 +109,8 @@ describe('ui composites', () => {
     expect(html).toContain('aria-pressed="false" aria-label="Pilih Nasi Box Spesial A"');
     expect(html).toContain('data-pick-package="spesial-a"');
     expect(html).toContain('<span class="sr-only">Nasi Box </span>Spesial A');
-    expect(html).toMatch(/ui-price-row__leader" aria-hidden="true"/);
+    expect(html).toContain('ui-price-row__price tab');
+    expect(html).not.toContain('leader');
   });
 
   it('Nota puts lines in a description list, a tear, and a live total', async () => {
@@ -147,10 +149,18 @@ describe('ui composites', () => {
     expect(html).toContain('<figcaption>Nasi box di Bogor.</figcaption>');
   });
 
-  it('NavyBand labels its section with its heading', async () => {
-    const html = await c.renderToString(NavyBand, { props: { id: 'klien', label: 'Klien kami' }, slots: { default: '<p class="ui-band__text">A · B</p>' } });
-    expect(html).toMatch(/<section class="ui-band on-brown" aria-labelledby="klien"/);
+  it('Band labels its section with its heading', async () => {
+    const html = await c.renderToString(Band, { props: { id: 'klien', label: 'Klien kami' }, slots: { default: '<p class="ui-band__text">A · B</p>' } });
+    expect(html).toMatch(/<section class="ui-band" aria-labelledby="klien"/);
     expect(html).toContain('<h2 id="klien" class="ui-band__label">Klien kami</h2>');
+  });
+
+  it('TrustStamps shows both certificates with their numbers from site data', async () => {
+    const html = await c.renderToString(TrustStamps, { props: { details: true } });
+    expect(html.match(/class="ui-stamp-item"/g)).toHaveLength(2);
+    expect(html).toContain('ui-stamp ui-stamp--halal" aria-hidden="true">Halal</span>');
+    expect(html).toContain('<p class="ui-stamp__num">ID32110001863560323</p>');
+    expect(html).toContain('ui-stamp__detail');
   });
 
   it('StickyOrderBar shows the total and one primary action', async () => {

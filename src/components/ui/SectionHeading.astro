@@ -1,6 +1,7 @@
 ---
-// SectionHeading (brand book §7, read mode): 4px double rule, Newsreader heading-1 (heading-2 on
-// phones), an optional link on the right and one line of context. One italic word at most.
+// SectionHeading (brand book §8): opens a section with the full-width 1px ink line (§5), a
+// Fraunces heading-1 (heading-2 on phones), an optional link on the right and one line of
+// context. `plain` drops the line, for a heading inside a card or panel.
 interface Props {
   id: string;
   title: string;
@@ -10,13 +11,14 @@ interface Props {
   link?: { href: string; label: string; download?: boolean };
   /** Opt into the line reveal from src/scripts/motion.ts. */
   split?: boolean;
+  plain?: boolean;
   class?: string;
 }
-const { id, title, level = 'h2', context, link, split = false, class: cls } = Astro.props;
+const { id, title, level = 'h2', context, link, split = false, plain = false, class: cls } = Astro.props;
 const H = level;
 ---
 
-<header class:list={['ui-section-head', cls]}>
+<header class:list={['ui-section-head', !plain && 'rule-top', cls]}>
   <div class="ui-section-head__main">
     <H id={id} class="ui-section-head__title" data-split={split ? '' : undefined}>{title}</H>
     {link && <a class="ui-link" href={link.href} download={link.download}>{link.label}</a>}

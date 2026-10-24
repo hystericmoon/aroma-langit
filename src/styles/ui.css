@@ -1,6 +1,8 @@
-/* Order-mode primitives (brand book §7), ported from docs/design-system/reference-components.css.
-   Classes carry a ui- prefix; the Astro components in src/components/ui/ emit them. These are
-   global (not scoped) because scripts clone and update this markup on the client. */
+/* Components (brand book §8, Kotak & Nota v1.0). Built from the §8 specs and the §10 tokens:
+   reference-components.css v1.0 has not been supplied yet, so values not stated in the book
+   follow the nearest token. Classes carry a ui- prefix; the Astro components in
+   src/components/ui/ emit them. These are global (not scoped) because scripts clone and update
+   this markup on the client. */
 
 /* ---------- Button ---------- */
 .ui-btn {
@@ -101,7 +103,7 @@
   gap: 6px;
   padding: 6px 12px;
   border-radius: var(--radius-pill);
-  font: 600 12px/1.3 var(--font-sans);
+  font: 600 13px/1.3 var(--font-sans);
   white-space: nowrap;
 }
 .ui-chip svg {
@@ -122,6 +124,10 @@
 .ui-chip--ink {
   background: var(--color-ink);
   color: var(--color-paper);
+}
+.ui-chip--paper {
+  background: var(--color-paper);
+  color: var(--color-ink);
 }
 
 /* ---------- Tabs, and radio choices drawn as tabs ---------- */
@@ -231,6 +237,11 @@ select.ui-input {
   color: var(--color-ink-muted);
   opacity: 1;
 }
+/* A hint is words, not an amount: it stays in Jakarta even in a mono number field. */
+.ui-input--number::placeholder {
+  font-family: var(--font-sans);
+  font-weight: 400;
+}
 .ui-input[aria-invalid='true'] {
   border: 2px solid var(--color-chili);
   padding: 0 13px;
@@ -268,15 +279,15 @@ select.ui-input {
   }
 }
 
-/* =================== Composites (brand book §7) =================== */
+/* =================== Composites (brand book §8) =================== */
 
-/* ---------- SectionHeading (read) ---------- */
+/* ---------- SectionHeading ---------- */
+/* Sections are separated by a full-width 1px ink line (brand book §5); the heading that opens a
+   section carries it (.rule-top in global.css). --plain opts out inside a card or panel. */
 .ui-section-head {
   display: grid;
   align-content: start;
   gap: var(--spacing-1);
-  padding-top: var(--spacing-2);
-  border-top: var(--rule-double);
 }
 .ui-section-head__main {
   display: flex;
@@ -302,86 +313,115 @@ select.ui-input {
 .ui-section-head__context {
   margin: 0;
   max-width: 62ch;
-  color: var(--color-ink-muted);
-  font-size: 15px;
-}
-.on-brown .ui-section-head {
-  border-top-color: var(--color-paper);
-}
-.on-brown .ui-section-head__context {
-  color: var(--color-paper);
+  font-size: 16px;
+  line-height: 1.5;
 }
 
-/* ---------- Figure (read) ---------- */
+/* ---------- Figure ---------- */
+/* Photos are rounded (20px; 12px when small) and bordered with a 1px ink line (brand book §6).
+   Captions are meta. */
 .ui-figure {
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin: 0;
 }
-.ui-figure__img {
+.ui-figure__img,
+.ui-photo-frame {
   aspect-ratio: var(--ratio, 3 / 2);
   overflow: hidden;
-  border-radius: var(--radius-none);
+  border: var(--hairline);
+  border-radius: var(--radius-card);
   background: var(--color-kraft);
 }
-.ui-figure__img img {
+.ui-figure--small .ui-figure__img,
+.ui-photo-frame--small {
+  border-radius: var(--radius-input);
+}
+.ui-figure__img img,
+.ui-photo-frame img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 .ui-figure figcaption {
-  font: italic 400 15px/1.4 var(--font-display);
+  font: 400 13px/1.4 var(--font-sans);
   color: var(--color-ink-muted);
 }
-/* ink-muted is not legible on navy; captions there use paper (flagged). */
-.on-brown .ui-figure figcaption {
-  color: var(--color-paper);
-}
 
-/* ---------- PriceRow (both) ---------- */
+/* ---------- PriceList + PriceRow ---------- */
+/* Rows inside one white card: name (Jakarta 700) and meta, mono price, a small "Pilih". The
+   selected row gets a 4px brown bar on the left and an orange check button. */
 .ui-price-list {
   display: flex;
   flex-direction: column;
   margin: 0;
   padding: 0;
   list-style: none;
+  overflow: hidden;
+  border: var(--hairline);
+  border-radius: var(--radius-card);
+  background: var(--color-card);
 }
 .ui-price-row {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--color-rule-soft);
+  gap: 12px;
+  padding: 14px var(--spacing-2);
+}
+.ui-price-row + .ui-price-row {
+  border-top: 1px solid var(--color-rule-soft);
+}
+.ui-price-row:has(.ui-pick[aria-pressed='true'])::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--color-brown);
 }
 .ui-price-row__name {
   display: flex;
   flex-direction: column;
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   min-width: 0;
 }
+.ui-price-row__name .t-item-name {
+  font-size: 16px;
+  line-height: 1.3;
+}
 .ui-price-row__name small {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.4;
   color: var(--color-ink-muted);
 }
-.ui-price-row__leader {
-  flex: 1 1 16px;
-  min-width: 16px;
-  align-self: flex-end;
-  margin-bottom: 18px;
-  border-bottom: var(--rule-leader);
-}
 .ui-price-row__price {
-  font: 600 16px/1.3 var(--font-sans);
+  font: 600 16px/1.3 var(--font-mono);
   font-variant-numeric: tabular-nums;
-  color: var(--color-brown);
   white-space: nowrap;
 }
 .ui-price-row__unit {
-  font-weight: 400;
-  font-size: 13px;
+  font: 400 13px/1.3 var(--font-sans);
   color: var(--color-ink-muted);
+}
+/* Phones: name and meta take the first line, the price and "Pilih" the second (the brand book
+   specifies only the desktop row; flagged). */
+@media (max-width: 599px) {
+  .ui-price-row {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+  .ui-price-row__name {
+    flex-basis: 100%;
+  }
+  .ui-price-row__price {
+    flex: 1 1 auto;
+  }
+}
+@media (min-width: 768px) {
+  .ui-price-row {
+    padding-inline: 20px;
+  }
 }
 .ui-pick {
   flex: none;
@@ -390,8 +430,12 @@ select.ui-input {
 .ui-pick__check {
   display: none;
 }
+/* A true 44px circle that keeps the 72px slot, so the price column doesn't move. */
 .ui-pick[aria-pressed='true'] {
+  width: var(--tap-min);
   min-width: var(--tap-min);
+  margin-inline-start: 28px;
+  padding: 0;
   background: var(--color-orange);
 }
 .ui-pick[aria-pressed='true'] .ui-pick__text {
@@ -421,7 +465,7 @@ select.ui-input {
   flex-direction: column;
   justify-content: space-between;
   gap: 12px;
-  min-height: 120px;
+  min-height: 112px;
   height: 100%;
   padding: 18px;
   border: var(--hairline);
@@ -441,15 +485,24 @@ select.ui-input {
   display: flex;
   justify-content: space-between;
   gap: var(--spacing-1);
-  font: 700 17px/1.3 var(--font-sans);
+  font: 700 16px/1.3 var(--font-sans);
 }
 .ui-tile__desc {
   font: 400 14px/1.4 var(--font-sans);
   color: var(--color-ink-muted);
 }
 .ui-tile__price {
-  font: 400 14px/1.3 var(--font-mono);
+  font: 400 13px/1.3 var(--font-sans);
+  color: var(--color-ink-muted);
+}
+.ui-tile__amount {
+  font: 600 clamp(14px, 3.6vw, 16px)/1.3 var(--font-mono);
   font-variant-numeric: tabular-nums;
+  color: var(--color-ink);
+}
+/* "Susun sendiri" sits on kraft (brand book §8) */
+.ui-tile--kraft {
+  background: var(--color-kraft);
 }
 .ui-tile__check {
   display: none;
@@ -467,7 +520,7 @@ select.ui-input {
 .ui-tile--choice:has(input:checked) {
   background: var(--color-orange);
 }
-.ui-tile--choice:has(input:checked) .ui-tile__desc {
+.ui-tile--choice:has(input:checked) :is(.ui-tile__desc, .ui-tile__price) {
   color: var(--color-ink);
 }
 .ui-tile--choice:has(input:checked) .ui-tile__check {
@@ -539,7 +592,8 @@ select.ui-input {
 .ui-nota__total-value {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 18px;
+  font-size: 24px;
+  line-height: 1.2;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -605,7 +659,8 @@ select.ui-input {
   color: var(--color-ink-muted);
 }
 .ui-orderbar__sum strong {
-  font: 600 17px/1.2 var(--font-mono);
+  font: 600 24px/1.2 var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 .ui-orderbar__sum span {
   font-size: 12px;
@@ -617,17 +672,25 @@ select.ui-input {
   }
 }
 
-/* ---------- NavyBand (read) ---------- */
+/* ---------- Band: a labelled white card panel ---------- */
+/* Replaces v0.2's navy band (no navy in Kotak & Nota; brown is the footer only). */
 .ui-band {
-  background: var(--color-brown);
-  color: var(--color-paper);
+  padding-bottom: var(--section-space);
 }
 .ui-band__inner {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-3);
+  gap: var(--spacing-2) var(--spacing-3);
   align-items: baseline;
-  padding-block: 48px;
+  padding: var(--spacing-3);
+  border: var(--hairline);
+  border-radius: var(--radius-card);
+  background: var(--color-card);
+}
+@media (min-width: 768px) {
+  .ui-band__inner {
+    padding: var(--spacing-4);
+  }
 }
 .ui-band__label {
   flex: 1 1 200px;
@@ -635,6 +698,7 @@ select.ui-input {
   font: 600 12px/1.3 var(--font-sans);
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  color: var(--color-ink-muted);
 }
 .ui-band__body {
   flex: 999 1 480px;
@@ -642,18 +706,72 @@ select.ui-input {
 }
 .ui-band__text {
   margin: 0;
-  font: 300 28px/1.3 var(--font-display);
+  font: 700 20px/1.4 var(--font-sans);
 }
-@media (min-width: 1024px) {
-  .ui-band__text {
-    font-size: 32px;
-  }
+
+/* ---------- Trust stamps ---------- */
+/* Round 84px stamps (Halal: pandan ring; Laik Higiene: ink ring) with the certificate number in
+   mono beside them. */
+.ui-stamps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3) var(--spacing-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ui-stamp-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex: 1 1 280px;
+  min-width: 0;
+}
+.ui-stamp {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 84px;
+  height: 84px;
+  padding: 8px;
+  border: 3px solid var(--color-ink);
+  border-radius: var(--radius-pill);
+  background: var(--color-card);
+  font: 700 12px/1.2 var(--font-sans);
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-transform: uppercase;
+}
+.ui-stamp--halal {
+  border-color: var(--color-pandan);
+  color: var(--color-pandan);
+}
+.ui-stamp__name {
+  font: 700 16px/1.3 var(--font-sans);
+}
+.ui-stamp__num {
+  margin-top: 2px;
+  font: 400 14px/1.5 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.ui-stamp__detail {
+  margin-top: 4px;
+  font: 400 13px/1.4 var(--font-sans);
+  color: var(--color-ink-muted);
 }
 
 @media (forced-colors: active) {
   .ui-tile,
-  .ui-nota {
+  .ui-nota,
+  .ui-price-list,
+  .ui-figure__img,
+  .ui-photo-frame,
+  .ui-band__inner {
     border: 1px solid CanvasText;
+  }
+  .ui-price-row:has(.ui-pick[aria-pressed='true'])::before {
+    background: Highlight;
   }
   .ui-tile--choice:has(input:checked),
   .ui-pick[aria-pressed='true'] {

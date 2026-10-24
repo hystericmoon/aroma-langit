@@ -22,6 +22,7 @@ const from = (s: (typeof services)[number]) => Math.min(...s.packages.map((p) =>
                 photo={ph}
                 ratio={k === 0 ? '3/2' : '1/1'}
                 class={k === 0 ? 'big' : 'small'}
+                small={k !== 0}
                 sizes={k === 0 ? '(min-width: 1024px) 46vw, 92vw' : '(min-width: 1024px) 15vw, 30vw'}
                 widths={k === 0 ? [480, 720, 960, 1280] : [240, 360, 480]}
               />
@@ -34,7 +35,7 @@ const from = (s: (typeof services)[number]) => Math.min(...s.packages.map((p) =>
             <dl class="facts tab">
               <div>
                 <dt>Mulai</dt>
-                <dd>{formatRupiah(from(s))}/{s.unit}</dd>
+                <dd><span class="amount">{formatRupiah(from(s))}</span>/{s.unit}</dd>
               </div>
               <div>
                 <dt>Paket</dt>
@@ -103,9 +104,9 @@ const from = (s: (typeof services)[number]) => Math.min(...s.packages.map((p) =>
 </script>
 
 <style>
-  /* Photo gallery (brand book §7 home recipe): read mode, Figures, with pill Tabs per service. */
+  /* Photo gallery with pill Tabs per service. Not in the v1.0 home recipe; kept and restyled. */
   .show {
-    padding-block: var(--section-space);
+    padding-bottom: var(--section-space);
   }
   .show :global(.show-tabs) {
     margin-block: var(--spacing-3);
@@ -130,20 +131,20 @@ const from = (s: (typeof services)[number]) => Math.min(...s.packages.map((p) =>
     gap: var(--spacing-2);
     align-content: start;
   }
+  /* Rows on phones, three columns from 600px (as the hero strip). */
   .facts {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     margin: var(--spacing-1) 0 0;
     border-top: var(--hairline);
   }
   .facts div {
-    display: grid;
-    gap: 2px;
-    padding: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-2);
+    padding: 10px 0;
   }
   .facts div + div {
-    padding-left: 12px;
-    border-left: 1px solid var(--color-rule-soft);
+    border-top: 1px solid var(--color-rule-soft);
   }
   .facts dt {
     font-size: 13px;
@@ -152,6 +153,24 @@ const from = (s: (typeof services)[number]) => Math.min(...s.packages.map((p) =>
   .facts dd {
     margin: 0;
     font-weight: 600;
+  }
+  .facts .amount {
+    font-family: var(--font-mono);
+  }
+  @media (min-width: 600px) {
+    .facts {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .facts div {
+      display: grid;
+      gap: 2px;
+      padding: 12px 12px 0 0;
+    }
+    .facts div + div {
+      padding-left: 12px;
+      border-top: 0;
+      border-left: 1px solid var(--color-rule-soft);
+    }
   }
   .cells {
     display: flex;

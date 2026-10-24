@@ -2,9 +2,14 @@
 import BoxSlot from '../BoxSlot.astro';
 import Icon from '../ui/Icon.astro';
 import { photos } from '../../data/photos';
-import { getSite } from '../../lib/content';
+import { getServices, getSite } from '../../lib/content';
+import { formatRupiah } from '../../lib/order';
 
 const site = await getSite();
+// The price tag on the hero photo (a nasi box) reads from data: that service's lowest price.
+const services = await getServices();
+const tagService = services.find((s) => s.slug === 'nasi-box') ?? services[0];
+const tagPrice = Math.min(...tagService.packages.map((p) => p.price));
 ---
 
 <section class="hero" data-box-scroll aria-labelledby="hero-title">
@@ -13,7 +18,7 @@ const site = await getSite();
       <div class="copy">
         <h1 id="hero-title" class="t-display hero-title">
           <span class="intro-line"><span>Katering halal</span></span>
-          <span class="intro-line"><span>dari <em>Bogor.</em></span></span>
+          <span class="intro-line"><span>dari Bogor.</span></span>
         </h1>
         <p class="t-lead hero-sub intro-fade">
           Nasi box, tumpeng dan prasmanan untuk rapat, syukuran sampai resepsi. Dimasak di dapur kami di Pasir Kuda, harga sudah termasuk antar se-Kota Bogor.
@@ -32,14 +37,17 @@ const site = await getSite();
         </ul>
       </div>
       <div class="stage">
-        <BoxSlot
-          mode="hero"
-          fallback={photos.nasiboxRendang}
-          sizes="(min-width: 1024px) 50vw, 100vw"
-          priority
-          class="hero-slot"
-          label="Nasi box Aroma Langit yang terbuka, berisi nasi kuning, ayam bakar, perkedel, sambal, lalapan, jeruk dan kerupuk"
-        />
+        <div class="slot-wrap">
+          <BoxSlot
+            mode="hero"
+            fallback={photos.nasiboxRendang}
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            priority
+            class="hero-slot"
+            label="Nasi box Aroma Langit yang terbuka, berisi nasi kuning, ayam bakar, perkedel, sambal, lalapan, jeruk dan kerupuk"
+          />
+          <p class="price-tag">Mulai <span class="price-tag__amount">{formatRupiah(tagPrice)}</span><span class="price-tag__unit">/{tagService.unit}</span></p>
+        </div>
         <p class="hint t-meta" aria-hidden="true">Gulir untuk membuka kotak</p>
       </div>
     </div>
@@ -47,8 +55,8 @@ const site = await getSite();
 </section>
 
 <style>
-  /* Hero (brand book §7 home recipe): read mode. Figure 4:3 + display heading + stats strip +
-     the screen's one primary button. */
+  /* Hero (brand book §8): Fraunces display, body intro, primary + secondary action, the facts
+     strip, and the rounded, bordered photo with a white "Mulai Rp…" price tag. */
   .hero-grid {
     display: grid;
     gap: var(--spacing-4);
@@ -59,11 +67,12 @@ const site = await getSite();
     gap: var(--spacing-3);
     align-content: center;
   }
+  /* The reveal mask leaves room above (Fraunces ascenders) and below (descenders). */
   .hero-title .intro-line {
     display: block;
     overflow: clip;
-    padding-bottom: 0.08em;
-    margin-bottom: -0.08em;
+    padding-block: 0.12em 0.1em;
+    margin-block: -0.12em -0.1em;
   }
   .hero-title .intro-line > span {
     display: block;
@@ -71,9 +80,6 @@ const site = await getSite();
   }
   .hero-title .intro-line:nth-child(2) > span {
     animation-delay: 60ms;
-  }
-  .hero-title em {
-    font-style: italic;
   }
   @keyframes rise {
     from {
@@ -154,10 +160,39 @@ const site = await getSite();
     gap: 10px;
     align-content: center;
   }
+  .slot-wrap {
+    position: relative;
+  }
   .stage :global(.hero-slot) {
     position: relative;
     aspect-ratio: 4 / 3;
+    border: var(--hairline);
+    border-radius: var(--radius-card);
     background: var(--color-kraft);
+  }
+  /* Price tag (brand book §8): white, 12px radius, hairline, the amount in mono. */
+  .price-tag {
+    position: absolute;
+    left: var(--spacing-2);
+    bottom: var(--spacing-2);
+    z-index: 2;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 8px 12px;
+    border: var(--hairline);
+    border-radius: var(--radius-input);
+    background: var(--color-card);
+    font: 600 14px/1.2 var(--font-sans);
+  }
+  .price-tag__amount {
+    font: 600 24px/1.2 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .price-tag__unit {
+    margin-left: -4px;
+    font: 400 13px/1.2 var(--font-sans);
+    color: var(--color-ink-muted);
   }
   .hint {
     display: none;

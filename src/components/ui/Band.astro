@@ -1,0 +1,25 @@
+---
+// Band: a labelled white card panel, for a short block of facts (clients, procurement details,
+// the timeline). Replaces v0.2's navy band: Kotak & Nota has no navy, and brown is the footer
+// only. The label is the band's heading.
+interface Props {
+  id: string;
+  label: string;
+  /** Heading level of the label; h2 by default. */
+  level?: 'h1' | 'h2';
+  class?: string;
+}
+const { id, label, level = 'h2', class: cls } = Astro.props;
+const H = level;
+---
+
+<section class:list={['ui-band', cls]} aria-labelledby={id}>
+  <div class="wrap">
+    <div class="ui-band__inner">
+      <H id={id} class="ui-band__label">{label}</H>
+      <div class="ui-band__body">
+        <slot />
+      </div>
+    </div>
+  </div>
+</section>

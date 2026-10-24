@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Figure from '../components/ui/Figure.astro';
 import SectionHeading from '../components/ui/SectionHeading.astro';
-import NavyBand from '../components/ui/NavyBand.astro';
+import Band from '../components/ui/Band.astro';
 import Coupon from '../components/Coupon.astro';
 import { photos } from '../data/photos';
 import { getServices, getSite } from '../lib/content';
@@ -89,7 +89,7 @@ const uses = [
     </div>
   </section>
 
-  <NavyBand id="y-title" label="Untuk bagian pengadaan" class="why">
+  <Band id="y-title" label="Untuk bagian pengadaan" class="why">
     <dl class="y-list" data-reveal>
       <div>
         <dt>Halal BPJPH</dt>
@@ -114,7 +114,7 @@ const uses = [
         <dd class="clients">{site.clients.join(' · ')}</dd>
       </div>
     </dl>
-  </NavyBand>
+  </Band>
 
   <section class="form" aria-labelledby="kupon-title">
     <div class="wrap">

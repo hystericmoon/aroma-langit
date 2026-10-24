@@ -1,7 +1,7 @@
 ---
-// PriceRow (brand book §7, both modes): Newsreader name and meta (read), dotted leader,
-// orange-ink price, and a small "Pilih" pill (order). Selected: orange with a check and
-// aria-pressed="true"; the button's accessible name names the package.
+// PriceRow (brand book §8): a row inside the PriceList card. Name (Jakarta 700) and meta, the
+// price in mono, and a small "Pilih" pill. Selected: a 4px brown bar on the row and an orange
+// check button with aria-pressed="true"; the button's accessible name names the package.
 import Icon from './Icon.astro';
 
 interface Props {
@@ -27,7 +27,6 @@ const El = as;
     <span class="t-item-name">{srPrefix && <span class="sr-only">{srPrefix} </span>}{name}</span>
     {meta && <small>{meta}</small>}
   </div>
-  <span class="ui-price-row__leader" aria-hidden="true"></span>
   <span class="ui-price-row__price tab">{price}{unit && <span class="ui-price-row__unit">/{unit}</span>}</span>
   {
     pickLabel && (

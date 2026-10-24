@@ -63,9 +63,9 @@ const data = { catalog, presets, csPhone: site.csPhone, marketingPhone: site.mar
                   checked={p.id === first.id}
                   title={p.title}
                   desc={p.description}
-                  price={p.items.length ? `${p.guests} ${p.guestWord}` : 'Kosong'}
+                  meta={p.items.length ? `${p.guests} ${p.guestWord}` : 'Kosong'}
                   inputAttrs={{ 'data-preset': true }}
-                  class="preset"
+                  class:list={['preset', !p.items.length && 'ui-tile--kraft']}
                 />
               ))
             }

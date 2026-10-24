@@ -1,14 +1,18 @@
 ---
-// EventTile (brand book §7, order mode): the whole tile is one link to a calculator preset.
-// With `name`, it is a radio instead (the calculator's own preset picker, agreed in phase 0);
-// the selected tile takes the orange fill and a check icon.
+// EventTile (brand book §8): a card that is one link to a calculator preset, with
+// "± Rp…/peserta" (the amount in mono). With `name`, it is a radio instead (the calculator's own
+// preset picker); the selected tile takes the orange fill and a check icon.
 import Icon from './Icon.astro';
 
 interface Props {
   title: string;
   desc?: string;
-  /** Approximate price per guest, already formatted from data. */
+  /** Approximate price per guest, already formatted from data ("± Rp77.500"). */
   price?: string;
+  /** The word for a guest, shown after the price ("peserta"). */
+  unit?: string;
+  /** A plain meta line instead of a price, e.g. the guest count. */
+  meta?: string;
   href?: string;
   name?: string;
   value?: string;
@@ -17,7 +21,7 @@ interface Props {
   inputAttrs?: Record<string, string | boolean | undefined>;
   class?: string;
 }
-const { title, desc, price, href, name, value, checked, inputAttrs, class: cls } = Astro.props;
+const { title, desc, price, unit, meta, href, name, value, checked, inputAttrs, class: cls } = Astro.props;
 ---
 
 {
@@ -29,14 +33,16 @@ const { title, desc, price, href, name, value, checked, inputAttrs, class: cls }
         <Icon name="check" class="ui-tile__check" />
       </span>
       {desc && <span class="ui-tile__desc">{desc}</span>}
-      {price && <span class="ui-tile__price">{price}</span>}
+      {price && <span class="ui-tile__price"><span class="ui-tile__amount">{price}</span>{unit && <><wbr />/{unit}</>}</span>}
+      {meta && <span class="ui-tile__price">{meta}</span>}
       <slot />
     </label>
   ) : (
     <a class:list={['ui-tile', cls]} href={href}>
       <span class="ui-tile__title">{title}</span>
       {desc && <span class="ui-tile__desc">{desc}</span>}
-      {price && <span class="ui-tile__price">{price}</span>}
+      {price && <span class="ui-tile__price"><span class="ui-tile__amount">{price}</span>{unit && <><wbr />/{unit}</>}</span>}
+      {meta && <span class="ui-tile__price">{meta}</span>}
       <slot />
     </a>
   )

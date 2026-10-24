@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Figure from '../components/ui/Figure.astro';
 import SectionHeading from '../components/ui/SectionHeading.astro';
-import NavyBand from '../components/ui/NavyBand.astro';
+import Band from '../components/ui/Band.astro';
 import Kitchen from '../components/home/Kitchen.astro';
 import { photos } from '../data/photos';
 import { getSite } from '../lib/content';
@@ -53,7 +53,7 @@ const pillars = [
     </div>
   </section>
 
-  <NavyBand id="t-title" label="Perjalanan kami" class="timeline">
+  <Band id="t-title" label="Perjalanan kami" class="timeline">
     <ol role="list" class="stubs" data-reveal>
       {
         site.milestones.map((m) => (
@@ -64,7 +64,7 @@ const pillars = [
         ))
       }
     </ol>
-  </NavyBand>
+  </Band>
 
   <section class="pillars" aria-labelledby="p-title">
     <div class="wrap">

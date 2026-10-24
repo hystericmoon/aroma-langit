@@ -20,8 +20,8 @@ const year = new Date().getFullYear();
   closing && (
     <section class="closing" aria-labelledby="closing-title">
       <div class="wrap">
-        <div class="closing-inner">
-          <h2 id="closing-title" class="t-display closing-title" data-split>Acara Anda tanggal berapa?</h2>
+        <div class="closing-inner rule-top">
+          <h2 id="closing-title" class="t-h2 closing-title" data-split>Acara Anda tanggal berapa?</h2>
           <div class="closing-side">
             <p class="t-lead">Sebutkan tanggalnya, kami siapkan sisanya. {leadTimeSummary(services)}</p>
             <div class="closing-actions">
@@ -117,16 +117,15 @@ const year = new Date().getFullYear();
 </footer>
 
 <style>
-  /* Closing call to action: read mode on paper */
+  /* Closing call to action on paper, opened by the section line. Not in the v1.0 recipes;
+     kept and restyled. */
   .closing {
-    padding-block: var(--section-space);
+    padding-bottom: var(--section-space);
   }
   .closing-inner {
     display: grid;
-    gap: var(--spacing-4);
-    align-items: end;
-    padding-top: var(--spacing-3);
-    border-top: var(--rule-double);
+    gap: var(--spacing-3);
+    align-items: start;
   }
   .closing-side {
     display: grid;
@@ -158,8 +157,14 @@ const year = new Date().getFullYear();
     align-content: start;
   }
   .sign-off {
-    font: 300 clamp(32px, 1.6rem + 1.4vw, 44px) / 1.05 var(--font-display);
+    font: 600 28px/1.1 var(--font-display);
     text-wrap: balance;
+  }
+  @media (min-width: 1024px) {
+    .sign-off {
+      font-size: 40px;
+      line-height: 1.05;
+    }
   }
   .certs {
     display: flex;
@@ -174,7 +179,7 @@ const year = new Date().getFullYear();
   }
   .certs dd {
     margin: 4px 0 0;
-    font-size: 14px;
+    font: 400 14px/1.5 var(--font-mono);
   }
   .address {
     display: grid;
@@ -185,6 +190,8 @@ const year = new Date().getFullYear();
     width: 96px;
     aspect-ratio: 1;
     overflow: hidden;
+    border: var(--hairline);
+    border-radius: var(--radius-input);
   }
   .stamp :global(img) {
     width: 100%;

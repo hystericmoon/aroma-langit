@@ -360,8 +360,9 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
 </script>
 
 <style>
-  /* Order panel (brand book §7 home recipe): Fields + Nota + the one primary button, on the
-     kraft order zone. The narrow column beside the price list on desktop. */
+  /* Estimator (brand book §8 home recipe): Fields + Nota + the one primary button on a kraft
+     card. The narrow column beside the price list on desktop, where the menu heading's line
+     spans both columns; stacked on smaller screens, it opens with its own line. */
   .order {
     display: grid;
     gap: var(--spacing-3);
@@ -371,13 +372,16 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
   .intro {
     display: grid;
     gap: var(--spacing-1);
-    padding-top: var(--spacing-2);
-    border-top: var(--rule-double);
+    padding-top: var(--section-space);
+  }
+  @media (max-width: 999px) {
+    .intro {
+      border-top: var(--hairline);
+      border-image: linear-gradient(var(--color-ink), var(--color-ink)) 1 0 0 / 1px 0 0 / 0 100vw;
+    }
   }
   .intro-lead {
     margin: 0;
-    color: var(--color-ink-muted);
-    font-size: 15px;
   }
   .intro-more {
     margin: 0;

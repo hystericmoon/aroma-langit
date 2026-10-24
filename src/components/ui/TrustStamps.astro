@@ -1,0 +1,32 @@
+---
+// Trust stamps (brand book §8): round 84px stamps, Halal with a pandan ring and Laik Higiene with
+// an ink ring, the certificate numbers in mono beside them. Numbers come from site settings;
+// `details` adds the issuing body under each number.
+import { getSite } from '../../lib/content';
+
+interface Props {
+  details?: boolean;
+  class?: string;
+}
+const { details = false, class: cls } = Astro.props;
+const site = await getSite();
+---
+
+<ul role="list" class:list={['ui-stamps', cls]}>
+  <li class="ui-stamp-item">
+    <span class="ui-stamp ui-stamp--halal" aria-hidden="true">Halal</span>
+    <div>
+      <p class="ui-stamp__name">Sertifikat Halal</p>
+      <p class="ui-stamp__num">{site.halal.number}</p>
+      {details && <p class="ui-stamp__detail">Badan Penyelenggara Jaminan Produk Halal, berdasarkan ketetapan halal MUI {site.halal.decree}, {site.halal.date}.</p>}
+    </div>
+  </li>
+  <li class="ui-stamp-item">
+    <span class="ui-stamp" aria-hidden="true">Laik Higiene</span>
+    <div>
+      <p class="ui-stamp__name">Laik Higiene Sanitasi Jasaboga {site.hygiene.grade}</p>
+      <p class="ui-stamp__num">{site.hygiene.number}</p>
+      {details && <p class="ui-stamp__detail">Diterbitkan {site.hygiene.issuer}.</p>}
+    </div>
+  </li>
+</ul>

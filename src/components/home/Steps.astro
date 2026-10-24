@@ -18,7 +18,7 @@ const steps = [
 
 <section class="steps" aria-labelledby="steps-title">
   <div class="wrap">
-    <div class="head">
+    <div class="head rule-top">
       <h2 id="steps-title" class="steps-title" data-split>Cara pesan, dari chat sampai sajian.</h2>
       <div class="ctrl">
         <button type="button" class="ui-btn ui-btn--secondary ui-btn--icon arrow" data-dir="-1" aria-label="Langkah sebelumnya" aria-controls="steps-row">
@@ -106,11 +106,11 @@ const steps = [
 </script>
 
 <style>
-  /* How to order: read mode. A sideways scroller of steps is not one of the brand book's
-     components (flagged); built from SectionHeading, Figure and icon Buttons. */
+  /* How to order. A sideways scroller of steps is not one of the brand book's components
+     (flagged); built from the section line, Fraunces heading, rounded photos and icon buttons. */
   .steps {
     --side: max(var(--page-pad), calc((100vw - var(--page-max)) / 2 + var(--page-pad)));
-    padding-block: var(--section-space);
+    padding-bottom: var(--section-space);
   }
   .head {
     display: flex;
@@ -118,12 +118,10 @@ const steps = [
     align-items: end;
     justify-content: space-between;
     gap: var(--spacing-2);
-    padding-top: var(--spacing-2);
-    border-top: var(--rule-double);
   }
   .steps-title {
     max-width: 18ch;
-    font: 400 32px/1.1 var(--font-display);
+    font: 600 28px/1.1 var(--font-display);
     text-wrap: balance;
   }
   .ctrl {
@@ -170,16 +168,17 @@ const steps = [
     scroll-snap-align: start;
   }
   .col-title {
-    font: 400 22px/1.2 var(--font-display);
+    font: 700 20px/1.3 var(--font-sans);
   }
   .col-text {
-    font-size: 15px;
-    color: var(--color-ink-muted);
+    font-size: 16px;
   }
   .col-photo {
     aspect-ratio: 1;
     overflow: hidden;
     margin-top: var(--spacing-1);
+    border: var(--hairline);
+    border-radius: var(--radius-card);
     background: var(--color-kraft);
   }
   .col-photo :global(img) {
@@ -189,7 +188,7 @@ const steps = [
   }
   @media (min-width: 1024px) {
     .steps-title {
-      font-size: 44px;
+      font-size: 40px;
       line-height: 1.05;
     }
   }
