@@ -1,27 +1,28 @@
-/* Aroma Langit — Editorial + Nota. Tokens from docs/design-system/tokens.json (brand book §9),
-   written as plain custom properties: the site has no Tailwind, so --color-paper is used directly. */
+/* Aroma Langit — Kotak & Nota v1.0. Tokens from brand book §10, written as plain custom
+   properties: the site has no Tailwind, so --color-paper is used directly. */
 
 :root {
-  /* Colour (brand book §2). Orange is a fill, never text; the page is always paper. */
+  /* Colour (brand book §3). Orange and brown come from the logo. Orange is a fill, never
+     text; brown is the text accent (links) and the footer. */
   --color-paper: #faf6ef;
   --color-card: #ffffff;
   --color-kraft: #efe3cf;
   --color-ink: #221c17;
   --color-ink-muted: #6b5f55;
   --color-rule-soft: #d9ccb8;
-  --color-orange: #ec7f18;
-  --color-orange-ink: #b25607;
-  --color-orange-ink-hover: #8a4205;
-  --color-navy: #1f2a44;
+  --color-orange: #ea7a13;
+  --color-brown: #7a4806;
+  --color-brown-hover: #5c3605;
   --color-pandan: #2f6b3a;
   --color-chili: #b3261e;
 
-  /* Type (brand book §3): Newsreader speaks, Plus Jakarta Sans works, JetBrains Mono counts. */
-  --font-display: Newsreader, Georgia, 'Times New Roman', serif;
+  /* Type (brand book §4): Fraunces for display and section headings only, Plus Jakarta Sans
+     for everything else, JetBrains Mono for every price, total and certificate number. */
+  --font-display: Fraunces, Georgia, 'Times New Roman', serif;
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Space and shape (brand book §4) */
+  /* Space and shape (brand book §5) */
   --spacing-1: 8px;
   --spacing-2: 16px;
   --spacing-3: 24px;
@@ -43,7 +44,7 @@
   --rule-leader: 1px dotted #6b5f55;
   --rule-tear: 1px dashed #6b5f55;
 
-  /* Motion (brand book §4: transitions 150–250ms) */
+  /* Motion (brand book §5: transitions 150–250ms) */
   --dur-fast: 150ms;
   --dur: 200ms;
   --dur-slow: 250ms;
@@ -137,7 +138,7 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   font-size: 16px;
-  line-height: 1.55;
+  line-height: 1.5;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -195,13 +196,13 @@ a {
   text-underline-offset: 0.2em;
 }
 
-/* Focus (brand book §8): 2px ink outline, 2px offset. Ink on navy is 1.2:1, so on navy the
-   ring is paper (13.2:1). */
+/* Focus (brand book §9): 2px ink outline, 2px offset. Ink on brown is 2.2:1, so on the brown
+   footer the ring is paper (7.1:1). */
 :focus-visible {
   outline: 2px solid var(--color-ink);
   outline-offset: 2px;
 }
-.on-navy :focus-visible {
+.on-brown :focus-visible {
   outline-color: var(--color-paper);
 }
 
@@ -210,7 +211,7 @@ a {
   color: var(--color-paper);
 }
 
-/* Tabular figures for every price and count (brand book §3) */
+/* Tabular figures for every price and count (brand book §4) */
 .tab {
   font-variant-numeric: tabular-nums;
 }
@@ -243,71 +244,61 @@ a {
   transform: none;
 }
 
-/* ---------- Type styles (brand book §3) ---------- */
-/* Display family: read mode. Not used below 24px except captions and package names. */
+/* ---------- Type styles (brand book §4) ---------- */
+/* Fraunces 600: display and section headings only, never below 24px. */
 .t-display {
   font-family: var(--font-display);
-  font-size: clamp(52px, 6.4vw, 96px);
-  line-height: 0.93;
-  letter-spacing: -0.025em;
-  font-weight: 300;
-  text-wrap: balance;
-}
-.t-display-l {
-  font-family: var(--font-display);
-  font-size: 52px;
-  line-height: 0.95;
+  font-size: clamp(44px, 5.5vw, 72px);
+  line-height: 1.02;
   letter-spacing: -0.02em;
-  font-weight: 300;
+  font-weight: 600;
   text-wrap: balance;
 }
 /* heading-1 on desktop, heading-2 on phones */
 .t-h2 {
   font-family: var(--font-display);
-  font-size: 32px;
+  font-size: 28px;
   line-height: 1.1;
-  font-weight: 400;
+  font-weight: 600;
   text-wrap: balance;
 }
 @media (min-width: 1024px) {
   .t-h2 {
-    font-size: 44px;
+    font-size: 40px;
     line-height: 1.05;
   }
 }
+/* heading-2: panel titles */
 .t-heading-2 {
   font-family: var(--font-display);
-  font-size: 32px;
+  font-size: 28px;
   line-height: 1.1;
-  font-weight: 400;
+  font-weight: 600;
   text-wrap: balance;
 }
-.t-item-name {
-  font-family: var(--font-display);
-  font-size: 22px;
-  line-height: 1.2;
-  font-weight: 400;
+/* Plus Jakarta Sans: everything else */
+/* heading-3: card and package titles */
+.t-item-name,
+.t-heading-3 {
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 700;
 }
+/* The intro under a page heading is body copy */
 .t-lead {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: clamp(18px, 1rem + 0.4vw, 20px);
-  line-height: 1.4;
-  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.5;
   text-wrap: pretty;
 }
+/* Captions are meta: context for a photo, never italic */
 .t-caption {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 15px;
+  font-size: 13px;
   line-height: 1.4;
-  font-weight: 400;
   color: var(--color-ink-muted);
 }
-/* Sans family: both modes */
 .t-body {
   font-size: 16px;
-  line-height: 1.55;
+  line-height: 1.5;
 }
 .t-body-strong {
   font-size: 16px;
@@ -323,8 +314,6 @@ a {
   font-size: 13px;
   line-height: 1.4;
   font-weight: 400;
-}
-.t-meta {
   color: var(--color-ink-muted);
 }
 .t-eyebrow {
@@ -334,23 +323,24 @@ a {
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+/* JetBrains Mono: every price, total, quantity and certificate number */
 .t-price {
-  font-size: 17px;
+  font-family: var(--font-mono);
+  font-size: 16px;
   line-height: 1.3;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: var(--color-orange-ink);
 }
-/* Mono family: only inside the nota and the sticky order bar */
 .t-nota-line {
   font-family: var(--font-mono);
   font-size: 14px;
   line-height: 1.5;
   font-variant-numeric: tabular-nums;
 }
+.t-price-large,
 .t-nota-total {
   font-family: var(--font-mono);
-  font-size: 22px;
+  font-size: 24px;
   line-height: 1.2;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -379,8 +369,8 @@ a {
   }
 }
 
-/* Surfaces: paper is the page; kraft is the order zone; navy is one band per page plus the
-   footer. Orange is never a ground. */
+/* Surfaces: paper is the page, card sits on it, kraft is the estimator; brown is the footer
+   only. Orange is never a ground. */
 .field-paper {
   background: var(--color-paper);
   color: var(--color-ink);
@@ -389,8 +379,8 @@ a {
   background: var(--color-kraft);
   color: var(--color-ink);
 }
-.field-navy {
-  background: var(--color-navy);
+.field-brown {
+  background: var(--color-brown);
   color: var(--color-paper);
 }
 /* ---------- Reveal (set up by JS only; content is visible without it) ---------- */

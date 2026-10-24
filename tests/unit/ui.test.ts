@@ -149,7 +149,7 @@ describe('ui composites', () => {
 
   it('NavyBand labels its section with its heading', async () => {
     const html = await c.renderToString(NavyBand, { props: { id: 'klien', label: 'Klien kami' }, slots: { default: '<p class="ui-band__text">A · B</p>' } });
-    expect(html).toMatch(/<section class="ui-band on-navy" aria-labelledby="klien"/);
+    expect(html).toMatch(/<section class="ui-band on-brown" aria-labelledby="klien"/);
     expect(html).toContain('<h2 id="klien" class="ui-band__label">Klien kami</h2>');
   });
 

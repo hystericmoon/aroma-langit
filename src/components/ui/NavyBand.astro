@@ -12,7 +12,7 @@ const { id, label, level = 'h2', class: cls } = Astro.props;
 const H = level;
 ---
 
-<section class:list={['ui-band on-navy', cls]} aria-labelledby={id}>
+<section class:list={['ui-band on-brown', cls]} aria-labelledby={id}>
   <div class="wrap ui-band__inner">
     <H id={id} class="ui-band__label">{label}</H>
     <div class="ui-band__body">

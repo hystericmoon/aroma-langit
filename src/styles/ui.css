@@ -70,7 +70,7 @@
 }
 
 .ui-link {
-  color: var(--color-orange-ink);
+  color: var(--color-brown);
   font-weight: 600;
   text-decoration: underline;
   text-decoration-thickness: 1px;
@@ -78,7 +78,7 @@
   transition: color var(--dur-fast) ease;
 }
 .ui-link:hover {
-  color: var(--color-orange-ink-hover);
+  color: var(--color-brown-hover);
 }
 /* A link that stands on its own (not inside a sentence) is a 44px tap target. */
 .ui-link--tap,
@@ -88,11 +88,9 @@
   min-height: var(--tap-min);
   min-width: var(--tap-min);
 }
-/* orange-ink is 2.6:1 on navy and 3.9:1 on kraft, so links there use ink or paper (flagged). */
-.field-kraft .ui-link {
-  color: var(--color-ink);
-}
-:is(.on-navy, .field-navy) .ui-link {
+/* Brown links pass on paper (7.1:1), card (7.6:1) and kraft (6.0:1); on the brown footer
+   they are paper. */
+:is(.on-brown, .field-brown) .ui-link {
   color: var(--color-paper);
 }
 
@@ -290,14 +288,14 @@ select.ui-input {
 .ui-section-head__title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 32px;
+  font-size: 28px;
   line-height: 1.1;
-  font-weight: 400;
+  font-weight: 600;
   text-wrap: balance;
 }
 @media (min-width: 1024px) {
   .ui-section-head__title {
-    font-size: 44px;
+    font-size: 40px;
     line-height: 1.05;
   }
 }
@@ -307,10 +305,10 @@ select.ui-input {
   color: var(--color-ink-muted);
   font-size: 15px;
 }
-.on-navy .ui-section-head {
+.on-brown .ui-section-head {
   border-top-color: var(--color-paper);
 }
-.on-navy .ui-section-head__context {
+.on-brown .ui-section-head__context {
   color: var(--color-paper);
 }
 
@@ -337,7 +335,7 @@ select.ui-input {
   color: var(--color-ink-muted);
 }
 /* ink-muted is not legible on navy; captions there use paper (flagged). */
-.on-navy .ui-figure figcaption {
+.on-brown .ui-figure figcaption {
   color: var(--color-paper);
 }
 
@@ -377,7 +375,7 @@ select.ui-input {
 .ui-price-row__price {
   font: 600 16px/1.3 var(--font-sans);
   font-variant-numeric: tabular-nums;
-  color: var(--color-orange-ink);
+  color: var(--color-brown);
   white-space: nowrap;
 }
 .ui-price-row__unit {
@@ -621,7 +619,7 @@ select.ui-input {
 
 /* ---------- NavyBand (read) ---------- */
 .ui-band {
-  background: var(--color-navy);
+  background: var(--color-brown);
   color: var(--color-paper);
 }
 .ui-band__inner {
