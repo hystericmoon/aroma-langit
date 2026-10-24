@@ -4,6 +4,7 @@ import Photo from './Photo.astro';
 import Icon from './ui/Icon.astro';
 import { getServices, getSite } from '../lib/content';
 import { formatPhone, waLink } from '../data/site';
+import { leadTimeSummary } from '../lib/order';
 import { photos } from '../data/photos';
 
 interface Props {
@@ -23,7 +24,7 @@ const year = new Date().getFullYear();
         <div class="closing-inner">
           <h2 id="closing-title" class="t-display closing-title" data-split>Acara Anda tanggal berapa?</h2>
           <div class="closing-side">
-            <p class="t-lead">Sebutkan tanggalnya, kami siapkan sisanya. Pesan paling lambat dua hari sebelum acara, tiga hari untuk prasmanan.</p>
+            <p class="t-lead">Sebutkan tanggalnya, kami siapkan sisanya. {leadTimeSummary(services)}</p>
             <div class="closing-actions">
               <a class="ui-btn ui-btn--primary" href="/#pesan">Susun pesanan</a>
               <a class="ui-btn ui-btn--secondary" href={waLink(site.csPhone, 'Halo Aroma Langit, saya ingin bertanya tentang katering.')} rel="noopener">

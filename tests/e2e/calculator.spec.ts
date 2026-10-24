@@ -119,7 +119,7 @@ test('a shared link restores the exact plan', async ({ page, browser }) => {
   await expect(other.locator('[data-items] > li').nth(1).locator('[data-f="variant"]')).toHaveValue('Ayam Mentega');
   await expect(other.locator('[data-items] > li').nth(2).locator('[data-f="label"]')).toHaveValue('Snack penutupan');
   await expect(other.locator('[data-date]')).toHaveValue('2027-01-15');
-  await expect(other.locator('[data-r-settle]')).toHaveText('Pelunasan paling lambat Kamis, 14 Januari 2027 (H-1).');
+  await expect(other.locator('[data-r-settle]')).toHaveText(/^Pelunasan paling lambat (Kamis, 14 Januari 2027 \(H-1\)|H-1)\.$/);
   await expect(other.locator('[data-r-ship]')).toHaveText('Dihitung tim kami');
   await expect(other.locator('[data-r-total]')).toHaveText(want!);
   await other.close();
@@ -139,6 +139,7 @@ test('the wedding preset uses invitations, H-30 and goes to marketing', async ({
   await expect(page.locator('[data-guest-word]')).toHaveText('undangan');
   await expect(rows(page).first().locator('[data-qty]')).toHaveText('= 300 pax');
   await expect(page.locator('[data-r-lead]')).toContainText('H-30');
+  await expect(page.locator('[data-r-deposit]')).toBeHidden();
   const today = await page.evaluate(() =>
     new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()),
   );
@@ -152,6 +153,7 @@ test('the wedding preset uses invitations, H-30 and goes to marketing', async ({
   expect(msg).toContain('Jumlah undangan: 500');
   expect(msg).toContain('1. Prasmanan resepsi: Katering Pernikahan Gold (Nusantara), 300 pax = Rp25.500.000');
   expect(msg).toContain('/kalkulator/#n=');
+  expect(msg).not.toContain('Uang muka');
 });
 
 test('reset returns the preset to its defaults and can be undone', async ({ page }) => {

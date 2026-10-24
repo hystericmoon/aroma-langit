@@ -152,16 +152,17 @@ export function formatPercent(n: number): string {
 }
 
 /** "Pelunasan paling lambat H-1.", or with an event date, the day itself:
- *  "Pelunasan paling lambat Jumat, 30 Oktober 2026 (H-1)." */
-export function settlementText(days: number, eventDate = ''): string {
+ *  "Pelunasan paling lambat Jumat, 30 Oktober 2026 (H-1)". A day already past is not named. */
+export function settlementText(days: number, eventDate = '', now: Date = new Date()): string {
   if (days <= 0) return 'Pelunasan paling lambat di hari acara.';
-  const due = /^\d{4}-\d{2}-\d{2}$/.test(eventDate) ? formatDateLong(addDays(eventDate, -days)) : '';
+  const dueIso = /^\d{4}-\d{2}-\d{2}$/.test(eventDate) ? addDays(eventDate, -days) : '';
+  const due = dueIso && dueIso >= todayInJakarta(now) ? formatDateLong(dueIso) : '';
   return due ? `Pelunasan paling lambat ${due} (H-${days}).` : `Pelunasan paling lambat H-${days}.`;
 }
 
 /** The deposit and settlement as one line, for the WhatsApp messages. */
-export function paymentLine(total: number, t: PaymentTerms, eventDate = ''): string {
-  return `Uang muka ${formatPercent(t.depositRate)}: ${formatRupiah(depositAmount(total, t.depositRate))}. ${settlementText(t.settlementDays, eventDate)}`;
+export function paymentLine(total: number, t: PaymentTerms, eventDate = '', now: Date = new Date()): string {
+  return `Uang muka ${formatPercent(t.depositRate)}: ${formatRupiah(depositAmount(total, t.depositRate))}. ${settlementText(t.settlementDays, eventDate, now)}`;
 }
 
 /**

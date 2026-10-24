@@ -1,6 +1,6 @@
 // Catering calculator page: state, rendering and events. All maths is in lib/calculator.
 import {
-  buildPlanMessage, cleanLabel, computePlan, decodePlan, encodePlan, LIMITS, MULTIPLIERS, multiplierLabel, newItem,
+  buildPlanMessage, cleanLabel, generalTermsApply, computePlan, decodePlan, encodePlan, LIMITS, MULTIPLIERS, multiplierLabel, newItem,
   planFromPreset, quantityFor, type CatalogService, type Plan, type PlanItem, type PlanResult, type Preset,
 } from '../lib/calculator';
 import {
@@ -274,7 +274,7 @@ function renderReceipt(result: PlanResult, word: string, live = false) {
   ui.rLead.textContent = result.lines.length
     ? `Pesan paling lambat H-${result.leadDays}. Tanggal paling cepat: ${formatDateLong(result.earliest)}.`
     : '';
-  ui.rDeposit.hidden = result.lines.length === 0;
+  ui.rDeposit.hidden = !generalTermsApply(result);
   ui.rDp.textContent = formatRupiah(depositAmount(result.total, data.terms.depositRate));
   ui.rSettle.textContent = settlementText(data.terms.settlementDays, plan.date);
   ui.send.disabled = result.lines.length === 0;

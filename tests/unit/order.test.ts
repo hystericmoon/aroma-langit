@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   addDays, buildMessage, depositAmount, formatPercent, leadTimeSummary, settlementText, checkDate, clampQty, earliestDate, estimate, formatDateLong,
   formatRupiah, formatRupiahShort, todayInJakarta,
@@ -124,16 +124,22 @@ describe('payment terms', () => {
   });
   it('writes the settlement rule, with the due day once the event date is known', () => {
     expect(settlementText(1)).toBe('Pelunasan paling lambat H-1.');
-    expect(settlementText(1, '2026-11-07')).toBe('Pelunasan paling lambat Jumat, 6 November 2026 (H-1).');
+    const oct24 = new Date('2026-10-24T03:00:00Z');
+    expect(settlementText(1, '2026-11-07', oct24)).toBe('Pelunasan paling lambat Jumat, 6 November 2026 (H-1).');
+    // Too-soon event dates never name a day that has already passed.
+    expect(settlementText(1, '2026-10-24', oct24)).toBe('Pelunasan paling lambat H-1.');
+    expect(settlementText(1, '2026-10-25', oct24)).toBe('Pelunasan paling lambat Sabtu, 24 Oktober 2026 (H-1).');
     expect(settlementText(3, 'kemarin')).toBe('Pelunasan paling lambat H-3.');
     expect(settlementText(0, '2026-11-07')).toBe('Pelunasan paling lambat di hari acara.');
   });
   it('adds the deposit to the WhatsApp message when terms are given', () => {
+    vi.useFakeTimers({ now: new Date('2026-10-24T03:00:00Z'), toFake: ['Date'] });
     const msg = buildMessage(
       { serviceName: 'Nasi Box', leadDays: 2, pkg: nasiBoxStandar, qty: 150, date: '2026-11-07', area: 'kota-bogor' },
       { depositRate: 50, settlementDays: 1 },
     );
     expect(msg).toContain('Uang muka 50%: Rp2.175.000. Pelunasan paling lambat Jumat, 6 November 2026 (H-1).');
+    vi.useRealTimers();
   });
 });
 

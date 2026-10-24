@@ -15,6 +15,7 @@ const from = (slug: string) => {
   const s = bySlug(slug);
   return s ? formatRupiah(Math.min(...s.packages.map((p) => p.price))) : '';
 };
+const snackLead = bySlug('snack-box')?.leadDays;
 const nutritionist = site.team.find((t) => t.role === 'COO');
 
 const uses = [
@@ -26,7 +27,7 @@ const uses = [
   },
   {
     title: 'Rapat dan pelatihan',
-    text: 'Bento dan snack box yang rapi di meja rapat dan ruang pelatihan. Snack box bisa dipesan sehari sebelum acara.',
+    text: `Bento dan snack box yang rapi di meja rapat dan ruang pelatihan.${snackLead ? ` Snack box bisa dipesan paling lambat H-${snackLead}.` : ''}`,
     photo: photos.bentoNasgor,
     links: [{ href: '/katering/bento/', label: `Bento, mulai ${from('bento')}` }, { href: '/katering/snack-box/', label: `Snack Box, mulai ${from('snack-box')}` }],
   },

@@ -4,7 +4,7 @@ import ItemRow from '../components/calculator/ItemRow.astro';
 import ReceiptLine from '../components/calculator/ReceiptLine.astro';
 import Logo from '../components/Logo.astro';
 import { getPresets, getServices, getSite } from '../lib/content';
-import { buildCatalog, computePlan, planFromPreset, quantityFor, type PlanItem } from '../lib/calculator';
+import { buildCatalog, computePlan, generalTermsApply, planFromPreset, quantityFor, type PlanItem } from '../lib/calculator';
 import { weddingCatering } from '../data/wedding';
 import { formatRupiah, areaLabel, formatDateLong, shippingLabel, depositAmount, settlementText } from '../lib/order';
 import EventTile from '../components/ui/EventTile.astro';
@@ -157,7 +157,7 @@ const data = { catalog, presets, csPhone: site.csPhone, marketingPhone: site.mar
             rate={terms.depositRate}
             amount={formatRupiah(depositAmount(result.total, terms.depositRate))}
             settlement={settlementText(terms.settlementDays)}
-            hidden={result.lines.length === 0}
+            hidden={!generalTermsApply(result)}
             attrs={{ 'data-r-deposit': true }}
             amountAttrs={{ 'data-r-dp': true }}
             settlementAttrs={{ 'data-r-settle': true }}

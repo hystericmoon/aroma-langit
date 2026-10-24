@@ -255,6 +255,12 @@ export function cleanLabel(v: unknown): string {
 
 const formatQty = (n: number) => n.toLocaleString('id-ID');
 
+/** The general DP and settlement rule applies unless the plan has a wedding line, which
+ *  follows the wedding terms (booking fee and instalments) instead. */
+export function generalTermsApply(result: PlanResult): boolean {
+  return result.lines.length > 0 && !result.lines.some((l) => l.service.slug === 'pernikahan');
+}
+
 export function buildPlanMessage(plan: Plan, result: PlanResult, eventName: string, guestWord: string, shareUrl?: string, terms?: PaymentTerms): string {
   const lines = [
     'Halo Aroma Langit, saya ingin memesan katering untuk acara berikut:',
@@ -271,7 +277,7 @@ export function buildPlanMessage(plan: Plan, result: PlanResult, eventName: stri
     if (l.surcharge > 0) lines.push(`   + biaya di bawah minimum ${l.pkg.minOrder} ${l.pkg.unit}: ${formatRupiah(l.surcharge)}`);
   });
   lines.push('', `Perkiraan total: ${formatRupiah(result.total)} (${formatRupiah(result.perGuest)} per ${guestWord})`);
-  if (terms) lines.push(paymentLine(result.total, terms, plan.date));
+  if (terms && generalTermsApply(result)) lines.push(paymentLine(result.total, terms, plan.date));
   if (plan.area === 'luar-bogor') lines.push('Mohon info ongkos kirim ke lokasi saya.');
   if (shareUrl) lines.push('', `Rincian: ${shareUrl}`);
   lines.push('', 'Mohon konfirmasi ketersediaan dan total akhirnya. Terima kasih.');

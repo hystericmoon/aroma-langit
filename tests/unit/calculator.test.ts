@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
-  buildCatalog, buildPlanMessage, cleanLabel, computePlan, decodePlan, encodePlan, newItem, planFromPreset, quantityFor,
+  buildCatalog, buildPlanMessage, generalTermsApply, cleanLabel, computePlan, decodePlan, encodePlan, newItem, planFromPreset, quantityFor,
   type Plan,
 } from '../../src/lib/calculator';
 import { services } from '../../src/data/services';
@@ -137,7 +137,16 @@ describe('buildPlanMessage', () => {
     expect(msg).toContain(`Perkiraan total: Rp4.100.000`);
     expect(msg).toContain('Rincian: https://aromalangit.id/kalkulator/#n=abc');
     expect(msg).not.toContain('Uang muka');
+    vi.useFakeTimers({ now: new Date('2026-10-24T03:00:00Z'), toFake: ['Date'] });
     const withTerms = buildPlanMessage(plan, r, 'Pelatihan sehari', 'peserta', undefined, { depositRate: 50, settlementDays: 1 });
     expect(withTerms).toContain('Uang muka 50%: Rp2.050.000. Pelunasan paling lambat Jumat, 6 November 2026 (H-1).');
+    vi.useRealTimers();
+  });
+  it('leaves the general DP rule out of wedding plans, which follow the wedding terms', () => {
+    const terms = { depositRate: 50, settlementDays: 1 };
+    const wedding = computePlan(planFromPreset(preset('pernikahan'), catalog), catalog, now);
+    expect(generalTermsApply(wedding)).toBe(false);
+    expect(buildPlanMessage(planFromPreset(preset('pernikahan'), catalog), wedding, 'Pernikahan', 'undangan', undefined, terms)).not.toContain('Uang muka');
+    expect(generalTermsApply(computePlan(planFromPreset(preset('rapat'), catalog), catalog, now))).toBe(true);
   });
 });
