@@ -1,6 +1,6 @@
 // Catering calculator: plans a whole event as several order lines.
 // Pure functions only, shared by the page script and the tests.
-import { estimate, formatDateLong, formatRupiah, areaLabel, earliestDate, checkDate, type Area, type DateCheck } from './order';
+import { estimate, formatDateLong, formatRupiah, areaLabel, earliestDate, checkDate, paymentLine, type Area, type DateCheck, type PaymentTerms } from './order';
 
 export interface CatalogPackage {
   id: string;
@@ -255,7 +255,7 @@ export function cleanLabel(v: unknown): string {
 
 const formatQty = (n: number) => n.toLocaleString('id-ID');
 
-export function buildPlanMessage(plan: Plan, result: PlanResult, eventName: string, guestWord: string, shareUrl?: string): string {
+export function buildPlanMessage(plan: Plan, result: PlanResult, eventName: string, guestWord: string, shareUrl?: string, terms?: PaymentTerms): string {
   const lines = [
     'Halo Aroma Langit, saya ingin memesan katering untuk acara berikut:',
     '',
@@ -271,6 +271,7 @@ export function buildPlanMessage(plan: Plan, result: PlanResult, eventName: stri
     if (l.surcharge > 0) lines.push(`   + biaya di bawah minimum ${l.pkg.minOrder} ${l.pkg.unit}: ${formatRupiah(l.surcharge)}`);
   });
   lines.push('', `Perkiraan total: ${formatRupiah(result.total)} (${formatRupiah(result.perGuest)} per ${guestWord})`);
+  if (terms) lines.push(paymentLine(result.total, terms, plan.date));
   if (plan.area === 'luar-bogor') lines.push('Mohon info ongkos kirim ke lokasi saya.');
   if (shareUrl) lines.push('', `Rincian: ${shareUrl}`);
   lines.push('', 'Mohon konfirmasi ketersediaan dan total akhirnya. Terima kasih.');

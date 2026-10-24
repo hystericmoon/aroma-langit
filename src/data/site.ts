@@ -55,6 +55,8 @@ export const site: SiteSettings = {
     'Untuk pengiriman di luar Kota Bogor, ongkos kirim menyesuaikan jarak.',
     'Harga dan paket dapat berubah sewaktu-waktu. Hubungi marketing kami untuk penawaran terbaik.',
   ],
+  depositRate: 50,
+  settlementDays: 1,
   pricelistUrl: '/files/pricelist-aroma-langit-2024.pdf',
   weddingCatalogs: [
     { label: 'Katalog katering pernikahan', url: '/files/katalog-katering-pernikahan-2024.pdf' },

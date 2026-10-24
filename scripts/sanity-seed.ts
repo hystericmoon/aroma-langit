@@ -48,6 +48,8 @@ test('write Sanity seed', () => {
     milestones: site.milestones.map((m, i) => ({ _key: `m${i}`, ...m })),
     team: site.team.map((t, i) => ({ _key: `t${i}`, ...t })),
     sharedTerms: site.sharedTerms,
+    depositRate: site.depositRate,
+    settlementDays: site.settlementDays,
   });
   for (const s of services) {
     docs.push({

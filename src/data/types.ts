@@ -83,6 +83,10 @@ export interface SiteSettings {
   milestones: Milestone[];
   team: Person[];
   sharedTerms: string[];
+  /** Deposit that confirms an order, as a percent of the total (50 = DP 50%). */
+  depositRate: number;
+  /** Days before the event the balance is due (1 = pelunasan H-1). */
+  settlementDays: number;
   pricelistUrl: string;
   weddingCatalogs: { label: string; url: string }[];
 }

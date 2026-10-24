@@ -9,7 +9,7 @@ Isi situs Aroma Langit (harga, menu, foto, kontak, preset kalkulator) diubah di 
 3. Di kiri ada tiga menu:
    - **Layanan & harga**: nasi box, bento, snack box, prasmanan, tumpeng, tumpeng mini. Berisi paket, harga, minimum, menu, foto dan syarat.
    - **Preset kalkulator**: contoh pesanan di halaman /kalkulator/ (rapat, pelatihan, syukuran, dan lainnya).
-   - **Pengaturan situs**: nomor WhatsApp, jam layanan, alamat, sertifikat, klien, tim, syarat pemesanan umum.
+   - **Pengaturan situs**: nomor WhatsApp, jam layanan, alamat, sertifikat, klien, tim, syarat pemesanan umum, uang muka dan pelunasan.
 
 ## 2. Mengubah harga
 
@@ -22,6 +22,15 @@ Isi situs Aroma Langit (harga, menu, foto, kontak, preset kalkulator) diubah di 
 Harga baru otomatis dipakai di halaman layanan, daftar harga di beranda, label pesanan dan kalkulator.
 
 > Hati-hati mengganti **Nama paket**. Preset kalkulator mencari paket berdasarkan namanya. Kalau nama paket diganti, ubah juga nama paket di preset yang memakainya (lihat bagian 4), atau baris itu tidak akan tampil.
+
+### Uang muka dan pelunasan
+
+Di **Pengaturan situs** → **Kontak**:
+
+- **Uang muka (%)**: angka saja, misalnya `50`. Nota di label pesanan dan kalkulator menghitung uang mukanya dari total, dan angka ini ikut di pesan WhatsApp.
+- **Pelunasan (hari sebelum acara)**: misalnya `1` untuk pelunasan paling lambat H-1. Isi `0` bila pelunasan di hari acara.
+
+Kalimat tentang uang muka dan pelunasan di **Syarat pemesanan umum** ditulis terpisah. Bila salah satu angka diubah, ubah juga kalimat itu agar sama.
 
 ## 3. Mengganti foto
 

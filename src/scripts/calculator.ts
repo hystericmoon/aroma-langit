@@ -3,13 +3,17 @@ import {
   buildPlanMessage, cleanLabel, computePlan, decodePlan, encodePlan, LIMITS, MULTIPLIERS, multiplierLabel, newItem,
   planFromPreset, quantityFor, type CatalogService, type Plan, type PlanItem, type PlanResult, type Preset,
 } from '../lib/calculator';
-import { areaLabel, shippingLabel, checkDate, earliestDate, formatDateLong, formatRupiah, parseAmount, type Area } from '../lib/order';
+import {
+  areaLabel, shippingLabel, checkDate, depositAmount, earliestDate, formatDateLong, formatRupiah, parseAmount, settlementText,
+  type Area, type PaymentTerms,
+} from '../lib/order';
 
 interface Data {
   catalog: CatalogService[];
   presets: Preset[];
   csPhone: string;
   marketingPhone: string;
+  terms: PaymentTerms;
 }
 
 const data: Data = JSON.parse(document.getElementById('calc-data')!.textContent || '{}');
@@ -46,6 +50,9 @@ const ui = {
   rTotal: $('[data-r-total]'),
   rPer: $('[data-r-per]'),
   rLead: $('[data-r-lead]'),
+  rDeposit: $('[data-r-deposit]'),
+  rDp: $('[data-r-dp]'),
+  rSettle: $('[data-r-settle]'),
   send: $<HTMLButtonElement>('[data-send]'),
   share: $<HTMLButtonElement>('[data-share]'),
   print: $<HTMLButtonElement>('[data-print]'),
@@ -214,7 +221,7 @@ function update(opts: { announce?: boolean; live?: boolean } = {}) {
   if (opts.announce !== false) {
     liveTimer = window.setTimeout(() => {
       ui.live.textContent = result.lines.length
-        ? `Perkiraan total ${formatRupiah(result.total)}, ${formatRupiah(result.perGuest)} per ${word}.`
+        ? `Perkiraan total ${formatRupiah(result.total)}, ${formatRupiah(result.perGuest)} per ${word}. Uang muka ${formatRupiah(depositAmount(result.total, data.terms.depositRate))}.`
         : 'Nota kosong.';
     }, 800);
   }
@@ -267,6 +274,9 @@ function renderReceipt(result: PlanResult, word: string, live = false) {
   ui.rLead.textContent = result.lines.length
     ? `Pesan paling lambat H-${result.leadDays}. Tanggal paling cepat: ${formatDateLong(result.earliest)}.`
     : '';
+  ui.rDeposit.hidden = result.lines.length === 0;
+  ui.rDp.textContent = formatRupiah(depositAmount(result.total, data.terms.depositRate));
+  ui.rSettle.textContent = settlementText(data.terms.settlementDays, plan.date);
   ui.send.disabled = result.lines.length === 0;
   animateTotal(result.total, live);
 }
@@ -540,7 +550,7 @@ ui.send.addEventListener('click', () => {
   const result = computePlan(plan, catalog);
   if (!result.lines.length) return;
   const preset = currentPreset();
-  const msg = buildPlanMessage(plan, result, preset === custom ? 'Acara khusus' : preset.title, guestWord(), shareUrl());
+  const msg = buildPlanMessage(plan, result, preset === custom ? 'Acara khusus' : preset.title, guestWord(), shareUrl(), data.terms);
   const phone = result.lines.some((l) => l.service.slug === 'pernikahan') ? data.marketingPhone : data.csPhone;
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
   const w = window.open(url, '_blank', 'noopener');

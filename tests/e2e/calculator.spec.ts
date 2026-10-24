@@ -18,6 +18,8 @@ test('starts from the first preset with a correct receipt', async ({ page }) => 
   // 35 × 32.500 + 35 × 45.000
   await expect(total(page)).toHaveText('Rp2.712.500');
   await expect(page.locator('[data-r-per]')).toHaveText('Rp77.500 per peserta');
+  await expect(page.locator('[data-r-dp]')).toHaveText('Rp1.356.250');
+  await expect(page.locator('[data-r-settle]')).toHaveText('Pelunasan paling lambat H-1.');
   expect(problems).toEqual([]);
 });
 
@@ -91,6 +93,7 @@ test('fully custom plans start empty and cannot be sent until they have a line',
   await expect(page.locator('[data-r-empty]')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Kirim ke WhatsApp' })).toBeDisabled();
   await expect(total(page)).toHaveText('Rp0');
+  await expect(page.locator('[data-r-deposit]')).toBeHidden();
   await page.getByRole('button', { name: 'Tambah menu' }).click();
   await expect(rows(page)).toHaveCount(1);
   await expect(page.getByRole('button', { name: 'Kirim ke WhatsApp' })).toBeEnabled();
@@ -116,6 +119,7 @@ test('a shared link restores the exact plan', async ({ page, browser }) => {
   await expect(other.locator('[data-items] > li').nth(1).locator('[data-f="variant"]')).toHaveValue('Ayam Mentega');
   await expect(other.locator('[data-items] > li').nth(2).locator('[data-f="label"]')).toHaveValue('Snack penutupan');
   await expect(other.locator('[data-date]')).toHaveValue('2027-01-15');
+  await expect(other.locator('[data-r-settle]')).toHaveText('Pelunasan paling lambat Kamis, 14 Januari 2027 (H-1).');
   await expect(other.locator('[data-r-ship]')).toHaveText('Dihitung tim kami');
   await expect(other.locator('[data-r-total]')).toHaveText(want!);
   await other.close();

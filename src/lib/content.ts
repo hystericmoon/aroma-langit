@@ -102,7 +102,13 @@ export function getSite(): Promise<SiteSettings> {
     const row = await c.fetch<Partial<SiteSettings> | null>(siteQuery);
     if (!row) return localSite;
     const clean = Object.fromEntries(Object.entries(row).filter(([k, v]) => !k.startsWith('_') && v !== null && v !== undefined));
-    return { ...localSite, ...clean } as SiteSettings;
+    const merged = { ...localSite, ...clean } as SiteSettings;
+    // The payment numbers drive the nota maths, so anything out of range falls back.
+    const rate = Number(merged.depositRate);
+    const days = Number(merged.settlementDays);
+    merged.depositRate = rate > 0 && rate <= 100 ? rate : localSite.depositRate;
+    merged.settlementDays = Number.isInteger(days) && days >= 0 && days <= 30 ? days : localSite.settlementDays;
+    return merged;
   })();
   return siteCache;
 }

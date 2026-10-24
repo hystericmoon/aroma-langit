@@ -558,6 +558,26 @@ select.ui-input {
 }
 .ui-nota__dp span:last-child {
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ui-nota__deposit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+.ui-nota__deposit[hidden] {
+  display: none;
+}
+.ui-nota__dp {
+  gap: 12px;
+  margin: 0;
+}
+.ui-nota__settle {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-ink-muted);
 }
 
 /* ---------- StickyOrderBar (order, phones only) ---------- */

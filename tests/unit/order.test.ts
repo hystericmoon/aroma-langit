@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  addDays, buildMessage, checkDate, clampQty, earliestDate, estimate, formatDateLong,
+  addDays, buildMessage, depositAmount, formatPercent, leadTimeSummary, settlementText, checkDate, clampQty, earliestDate, estimate, formatDateLong,
   formatRupiah, formatRupiahShort, todayInJakarta,
 } from '../../src/lib/order';
 import { services } from '../../src/data/services';
@@ -109,6 +109,43 @@ describe('buildMessage', () => {
     expect(msg).toContain('belum ditentukan');
     expect(msg).toContain('Rp145.000');
     expect(msg).toContain('ongkos kirim');
+  });
+});
+
+describe('payment terms', () => {
+  it('computes the deposit from the rate in site settings', () => {
+    expect(depositAmount(4_350_000, 50)).toBe(2_175_000);
+    expect(depositAmount(145_001, 50)).toBe(72_501);
+    expect(depositAmount(1_000_000, 30)).toBe(300_000);
+  });
+  it('formats the rate as a percent', () => {
+    expect(formatPercent(50)).toBe('50%');
+    expect(formatPercent(12.5)).toBe('12,5%');
+  });
+  it('writes the settlement rule, with the due day once the event date is known', () => {
+    expect(settlementText(1)).toBe('Pelunasan paling lambat H-1.');
+    expect(settlementText(1, '2026-11-07')).toBe('Pelunasan paling lambat Jumat, 6 November 2026 (H-1).');
+    expect(settlementText(3, 'kemarin')).toBe('Pelunasan paling lambat H-3.');
+    expect(settlementText(0, '2026-11-07')).toBe('Pelunasan paling lambat di hari acara.');
+  });
+  it('adds the deposit to the WhatsApp message when terms are given', () => {
+    const msg = buildMessage(
+      { serviceName: 'Nasi Box', leadDays: 2, pkg: nasiBoxStandar, qty: 150, date: '2026-11-07', area: 'kota-bogor' },
+      { depositRate: 50, settlementDays: 1 },
+    );
+    expect(msg).toContain('Uang muka 50%: Rp2.175.000. Pelunasan paling lambat Jumat, 6 November 2026 (H-1).');
+  });
+});
+
+describe('leadTimeSummary', () => {
+  it('leads with the usual lead time and lists the exceptions', () => {
+    expect(leadTimeSummary(services)).toBe('Pesan paling lambat H-2. Snack box H-1, prasmanan H-3.');
+  });
+  it('follows the data', () => {
+    expect(leadTimeSummary([{ title: 'Nasi Box', leadDays: 3 }, { title: 'Bento', leadDays: 3 }])).toBe('Pesan paling lambat H-3.');
+    expect(leadTimeSummary([{ title: 'Tumpeng Mini', leadDays: 1 }, { title: 'Bento', leadDays: 2 }, { title: 'Prasmanan', leadDays: 2 }]))
+      .toBe('Pesan paling lambat H-2. Tumpeng mini H-1.');
+    expect(leadTimeSummary([])).toBe('');
   });
 });
 

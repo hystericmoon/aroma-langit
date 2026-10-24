@@ -1,12 +1,13 @@
 ---
 import { getServices, getSite } from '../../lib/content';
-import { formatRupiah, earliestDate, shippingLabel } from '../../lib/order';
+import { formatRupiah, earliestDate, shippingLabel, depositAmount, settlementText } from '../../lib/order';
 import Field from '../ui/Field.astro';
 import QuantityStepper from '../ui/QuantityStepper.astro';
 import Choice from '../ui/Choice.astro';
 import Nota from '../ui/Nota.astro';
 import NotaLine from '../ui/NotaLine.astro';
 import NotaTotal from '../ui/NotaTotal.astro';
+import NotaDeposit from '../ui/NotaDeposit.astro';
 import Icon from '../ui/Icon.astro';
 
 const services = await getServices();
@@ -95,6 +96,14 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
         amountAttrs={{ 'data-sum-total': true }}
         liveAttrs={{ 'data-sum-live': true }}
       />
+      <NotaDeposit
+        slot="deposit"
+        rate={site.depositRate}
+        amount={formatRupiah(depositAmount(firstPkg.price * firstPkg.minOrder, site.depositRate))}
+        settlement={settlementText(site.settlementDays)}
+        amountAttrs={{ 'data-sum-dp': true }}
+        settlementAttrs={{ 'data-sum-settle': true }}
+      />
     </Nota>
 
     <div class="actions">
@@ -106,21 +115,22 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
     </div>
   </form>
   <script type="application/json" id="order-data" set:html={JSON.stringify(data)} />
-  <script type="application/json" id="order-config" set:html={JSON.stringify({ phone: site.csPhone })} />
+  <script type="application/json" id="order-config" set:html={JSON.stringify({ phone: site.csPhone, terms: { depositRate: site.depositRate, settlementDays: site.settlementDays } })} />
   <noscript><style>.copy, .nota { display: none; }</style></noscript>
 </section>
 
 <script>
   import { setOrder } from '../../lib/orderStore';
   import {
-    buildMessage, checkDate, clampQty, earliestDate, estimate, formatDateLong, formatRupiah, shippingLabel, type Area,
+    buildMessage, checkDate, clampQty, depositAmount, earliestDate, estimate, formatDateLong, formatRupiah, settlementText, shippingLabel,
+    type Area, type PaymentTerms,
   } from '../../lib/order';
 
   interface Pkg { id: string; name: string; price: number; unit: string; minOrder: number; variants: string[] }
   interface Svc { slug: string; title: string; leadDays: number; packages: Pkg[] }
 
   const data: Svc[] = JSON.parse(document.getElementById('order-data')!.textContent || '[]');
-  const { phone } = JSON.parse(document.getElementById('order-config')!.textContent || '{}') as { phone: string };
+  const { phone, terms } = JSON.parse(document.getElementById('order-config')!.textContent || '{}') as { phone: string; terms: PaymentTerms };
   const form = document.querySelector<HTMLFormElement>('[data-order-form]')!;
   const $ = <T extends HTMLElement>(sel: string) => form.querySelector<T>(sel)!;
   const svcSel = $<HTMLSelectElement>('[data-order-service]');
@@ -139,6 +149,8 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
   const extraEl = $<HTMLElement>('[data-sum-extra]');
   const shipEl = $<HTMLElement>('[data-sum-ship]');
   const totalEl = $<HTMLElement>('[data-sum-total]');
+  const dpEl = $<HTMLElement>('[data-sum-dp]');
+  const settleEl = $<HTMLElement>('[data-sum-settle]');
   const liveEl = $<HTMLElement>('[data-sum-live]');
   const copyBtn = $<HTMLButtonElement>('[data-order-copy]');
 
@@ -248,18 +260,21 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
     extraEl.textContent = formatRupiah(e.surcharge);
     shipEl.textContent = shippingLabel[area()];
     animateTotal(e.total, opts?.live === true);
+    const dp = depositAmount(e.total, terms.depositRate);
+    dpEl.textContent = formatRupiah(dp);
 
     const draft = {
       serviceName: s.title, leadDays: s.leadDays, pkg: p,
       variant: p.variants.length > 1 ? varSel.value : undefined,
       qty: e.qty, date: dc === 'ok' || dc === 'too-soon' ? dateIn.value : '', area: area(),
     };
-    const msg = buildMessage(draft);
+    settleEl.textContent = settlementText(terms.settlementDays, draft.date);
+    const msg = buildMessage(draft, terms);
     textIn.value = msg;
 
     clearTimeout(liveTimer);
     liveTimer = window.setTimeout(() => {
-      liveEl.textContent = `Perkiraan total ${formatRupiah(e.total)} untuk ${e.qty} ${p.unit} ${s.title} ${p.name}.`;
+      liveEl.textContent = `Perkiraan total ${formatRupiah(e.total)} untuk ${e.qty} ${p.unit} ${s.title} ${p.name}. Uang muka ${formatRupiah(dp)}.`;
     }, 700);
 
     setOrder({

@@ -129,6 +129,16 @@ export const siteSettings = defineType({
       of: [defineArrayMember({ type: 'object', fields: [defineField({ name: 'name', type: 'string', title: 'Nama' }), defineField({ name: 'role', type: 'string', title: 'Jabatan' }), defineField({ name: 'bio', type: 'text', rows: 3, title: 'Profil' })] })],
     }),
     defineField({ name: 'sharedTerms', title: 'Syarat pemesanan umum', type: 'array', group: 'kontak', of: [defineArrayMember({ type: 'text', rows: 2 })] }),
+    defineField({
+      name: 'depositRate', title: 'Uang muka (%)', type: 'number', group: 'kontak',
+      description: 'Persentase dari total yang dibayar untuk mengunci pesanan, misalnya 50. Tampil di nota dan pesan WhatsApp.',
+      validation: (r) => r.required().min(1).max(100),
+    }),
+    defineField({
+      name: 'settlementDays', title: 'Pelunasan (hari sebelum acara)', type: 'number', group: 'kontak',
+      description: 'Misalnya 1 untuk pelunasan paling lambat H-1. Isi 0 bila pelunasan di hari acara.',
+      validation: (r) => r.required().integer().min(0).max(30),
+    }),
   ],
   preview: { prepare: () => ({ title: 'Pengaturan situs' }) },
 });

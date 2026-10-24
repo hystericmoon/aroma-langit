@@ -136,5 +136,8 @@ describe('buildPlanMessage', () => {
     expect(msg).toContain('2. Makan siang: Bento Spesial (Ayam Bakar Padang), 40 bento = Rp1.500.000');
     expect(msg).toContain(`Perkiraan total: Rp4.100.000`);
     expect(msg).toContain('Rincian: https://aromalangit.id/kalkulator/#n=abc');
+    expect(msg).not.toContain('Uang muka');
+    const withTerms = buildPlanMessage(plan, r, 'Pelatihan sehari', 'peserta', undefined, { depositRate: 50, settlementDays: 1 });
+    expect(withTerms).toContain('Uang muka 50%: Rp2.050.000. Pelunasan paling lambat Jumat, 6 November 2026 (H-1).');
   });
 });

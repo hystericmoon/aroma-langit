@@ -12,6 +12,7 @@ import NavyBand from '../../src/components/ui/NavyBand.astro';
 import Nota from '../../src/components/ui/Nota.astro';
 import NotaLine from '../../src/components/ui/NotaLine.astro';
 import NotaTotal from '../../src/components/ui/NotaTotal.astro';
+import NotaDeposit from '../../src/components/ui/NotaDeposit.astro';
 import PriceRow from '../../src/components/ui/PriceRow.astro';
 import SectionHeading from '../../src/components/ui/SectionHeading.astro';
 import StickyOrderBar from '../../src/components/ui/StickyOrderBar.astro';
@@ -121,6 +122,14 @@ describe('ui composites', () => {
     expect(nota).toContain('<h2 id="nota" class="ui-nota__eyebrow">Nota perkiraan</h2>');
     expect(nota).toContain('<dl class="ui-nota__lines tab">');
     expect(nota).toContain('ui-nota__tear');
+  });
+
+  it('NotaDeposit shows the DP line and the settlement note after the total', async () => {
+    const dp = await c.renderToString(NotaDeposit, { props: { rate: 50, amount: 'Rp787.500', settlement: 'Pelunasan paling lambat H-1.' } });
+    expect(dp).toMatch(/<p class="ui-nota__dp"><span>Uang muka 50%<\/span><span>Rp787.500<\/span><\/p>/);
+    expect(dp).toContain('<p class="ui-nota__settle">Pelunasan paling lambat H-1.</p>');
+    const nota = await c.renderToString(Nota, { props: { id: 'n', title: 'Nota' }, slots: { total: '<p>TOTAL</p>', deposit: dp } });
+    expect(nota.indexOf('TOTAL')).toBeLessThan(nota.indexOf('Uang muka'));
   });
 
   it('SectionHeading renders the level, context and link', async () => {

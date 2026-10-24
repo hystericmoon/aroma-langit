@@ -52,7 +52,7 @@ The project is **eo2zthve**, dataset **production** (public read). The Studio is
 - Staging builds (`.github/workflows/deploy-staging.yml`) set `SANITY_PROJECT_ID=eo2zthve` and `SANITY_DATASET=production`, and warn when the build fell back to the bundled data.
 - Rebuild on publish: a Sanity webhook (*API → Webhooks*, filter `_type in ["service", "siteSettings", "calculatorPreset"]`) calls the GitHub API with a fine-grained token stored only in Sanity, which starts the deploy workflow. The workflow accepts `workflow_dispatch` and `repository_dispatch` (`sanity-publish`); GitHub only delivers `repository_dispatch` to workflows on the default branch.
 
-In the Studio, staff edit **Layanan & harga** (services, packages, prices, menus, photos), **Pengaturan situs** (phone numbers, hours, addresses, certificates, clients, milestones, team, order terms) and **Preset kalkulator** (the calculator's event presets). The schemas are in `studio/schemaTypes/`.
+In the Studio, staff edit **Layanan & harga** (services, packages, prices, menus, photos), **Pengaturan situs** (phone numbers, hours, addresses, certificates, clients, milestones, team, order terms, deposit rate and settlement days) and **Preset kalkulator** (the calculator's event presets). The schemas are in `studio/schemaTypes/`.
 
 A calculator preset has a title, a default guest count and the word for a guest (*tamu*, *peserta*, *undangan*), then its lines. Each line names a service and a package (by the package's name, as written in **Layanan & harga**), and is counted either **per guest** (e.g. 1 box per guest, or ½ for a top-up snack) or as a **fixed amount** (e.g. one tumpeng). Lines that name a package that no longer exists are skipped at build time, and a preset with no valid lines is left out, so renaming a package never breaks the build. The empty **Kustom** preset is always added.
 
@@ -112,7 +112,7 @@ Without them the function answers 503, and the form opens WhatsApp to marketing 
 ## Quality gates (all passing at handover)
 
 - `astro check`: 0 errors, 0 warnings
-- Vitest: 51/51, including every design-system component rendered and checked for its markup and ARIA
+- Vitest: 59/59, including every design-system component rendered and checked for its markup and ARIA
 - Playwright: 173 passed (desktop 1440, tablet 768, phone 390), including axe WCAG 2.2 AA scans of every page, 44×44 tap targets and a focus ring on every keyboard stop, a crawl of every internal link and anchor, the order flow, the calculator (presets, undo, editing, surcharge, share link, reload, wedding routing, phone dock), keyboard navigation, no-JS and reduced-motion runs
 - Lighthouse (mobile, local build): performance 91–99 on every page (home 91, nasi box 94, calculator 98), 100 for accessibility, best practices and SEO
 

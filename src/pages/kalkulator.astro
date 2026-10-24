@@ -6,11 +6,12 @@ import Logo from '../components/Logo.astro';
 import { getPresets, getServices, getSite } from '../lib/content';
 import { buildCatalog, computePlan, planFromPreset, quantityFor, type PlanItem } from '../lib/calculator';
 import { weddingCatering } from '../data/wedding';
-import { formatRupiah, areaLabel, formatDateLong, shippingLabel } from '../lib/order';
+import { formatRupiah, areaLabel, formatDateLong, shippingLabel, depositAmount, settlementText } from '../lib/order';
 import EventTile from '../components/ui/EventTile.astro';
 import Choice from '../components/ui/Choice.astro';
 import Icon from '../components/ui/Icon.astro';
 import StickyOrderBar from '../components/ui/StickyOrderBar.astro';
+import NotaDeposit from '../components/ui/NotaDeposit.astro';
 
 const services = await getServices();
 const site = await getSite();
@@ -26,7 +27,8 @@ const qtyText = (item: PlanItem) => {
   return `= ${quantityFor(item, s, plan.guests).toLocaleString('id-ID')} ${p.unit}`;
 };
 const blank: PlanItem = { id: '__ID__', label: '', service: catalog[0].slug, pkg: catalog[0].packages[0].id, variant: '', mode: 'per-guest', perGuest: 1, fixed: 1 };
-const data = { catalog, presets, csPhone: site.csPhone, marketingPhone: site.marketingPhone };
+const terms = { depositRate: site.depositRate, settlementDays: site.settlementDays };
+const data = { catalog, presets, csPhone: site.csPhone, marketingPhone: site.marketingPhone, terms };
 ---
 
 <Base
@@ -122,8 +124,7 @@ const data = { catalog, presets, csPhone: site.csPhone, marketingPhone: site.mar
       </form>
 
       <aside class="side" aria-labelledby="nota-title">
-        {/* Nota (brand book §7). TODO(data): the DP 50% line and the settlement note are not
-            shown; see src/components/ui/Nota.astro. */}
+        {/* Nota (brand book §7). */}
         <div class="ui-nota receipt" id="nota" data-receipt>
           <header class="r-head">
             <div>
@@ -152,6 +153,15 @@ const data = { catalog, presets, csPhone: site.csPhone, marketingPhone: site.mar
             <p class="ui-nota__total-value" data-r-total>{formatRupiah(result.total)}</p>
             <p class="r-per tab" data-r-per>{formatRupiah(result.perGuest)} per {first.guestWord}</p>
           </div>
+          <NotaDeposit
+            rate={terms.depositRate}
+            amount={formatRupiah(depositAmount(result.total, terms.depositRate))}
+            settlement={settlementText(terms.settlementDays)}
+            hidden={result.lines.length === 0}
+            attrs={{ 'data-r-deposit': true }}
+            amountAttrs={{ 'data-r-dp': true }}
+            settlementAttrs={{ 'data-r-settle': true }}
+          />
           <p class="r-lead" data-r-lead>
             Pesan paling lambat H-{result.leadDays}. Tanggal paling cepat: {formatDateLong(result.earliest)}.
           </p>

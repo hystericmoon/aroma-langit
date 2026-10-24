@@ -1,0 +1,21 @@
+---
+// The Nota's payment terms (brand book §7): the DP line in a kraft box, then the settlement
+// note. Both numbers come from site settings (depositRate, settlementDays).
+import { formatPercent } from '../../lib/order';
+
+interface Props {
+  rate: number;
+  amount: string;
+  settlement: string;
+  hidden?: boolean;
+  attrs?: Record<string, string | boolean | undefined>;
+  amountAttrs?: Record<string, string | boolean | undefined>;
+  settlementAttrs?: Record<string, string | boolean | undefined>;
+}
+const { rate, amount, settlement, hidden, attrs, amountAttrs, settlementAttrs } = Astro.props;
+---
+
+<div class="ui-nota__deposit" hidden={hidden} {...attrs}>
+  <p class="ui-nota__dp"><span>Uang muka {formatPercent(rate)}</span><span {...amountAttrs}>{amount}</span></p>
+  <p class="ui-nota__settle" {...settlementAttrs}>{settlement}</p>
+</div>

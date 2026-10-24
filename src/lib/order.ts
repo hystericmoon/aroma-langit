@@ -135,7 +135,51 @@ export const shippingLabel: Record<Area, string> = {
   'luar-bogor': 'Dihitung tim kami',
 };
 
-export function buildMessage(o: OrderDraft): string {
+/** Payment rules from site settings: the deposit as a percent of the total, and how many
+ *  days before the event the balance is due. */
+export interface PaymentTerms {
+  depositRate: number;
+  settlementDays: number;
+}
+
+export function depositAmount(total: number, depositRate: number): number {
+  return Math.round((total * depositRate) / 100);
+}
+
+/** 50 → "50%", 12.5 → "12,5%". */
+export function formatPercent(n: number): string {
+  return `${String(Math.round(n * 10) / 10).replace('.', ',')}%`;
+}
+
+/** "Pelunasan paling lambat H-1.", or with an event date, the day itself:
+ *  "Pelunasan paling lambat Jumat, 30 Oktober 2026 (H-1)." */
+export function settlementText(days: number, eventDate = ''): string {
+  if (days <= 0) return 'Pelunasan paling lambat di hari acara.';
+  const due = /^\d{4}-\d{2}-\d{2}$/.test(eventDate) ? formatDateLong(addDays(eventDate, -days)) : '';
+  return due ? `Pelunasan paling lambat ${due} (H-${days}).` : `Pelunasan paling lambat H-${days}.`;
+}
+
+/** The deposit and settlement as one line, for the WhatsApp messages. */
+export function paymentLine(total: number, t: PaymentTerms, eventDate = ''): string {
+  return `Uang muka ${formatPercent(t.depositRate)}: ${formatRupiah(depositAmount(total, t.depositRate))}. ${settlementText(t.settlementDays, eventDate)}`;
+}
+
+/**
+ * Lead times in one sentence: the most common one first, then the services that differ,
+ * in the order given. "Pesan paling lambat H-2. Snack box H-1, prasmanan H-3."
+ */
+export function leadTimeSummary(services: { title: string; leadDays: number }[]): string {
+  if (!services.length) return '';
+  const counts = new Map<number, number>();
+  for (const s of services) counts.set(s.leadDays, (counts.get(s.leadDays) ?? 0) + 1);
+  // Map keeps insertion order, so a tie goes to the lead time listed first.
+  const usual = [...counts].reduce((a, b) => (b[1] > a[1] ? b : a))[0];
+  const others = services.filter((s) => s.leadDays !== usual).map((s) => `${s.title.toLowerCase()} H-${s.leadDays}`);
+  const rest = others.join(', ');
+  return `Pesan paling lambat H-${usual}.${rest ? ` ${rest[0].toUpperCase()}${rest.slice(1)}.` : ''}`;
+}
+
+export function buildMessage(o: OrderDraft, terms?: PaymentTerms): string {
   const e = estimate(o.pkg, o.qty);
   const lines = [
     'Halo Aroma Langit, saya ingin memesan:',
@@ -146,6 +190,7 @@ export function buildMessage(o: OrderDraft): string {
     `• Diantar ke: ${areaLabel[o.area]}`,
     `• Perkiraan dari situs: ${formatRupiah(e.total)}${e.belowMinimum ? ` (termasuk biaya tambahan di bawah minimum ${formatRupiah(e.surcharge)})` : ''}`,
   ];
+  if (terms) lines.push(`• ${paymentLine(e.total, terms, o.date)}`);
   if (o.area === 'luar-bogor') lines.push('', 'Mohon info ongkos kirim ke lokasi saya.');
   lines.push('', 'Mohon konfirmasi ketersediaan dan total akhirnya. Terima kasih.');
   return lines.join('\n');

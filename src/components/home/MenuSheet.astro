@@ -3,7 +3,7 @@ import SectionHeading from '../ui/SectionHeading.astro';
 import Tabs from '../ui/Tabs.astro';
 import PriceRow from '../ui/PriceRow.astro';
 import { getServices, getSite } from '../../lib/content';
-import { formatRupiah } from '../../lib/order';
+import { formatRupiah, leadTimeSummary } from '../../lib/order';
 
 const services = await getServices();
 const site = await getSite();
@@ -52,7 +52,7 @@ const hi = Math.max(...all.map((p) => p.price));
         </section>
       ))
     }
-    <p class="t-meta sheet-foot">Pesan paling lambat H-2. Prasmanan H-3, snack box H-1.</p>
+    <p class="t-meta sheet-foot">{leadTimeSummary(services)}</p>
   </div>
 </section>
 

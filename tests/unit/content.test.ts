@@ -51,6 +51,20 @@ describe('content loader', () => {
     const site = await getSite();
     expect(site.csPhone).toBe('6281111111111');
     expect(site.email).toBe('tanya@aromalangit.id');
+    expect(site.depositRate).toBe(50);
+    expect(site.settlementDays).toBe(1);
+  });
+
+  it('keeps the payment numbers from Sanity, and falls back when they are out of range', async () => {
+    vi.stubEnv('SANITY_PROJECT_ID', 'abc123');
+    fetchMock.mockImplementation(async (q: string) => (q.includes('siteSettings') ? { depositRate: 30, settlementDays: 2 } : null));
+    let { getSite } = await import('../../src/lib/content');
+    expect(await getSite()).toMatchObject({ depositRate: 30, settlementDays: 2 });
+
+    vi.resetModules();
+    fetchMock.mockImplementation(async (q: string) => (q.includes('siteSettings') ? { depositRate: 0, settlementDays: 1.5 } : null));
+    ({ getSite } = await import('../../src/lib/content'));
+    expect(await getSite()).toMatchObject({ depositRate: 50, settlementDays: 1 });
   });
 
   it('falls back entirely when Sanity returns nothing', async () => {

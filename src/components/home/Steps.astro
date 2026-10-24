@@ -3,12 +3,13 @@ import Photo from '../Photo.astro';
 import Icon from '../ui/Icon.astro';
 import { photos } from '../../data/photos';
 import { getSite } from '../../lib/content';
+import { formatPercent, settlementText } from '../../lib/order';
 
 const site = await getSite();
 const steps = [
   { title: 'Susun labelnya', text: 'Pilih paket, jumlah dan tanggal acara di situs ini, lalu kirim lewat WhatsApp.', photo: photos.nasiboxBalado },
   { title: 'Kami balas', text: `Layanan pelanggan membalas pukul ${site.csHours}, memastikan menu dan total akhirnya.`, photo: photos.hidanganFlatlay },
-  { title: 'Bayar uang muka', text: 'Pesanan terkunci setelah uang muka 50% masuk. Pelunasan paling lambat H-1.', photo: photos.dapurSayur },
+  { title: 'Bayar uang muka', text: `Pesanan terkunci setelah uang muka ${formatPercent(site.depositRate)} masuk. ${settlementText(site.settlementDays)}`, photo: photos.dapurSayur },
   { title: 'Dimasak di Pasir Kuda', text: 'Juru masak bersertifikat penjamah makanan dan HACCP menyiapkannya di dapur kami.', photo: photos.dapurKoki },
   { title: 'Dikemas bersih', text: 'Setiap kotak diisi dengan sarung tangan, lalu ditutup dan disusun untuk diantar.', photo: photos.dapurPacking },
   { title: 'Tiba di acara Anda', text: 'Antar se-Kota Bogor sudah termasuk. Prasmanan datang dengan meja saji dan pramusaji.', photo: photos.prasmananOutdoor },

@@ -12,11 +12,15 @@ test.describe('order label', () => {
     const qty = form.locator('#order-qty');
     await expect(qty).toHaveValue('75');
     await expect(form.locator('[data-sum-total]')).toHaveText('Rp2.175.000', { timeout: 3000 });
+    await expect(form.locator('.ui-nota__dp')).toContainText('Uang muka 50%');
+    await expect(form.locator('[data-sum-dp]')).toHaveText('Rp1.087.500');
+    await expect(form.locator('[data-sum-settle]')).toHaveText('Pelunasan paling lambat H-1.');
 
     await qty.fill('50');
     await expect(form.locator('[data-sum-extra-row]')).toBeVisible();
     await expect(form.locator('[data-sum-extra]')).toHaveText('Rp145.000');
     await expect(form.locator('[data-sum-total]')).toHaveText('Rp1.595.000', { timeout: 3000 });
+    await expect(form.locator('[data-sum-dp]')).toHaveText('Rp797.500');
     await expect(form.locator('[data-order-qty-help]')).toContainText('biaya tambahan');
 
     await form.getByRole('radio', { name: 'Luar Kota Bogor' }).check();
