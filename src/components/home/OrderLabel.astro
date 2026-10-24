@@ -1,8 +1,13 @@
 ---
-import BoxSlot from '../BoxSlot.astro';
 import { getServices, getSite } from '../../lib/content';
-import { photos } from '../../data/photos';
-import { formatRupiah, earliestDate } from '../../lib/order';
+import { formatRupiah, earliestDate, shippingLabel } from '../../lib/order';
+import Field from '../ui/Field.astro';
+import QuantityStepper from '../ui/QuantityStepper.astro';
+import Choice from '../ui/Choice.astro';
+import Nota from '../ui/Nota.astro';
+import NotaLine from '../ui/NotaLine.astro';
+import NotaTotal from '../ui/NotaTotal.astro';
+import Icon from '../ui/Icon.astro';
 
 const services = await getServices();
 const site = await getSite();
@@ -24,114 +29,85 @@ const firstPkg = first.packages[Math.min(2, first.packages.length - 1)];
 const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
 ---
 
-<section id="pesan" class="order field-paper" aria-labelledby="order-title">
-  <div class="wrap order-grid">
-    <div class="intro">
-      <h2 id="order-title" class="t-h2" data-split>Susun pesanan Anda.</h2>
-      <p class="t-lead intro-lead">
-        Pilih paket, jumlah dan tanggal. Kami hitung perkiraannya di sini, lalu pesan lengkapnya terkirim ke WhatsApp layanan pelanggan kami.
-      </p>
-      <p class="intro-more">Butuh beberapa menu sekaligus? <a class="link" href="/kalkulator/">Pakai kalkulator katering</a>.</p>
-    </div>
-
-    <form class="tag" action={`https://wa.me/${site.csPhone}`} method="get" target="_blank" novalidate data-order-form>
-      <div class="tag-tape" aria-hidden="true"></div>
-      <input type="hidden" name="text" value={genericText} data-order-text />
-      <div class="tag-body">
-        <p class="tag-title" aria-hidden="true">Label pesanan</p>
-
-        <div class="fields">
-          <div class="field">
-            <label for="order-service">Layanan</label>
-            <select id="order-service" data-order-service>
-              {data.map((s) => <option value={s.slug} selected={s.slug === first.slug}>{s.title}</option>)}
-            </select>
-          </div>
-          <div class="field">
-            <label for="order-package">Paket</label>
-            <select id="order-package" data-order-package>
-              {first.packages.map((p) => (
-                <option value={p.id} selected={p.id === firstPkg.id}>
-                  {p.name} · {formatRupiah(p.price)}/{p.unit}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div class="field field-wide" data-variant-field>
-            <label for="order-variant">Menu</label>
-            <select id="order-variant" data-order-variant>
-              {firstPkg.variants.map((v) => <option value={v}>{v}</option>)}
-            </select>
-          </div>
-          <div class="field">
-            <label for="order-qty">Jumlah <span class="unit" data-order-unit>{firstPkg.unit}</span></label>
-            <div class="stepper">
-              <button type="button" class="step" data-step="-1" aria-label="Kurangi jumlah">
-                <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M4 10h12" stroke="currentColor" stroke-width="2.4" /></svg>
-              </button>
-              <input id="order-qty" class="tab" type="number" inputmode="numeric" min="1" max="5000" step="1" value={firstPkg.minOrder} data-order-qty aria-describedby="order-qty-help" />
-              <button type="button" class="step" data-step="1" aria-label="Tambah jumlah">
-                <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M4 10h12M10 4v12" stroke="currentColor" stroke-width="2.4" /></svg>
-              </button>
-            </div>
-            <p id="order-qty-help" class="help" data-order-qty-help>Minimum {firstPkg.minOrder} {firstPkg.unit}.</p>
-          </div>
-          <div class="field">
-            <label for="order-date">Tanggal acara</label>
-            <input id="order-date" type="date" min={earliestDate(first.leadDays)} data-order-date aria-describedby="order-date-help" />
-            <p id="order-date-help" class="help" data-order-date-help>Pesan paling lambat H-{first.leadDays}.</p>
-          </div>
-          <fieldset class="field field-wide area">
-            <legend>Diantar ke</legend>
-            <div class="seg">
-              <label><input type="radio" name="area" value="kota-bogor" checked data-order-area /> <span>Kota Bogor</span></label>
-              <label><input type="radio" name="area" value="luar-bogor" data-order-area /> <span>Luar Kota Bogor</span></label>
-            </div>
-          </fieldset>
-        </div>
-
-        <dl class="sum tab" data-order-summary>
-          <div><dt>Harga</dt><dd data-sum-sub>{formatRupiah(firstPkg.price * firstPkg.minOrder)}</dd></div>
-          <div class="sum-extra" data-sum-extra-row hidden><dt>Biaya di bawah minimum</dt><dd data-sum-extra>Rp0</dd></div>
-          <div><dt>Ongkos kirim</dt><dd data-sum-ship>Termasuk</dd></div>
-        </dl>
-      </div>
-
-      <div class="total">
-        <p class="total-label">Perkiraan total</p>
-        <p class="total-value tab" data-sum-total aria-hidden="true">{formatRupiah(firstPkg.price * firstPkg.minOrder)}</p>
-        <p class="sr-only" aria-live="polite" data-sum-live></p>
-      </div>
-
-      <div class="tag-actions">
-        <button type="submit" class="btn btn-paper send">
-          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3a.4.4 0 0 0 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.7 11.7 0 0 0 4.5 4c1.7.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3Z" /></svg>
-          Kirim ke WhatsApp
-        </button>
-        <button type="button" class="copy" data-order-copy>Salin pesan</button>
-      </div>
-    </form>
-
-    <div class="aside">
-      <div class="box-wrap field-ink">
-        <BoxSlot
-          mode="label"
-          fallback={photos.nasiboxBalado}
-          sizes="(min-width: 1024px) 40vw, 90vw"
-          class="label-slot"
-          label="Kotak nasi Aroma Langit dengan label pesanan di tutupnya"
-        />
-        <p class="box-hint t-small" aria-hidden="true">Seret untuk memutar kotak</p>
-      </div>
-      <figure class="preview">
-        <figcaption class="t-small preview-cap">Pesan yang akan terkirim</figcaption>
-        <blockquote class="bubble" data-order-preview>{genericText}</blockquote>
-      </figure>
-    </div>
+<section id="pesan" class="order" aria-labelledby="order-title">
+  <div class="intro">
+    <h2 id="order-title" class="t-heading-2" data-split>Susun pesanan Anda.</h2>
+    <p class="intro-lead">
+      Pilih paket, jumlah dan tanggal. Kami hitung perkiraannya di sini, lalu pesan lengkapnya terkirim ke WhatsApp layanan pelanggan kami.
+    </p>
+    <p class="intro-more t-meta">Butuh beberapa menu sekaligus? <a class="ui-link" href="/kalkulator/">Pakai kalkulator katering</a>.</p>
   </div>
+  <form class="panel field-kraft" action={`https://wa.me/${site.csPhone}`} method="get" target="_blank" novalidate data-order-form>
+    <input type="hidden" name="text" value={genericText} data-order-text />
+    <div class="fields">
+      <Field id="order-service" label="Layanan">
+        <select id="order-service" class="ui-input" data-order-service>
+          {data.map((s) => <option value={s.slug} selected={s.slug === first.slug}>{s.title}</option>)}
+        </select>
+      </Field>
+      <Field id="order-package" label="Paket">
+        <select id="order-package" class="ui-input" data-order-package>
+          {first.packages.map((p) => (
+            <option value={p.id} selected={p.id === firstPkg.id}>
+              {p.name} · {formatRupiah(p.price)}/{p.unit}
+            </option>
+          ))}
+        </select>
+      </Field>
+      <div data-variant-field>
+        <Field id="order-variant" label="Menu">
+          <select id="order-variant" class="ui-input" data-order-variant>
+            {firstPkg.variants.map((v) => <option value={v}>{v}</option>)}
+          </select>
+        </Field>
+      </div>
+      <Field id="order-qty" help={`Minimum ${firstPkg.minOrder} ${firstPkg.unit}.`} helpAttrs={{ 'data-order-qty-help': true }}>
+        <Fragment slot="label">Jumlah <span class="unit" data-order-unit>{firstPkg.unit}</span></Fragment>
+        <QuantityStepper
+          id="order-qty"
+          value={firstPkg.minOrder}
+          decLabel="Kurangi jumlah"
+          incLabel="Tambah jumlah"
+          inputAttrs={{ 'data-order-qty': true, 'aria-describedby': 'order-qty-help' }}
+        />
+      </Field>
+      <Field id="order-date" label="Tanggal acara" help={`Pesan paling lambat H-${first.leadDays}.`} helpAttrs={{ 'data-order-date-help': true }}>
+        <input id="order-date" class="ui-input" type="date" min={earliestDate(first.leadDays)} data-order-date aria-describedby="order-date-help" />
+      </Field>
+      <Choice
+        name="area"
+        legend="Diantar ke"
+        options={[
+          { value: 'kota-bogor', label: 'Kota Bogor', checked: true, attrs: { 'data-order-area': true } },
+          { value: 'luar-bogor', label: 'Luar Kota Bogor', attrs: { 'data-order-area': true } },
+        ]}
+      />
+    </div>
+
+    <Nota id="order-nota" title="Label pesanan" heading={false} class="nota">
+      <NotaLine label="Harga" amount={formatRupiah(firstPkg.price * firstPkg.minOrder)} amountAttrs={{ 'data-sum-sub': true }} attrs={{ 'data-order-summary': true }} />
+      <NotaLine label="Biaya di bawah minimum" amount="Rp0" variant="surcharge" hidden attrs={{ 'data-sum-extra-row': true }} amountAttrs={{ 'data-sum-extra': true }} />
+      <NotaLine label="Ongkos kirim" amount={shippingLabel['kota-bogor']} amountAttrs={{ 'data-sum-ship': true }} />
+      <NotaTotal
+        slot="total"
+        label="Perkiraan total"
+        amount={formatRupiah(firstPkg.price * firstPkg.minOrder)}
+        amountAttrs={{ 'data-sum-total': true }}
+        liveAttrs={{ 'data-sum-live': true }}
+      />
+    </Nota>
+
+    <div class="actions">
+      <button type="submit" class="ui-btn ui-btn--primary send">
+        <Icon name="chat" />
+        Kirim ke WhatsApp
+      </button>
+      <button type="button" class="ui-link copy" data-order-copy>Salin pesan</button>
+    </div>
+  </form>
   <script type="application/json" id="order-data" set:html={JSON.stringify(data)} />
   <script type="application/json" id="order-config" set:html={JSON.stringify({ phone: site.csPhone })} />
-  <noscript><style>.copy, .total, .sum, .aside { display: none; }</style></noscript>
+  <noscript><style>.copy, .nota { display: none; }</style></noscript>
 </section>
 
 <script>
@@ -165,7 +141,6 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
   const totalEl = $<HTMLElement>('[data-sum-total]');
   const liveEl = $<HTMLElement>('[data-sum-live]');
   const copyBtn = $<HTMLButtonElement>('[data-order-copy]');
-  const preview = document.querySelector<HTMLElement>('[data-order-preview]')!;
 
   let qtyTouched = false;
   let shownTotal = 0; // the figure on screen, updated every frame
@@ -281,7 +256,6 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
     };
     const msg = buildMessage(draft);
     textIn.value = msg;
-    preview.textContent = msg;
 
     clearTimeout(liveTimer);
     liveTimer = window.setTimeout(() => {
@@ -361,9 +335,6 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
   window.addEventListener('aroma:pick', (e) => {
     const d = (e as CustomEvent<{ service?: string; pkg?: string }>).detail;
     choose(d.service, d.pkg);
-    form.classList.remove('stamped');
-    void form.offsetWidth;
-    form.classList.add('stamped');
   });
 
   // Prefill from links such as /?layanan=nasi-box&paket=standar#pesan
@@ -374,348 +345,61 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
 </script>
 
 <style>
+  /* Order panel (brand book §7 home recipe): Fields + Nota + the one primary button, on the
+     kraft order zone. The narrow column beside the price list on desktop. */
   .order {
-    padding-block: var(--section);
-  }
-  .order-grid {
     display: grid;
-    gap: 40px;
+    gap: var(--spacing-3);
+    align-content: start;
+    min-width: 0;
   }
   .intro {
     display: grid;
-    gap: 20px;
-    max-width: 40rem;
+    gap: var(--spacing-1);
+    padding-top: var(--spacing-2);
+    border-top: var(--rule-double);
   }
   .intro-lead {
-    max-width: 36ch;
+    margin: 0;
+    color: var(--color-ink-muted);
+    font-size: 15px;
   }
-  .intro-more a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
+  .intro-more {
+    margin: 0;
   }
-
-  /* The form is an orange luggage tag with a punched hole */
-  .tag {
-    position: relative;
+  .panel {
     display: grid;
-    background: var(--orange);
-    clip-path: polygon(44px 0, calc(100% - 44px) 0, 100% 44px, 100% 100%, 0 100%, 0 44px);
-    transition: transform var(--dur) var(--ease-out);
-  }
-  .tag::before {
-    content: '';
-    position: absolute;
-    top: 22px;
-    left: 50%;
-    width: 22px;
-    height: 22px;
-    margin-left: -11px;
-    border-radius: 50%;
-    background: var(--paper);
-  }
-  .tag.stamped {
-    animation: stamp 520ms var(--ease-out);
-  }
-  @keyframes stamp {
-    30% {
-      transform: scale(0.985) rotate(-0.6deg);
-    }
-  }
-  .tag-tape {
-    height: 64px;
-  }
-  .tag-body {
-    display: grid;
-    gap: 28px;
-    padding: 0 clamp(20px, 4vw, 48px) 28px;
-  }
-  .tag-title {
-    font-size: clamp(1.75rem, 1.3rem + 1.4vw, 2.5rem);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3);
+    border: var(--hairline);
+    border-radius: var(--radius-card);
   }
   .fields {
     display: grid;
-    gap: 18px 16px;
+    gap: var(--spacing-2);
   }
-  @media (min-width: 640px) {
-    .fields {
-      grid-template-columns: 1fr 1fr;
-    }
-    .field-wide {
-      grid-column: 1 / -1;
-    }
-  }
-  .field {
-    display: grid;
-    gap: 8px;
-    align-content: start;
-    min-width: 0;
-    border: 0;
-    padding: 0;
-    margin: 0;
-  }
-  .field[hidden] {
+  [data-variant-field][hidden] {
     display: none;
   }
-  .field > label,
-  .field > legend {
-    font-size: var(--step-small);
-    font-weight: 700;
-    padding: 0;
-  }
-  .unit {
-    font-weight: 500;
-  }
-  select,
-  input[type='date'],
-  input[type='number'] {
-    width: 100%;
-    min-height: 54px;
-    padding: 0 16px;
-    background: var(--paper);
-    border: 0;
-    border-radius: 0;
-    color: var(--ink);
-    font-size: 1.0625rem;
-    font-weight: 600;
-    appearance: none;
-  }
-  select {
-    padding-right: 44px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M3 6l5 5 5-5' fill='none' stroke='%233c2418' stroke-width='2.2'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 16px center;
-    text-overflow: ellipsis;
-  }
-  input[type='date'] {
-    font-variant-numeric: tabular-nums;
-  }
-  input[type='date']::-webkit-calendar-picker-indicator {
-    cursor: pointer;
-    opacity: 0.8;
-  }
-  select:focus-visible,
-  input:focus-visible {
-    outline: 3px solid var(--ink);
-    outline-offset: 2px;
-  }
-  input[aria-invalid='true'] {
-    outline: 3px solid var(--ink);
-    outline-offset: -3px;
-  }
-  .stepper {
-    display: grid;
-    grid-template-columns: 54px minmax(0, 1fr) 54px;
-    gap: 2px;
-  }
-  .stepper input {
-    text-align: center;
-    -moz-appearance: textfield;
-  }
-  .stepper input::-webkit-outer-spin-button,
-  .stepper input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  .step {
-    display: grid;
-    place-items: center;
-    min-height: 54px;
-    border: 0;
-    background: var(--ink);
-    color: var(--paper);
-    cursor: pointer;
-    transition: transform var(--dur-fast) var(--ease);
-  }
-  .step:active {
-    transform: scale(0.94);
-  }
-  .help {
-    font-size: var(--step-small);
-    font-weight: 500;
-    line-height: 1.45;
-  }
-  .help.warn {
-    font-weight: 700;
-  }
-  .help.warn::before {
-    content: '';
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    margin-right: 8px;
-    background: var(--ink);
-    transform: rotate(45deg);
-  }
-  .seg {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2px;
-  }
-  .seg label {
-    position: relative;
-    cursor: pointer;
-  }
-  .seg input {
-    position: absolute;
-    opacity: 0;
-    inset: 0;
-    margin: 0;
-    cursor: pointer;
-  }
-  .seg span {
-    display: grid;
-    place-items: center;
-    min-height: 54px;
-    padding: 0 12px;
-    background: var(--paper);
-    font-weight: 700;
-    text-align: center;
-    transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
-  }
-  .seg input:checked + span {
-    background: var(--ink);
-    color: var(--paper);
-  }
-  .seg input:focus-visible + span {
-    outline: 3px solid var(--ink);
-    outline-offset: 2px;
-  }
-  .sum {
-    display: grid;
-    gap: 2px;
-  }
-  .sum div {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(min-content, 1fr);
-    gap: 16px;
-    padding: 10px 0;
+  .panel :global(.ui-help.warn) {
+    color: var(--color-chili);
     font-weight: 600;
   }
-  .sum div[hidden] {
-    display: none;
-  }
-  .sum dd {
-    font-weight: 700;
-  }
-  .total {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 8px 24px;
-    padding: 22px clamp(20px, 4vw, 48px);
-    background: var(--ink);
-    color: var(--paper);
-  }
-  .total-label {
-    font-weight: 700;
-  }
-  .total-value {
-    font-size: clamp(1.75rem, 1.4rem + 1vw, 2rem);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1;
-  }
-  .tag-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2px;
-    background: var(--ink);
+  .actions {
+    display: grid;
+    gap: 12px;
+    justify-items: center;
   }
   .send {
-    flex: 1 1 260px;
-    min-height: 64px;
+    width: 100%;
   }
   .copy {
-    flex: 0 1 180px;
-    min-height: 64px;
+    min-height: var(--tap-min);
+    padding: 0 var(--spacing-1);
     border: 0;
-    background: var(--ink-2);
-    color: var(--paper);
-    font-weight: 700;
+    background: none;
+    font: inherit;
+    font-weight: 600;
     cursor: pointer;
-    transition: background var(--dur-fast) var(--ease);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .copy:hover {
-      background: var(--ink-3);
-    }
-  }
-  .copy:focus-visible,
-  .send:focus-visible {
-    outline-color: var(--peach);
-    outline-offset: -5px;
-  }
-
-  .aside {
-    display: grid;
-    gap: 20px;
-    align-content: start;
-  }
-  .box-wrap {
-    position: relative;
-    aspect-ratio: 1 / 1;
-  }
-  .box-wrap :global(.label-slot) {
-    position: absolute;
-    inset: 0;
-  }
-  .box-hint {
-    position: absolute;
-    left: 16px;
-    bottom: 14px;
-    color: var(--peach);
-    pointer-events: none;
-  }
-  .preview {
-    display: grid;
-    gap: 10px;
-  }
-  .preview-cap {
-    color: var(--muted);
-  }
-  .bubble {
-    position: relative;
-    margin: 0 0 0 auto;
-    max-width: 440px;
-    padding: 18px 20px;
-    background: var(--leaf);
-    font-size: 1rem;
-    line-height: 1.55;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-  }
-  .bubble::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    bottom: -12px;
-    border-left: 16px solid transparent;
-    border-top: 12px solid var(--leaf);
-  }
-
-  @media (min-width: 1024px) {
-    .order-grid {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      grid-template-areas: 'intro intro' 'form aside';
-      column-gap: clamp(32px, 4vw, 72px);
-      row-gap: 48px;
-      align-items: start;
-    }
-    .intro {
-      grid-area: intro;
-    }
-    .tag {
-      grid-area: form;
-    }
-    .aside {
-      grid-area: aside;
-      position: sticky;
-      top: 104px;
-    }
   }
 </style>

@@ -62,6 +62,13 @@ const business = {
     <link rel="canonical" href={canonical} />
     {(noindex || isStaging) && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content="#faf6ef" />
+    <noscript>
+      <style>
+        /* Without JavaScript every tab panel shows, so no price or menu is out of reach. */
+        [data-tabs] > [role='tablist'] { display: none !important; }
+        [data-tabs] [role='tabpanel'][hidden] { display: block !important; }
+      </style>
+    </noscript>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -99,7 +106,7 @@ const business = {
 <style>
   main {
     display: block;
-    padding-top: 76px;
+    padding-top: 73px; /* fixed header: 72px bar + 1px hairline */
     outline: none;
   }
 </style>

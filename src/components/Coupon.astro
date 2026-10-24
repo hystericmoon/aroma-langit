@@ -1,5 +1,6 @@
 ---
 import { getSite } from '../lib/content';
+import Icon from './ui/Icon.astro';
 
 interface Props {
   headingLevel?: 'h2' | 'h3';
@@ -11,38 +12,37 @@ const site = await getSite();
 ---
 
 <div class="coupon-wrap" id={id}>
-  <form class="coupon field-ink on-dark" action="/api/penawaran" method="post" data-coupon data-phone={site.marketingPhone} novalidate>
+  <form class="coupon" action="/api/penawaran" method="post" data-coupon data-phone={site.marketingPhone} novalidate>
     <div class="left">
       <H class="c-title" id={`${id}-title`}>Makan siang kantor.</H>
       <p class="c-text">
         Katering harian untuk kantor, pabrik dan sekolah, dengan menu bergilir yang disusun ahli gizi kami. Isi kupon ini, tim marketing akan menghubungi Anda lewat WhatsApp.
       </p>
     </div>
-    <div class="perf" aria-hidden="true"></div>
     <div class="right">
       <div class="inputs">
-        <label class="in">
-          <span class="sr-only">Nama Anda</span>
-          <input name="nama" autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder="Nama Anda" required maxlength="80" />
-        </label>
-        <label class="in">
-          <span class="sr-only">Perusahaan atau instansi</span>
-          <input name="perusahaan" autocomplete="organization" autocapitalize="words" enterkeyhint="next" placeholder="Perusahaan atau instansi" required maxlength="120" />
-        </label>
-        <label class="in">
-          <span class="sr-only">Nomor WhatsApp</span>
-          <input name="whatsapp" type="tel" enterkeyhint="next" inputmode="tel" autocomplete="tel" placeholder="Nomor WhatsApp" required maxlength="20" pattern="[0-9+\-\s]{8,20}" />
-        </label>
-        <label class="in">
-          <span class="sr-only">Perkiraan porsi per hari</span>
-          <input name="porsi" type="number" enterkeyhint="send" inputmode="numeric" min="1" max="100000" placeholder="Perkiraan porsi per hari" required />
-        </label>
+        <div class="ui-field">
+          <label for={`${id}-nama`}>Nama Anda</label>
+          <input id={`${id}-nama`} class="ui-input" name="nama" autocomplete="name" autocapitalize="words" enterkeyhint="next" placeholder="Nama Anda" required maxlength="80" />
+        </div>
+        <div class="ui-field">
+          <label for={`${id}-perusahaan`}>Perusahaan atau instansi</label>
+          <input id={`${id}-perusahaan`} class="ui-input" name="perusahaan" autocomplete="organization" autocapitalize="words" enterkeyhint="next" placeholder="Perusahaan atau instansi" required maxlength="120" />
+        </div>
+        <div class="ui-field">
+          <label for={`${id}-whatsapp`}>Nomor WhatsApp</label>
+          <input id={`${id}-whatsapp`} class="ui-input" name="whatsapp" type="tel" enterkeyhint="next" inputmode="tel" autocomplete="tel" placeholder="Nomor WhatsApp" required maxlength="20" pattern="[0-9+\-\s]{8,20}" />
+        </div>
+        <div class="ui-field">
+          <label for={`${id}-porsi`}>Perkiraan porsi per hari</label>
+          <input id={`${id}-porsi`} class="ui-input ui-input--number" name="porsi" type="number" enterkeyhint="send" inputmode="numeric" min="1" max="100000" placeholder="Perkiraan porsi per hari" required />
+        </div>
         <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
       </div>
-      <p class="c-status t-small" role="status" data-coupon-status></p>
-      <button type="submit" class="submit">
+      <p class="c-status" role="status" data-coupon-status></p>
+      <button type="submit" class="ui-btn ui-btn--primary submit">
         <span data-coupon-label>Minta penawaran</span>
-        <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 10h13M11 4l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" /></svg>
+        <Icon name="arrow-right" />
       </button>
     </div>
   </form>
@@ -120,159 +120,66 @@ const site = await getSite();
 </script>
 
 <style>
-  .coupon-wrap {
-    padding-block: 0;
-  }
+  /* Quote request: order mode. Fields and the primary button on a card. */
   .coupon {
-    position: relative;
     display: grid;
-    gap: 0;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3);
+    border: var(--hairline);
+    border-radius: var(--radius-card);
+    background: var(--color-card);
   }
   .left {
     display: grid;
-    gap: 20px;
-    align-content: space-between;
-    padding: clamp(28px, 4vw, 56px);
+    gap: var(--spacing-1);
+    align-content: start;
   }
   .c-title {
-    font-size: clamp(2rem, 1.2rem + 3vw, 3.75rem);
-    font-weight: 800;
-    letter-spacing: -0.035em;
-    line-height: 0.98;
-    max-width: 11ch;
-    text-wrap: balance;
+    font: 400 32px/1.1 var(--font-display);
   }
   .c-text {
-    max-width: 44ch;
-    color: var(--paper);
-  }
-  /* Perforation, with notches cut by the page ground at both ends */
-  .perf {
-    position: relative;
-    height: 0;
-    margin-inline: 28px;
-    border-top: 6px dotted var(--coupon-ground, var(--paper));
-  }
-  .perf::before,
-  .perf::after {
-    content: '';
-    position: absolute;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: var(--coupon-ground, var(--paper));
-    top: -19px;
-  }
-  .perf::before {
-    left: -44px;
-  }
-  .perf::after {
-    right: -44px;
+    max-width: 46ch;
+    color: var(--color-ink-muted);
+    font-size: 15px;
   }
   .right {
     display: grid;
-    gap: 12px;
-    align-content: center;
-    padding: clamp(28px, 4vw, 56px);
+    gap: var(--spacing-2);
   }
   .inputs {
     display: grid;
-    gap: 10px;
+    gap: var(--spacing-2);
   }
-  .in input {
-    width: 100%;
-    min-height: 56px;
-    padding: 0 18px;
-    border: 0;
-    border-radius: 0;
-    background: var(--ink-2);
-    color: var(--paper);
-    font-size: 1.0625rem;
-    font-weight: 600;
-  }
-  .in input::placeholder {
-    color: var(--peach);
-    opacity: 1;
-  }
-  .in input:focus-visible {
-    outline: 3px solid var(--peach);
-    outline-offset: 2px;
-  }
-  .in input[aria-invalid='true'] {
-    outline: 3px solid var(--orange);
-    outline-offset: -3px;
-  }
-  /* Honeypot field, kept off screen (taste-skill-ignore: not a visual rule) */
   .hp {
     position: absolute;
     left: -9999px;
-    width: 1px; /* taste-skill-ignore */
-    height: 1px; /* taste-skill-ignore */
+    width: 1px;
+    height: 1px;
     opacity: 0;
   }
   .c-status {
-    min-height: 1.5em;
-    color: var(--peach);
+    font-size: 14px;
+  }
+  .c-status:empty {
+    display: none;
   }
   .c-status :global(a) {
-    color: var(--paper);
+    color: var(--color-orange-ink);
+    font-weight: 600;
   }
   .submit {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 60px;
-    padding: 0 22px;
-    border: 0;
-    background: var(--orange);
-    color: var(--ink);
-    font-size: 1.0625rem;
-    font-weight: 800;
-    cursor: pointer;
-    transition: background var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
+    justify-self: start;
   }
-  @media (hover: hover) and (pointer: fine) {
-    .submit:hover {
-      background: #f59a45;
+  @media (min-width: 768px) {
+    .inputs {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
-  .submit:active {
-    transform: scale(0.98);
-  }
-  .submit svg {
-    transition: transform var(--dur) var(--ease-out);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .submit:hover svg {
-      transform: translateX(4px);
-    }
-  }
-  .coupon[aria-busy='true'] .submit {
-    opacity: 0.7;
-    pointer-events: none;
-  }
-  @media (min-width: 900px) {
+  @media (min-width: 1024px) {
     .coupon {
-      grid-template-columns: minmax(0, 46fr) auto minmax(0, 54fr);
-    }
-    .perf {
-      width: 0;
-      height: auto;
-      margin: 28px 0;
-      border-top: 0;
-      border-left: 6px dotted var(--coupon-ground, var(--paper));
-    }
-    .perf::before,
-    .perf::after {
-      left: -19px;
-      right: auto;
-    }
-    .perf::before {
-      top: -44px;
-    }
-    .perf::after {
-      top: auto;
-      bottom: -44px;
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: var(--spacing-5);
+      padding: var(--spacing-4);
     }
   }
 </style>

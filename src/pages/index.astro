@@ -15,13 +15,33 @@ import CalculatorTeaser from '../components/home/CalculatorTeaser.astro';
   title="Aroma Langit · Katering halal di Bogor"
   description="Nasi box, bento, snack box, prasmanan dan tumpeng dari dapur bersertifikat halal di Pasir Kuda, Bogor. Lihat harga, susun pesanan, kirim lewat WhatsApp."
 >
+  {/* Brand book §7 home recipe: hero → event tiles → price list beside the order panel →
+      gallery → (how to order) → kitchen and certificates → navy band → (corporate form). */}
   <Hero />
-  <MenuSheet />
-  <OrderLabel />
   <CalculatorTeaser />
+  <div class="wrap price-and-order">
+    <MenuSheet />
+    <OrderLabel />
+  </div>
   <Showcase />
   <Steps />
   <Kitchen />
   <Proof />
   <Corporate />
 </Base>
+
+<style>
+  .price-and-order {
+    display: grid;
+    gap: var(--spacing-5);
+    padding-bottom: var(--section-space);
+  }
+  /* Side by side from about 1000px; the order panel keeps to 440px. */
+  @media (min-width: 1000px) {
+    .price-and-order {
+      grid-template-columns: minmax(0, 1fr) minmax(360px, 440px);
+      gap: var(--spacing-4);
+      align-items: start;
+    }
+  }
+</style>

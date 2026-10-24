@@ -1,6 +1,7 @@
 ---
 import Logo from './Logo.astro';
 import Photo from './Photo.astro';
+import Icon from './ui/Icon.astro';
 import { getServices, getSite } from '../lib/content';
 import { formatPhone, waLink } from '../data/site';
 import { photos } from '../data/photos';
@@ -17,279 +18,249 @@ const year = new Date().getFullYear();
 
 {
   closing && (
-    <section class="closing field-orange" aria-labelledby="closing-title">
-      <div class="wrap closing-inner">
-        <h2 id="closing-title" class="t-display closing-title" data-split>Acara Anda tanggal berapa?</h2>
-        <div class="closing-side">
-          <p class="t-lead">Sebutkan tanggalnya, kami siapkan sisanya. Pesan paling lambat dua hari sebelum acara, tiga hari untuk prasmanan.</p>
-          <div class="closing-actions">
-            <a class="btn" href="/#pesan">Susun pesanan</a>
-            <a class="btn btn-paper" href={waLink(site.csPhone, 'Halo Aroma Langit, saya ingin bertanya tentang katering.')} rel="noopener">
-              Tanya via WhatsApp
-            </a>
+    <section class="closing" aria-labelledby="closing-title">
+      <div class="wrap">
+        <div class="closing-inner">
+          <h2 id="closing-title" class="t-display closing-title" data-split>Acara Anda tanggal berapa?</h2>
+          <div class="closing-side">
+            <p class="t-lead">Sebutkan tanggalnya, kami siapkan sisanya. Pesan paling lambat dua hari sebelum acara, tiga hari untuk prasmanan.</p>
+            <div class="closing-actions">
+              <a class="ui-btn ui-btn--primary" href="/#pesan">Susun pesanan</a>
+              <a class="ui-btn ui-btn--secondary" href={waLink(site.csPhone, 'Halo Aroma Langit, saya ingin bertanya tentang katering.')} rel="noopener">
+                <Icon name="chat" />
+                Tanya via WhatsApp
+              </a>
+            </div>
           </div>
         </div>
       </div>
     </section>
   )
 }
-
-<footer class="footer field-orange" aria-labelledby="footer-title">
-  <div class="stripe-band" aria-hidden="true"></div>
+<footer class="footer field-navy on-navy" aria-labelledby="footer-title">
   <div class="wrap">
-    <div class="card field-paper edge-top">
-      <div class="card-grid">
-        <div class="note">
-          <h2 id="footer-title" class="t-h2 sign-off">Salam hangat dari dapur kami.</h2>
-          <p class="t-body measure">
-            Setiap kotak kami masak di Pasir Kuda, Bogor Barat, oleh tim bersertifikat penjamah makanan dan HACCP. Bersertifikat Halal BPJPH dan Laik Higiene Jasaboga {site.hygiene.grade}.
-          </p>
-          <dl class="certs tab">
-            <div>
-              <dt>Halal</dt>
-              <dd>{site.halal.number}</dd>
-            </div>
-            <div>
-              <dt>Laik Higiene</dt>
-              <dd>{site.hygiene.number}</dd>
-            </div>
-          </dl>
+    <div class="foot-grid">
+      <div class="note">
+        <h2 id="footer-title" class="sign-off">Salam hangat dari dapur kami.</h2>
+        <p class="t-body measure">
+          Setiap kotak kami masak di Pasir Kuda, Bogor Barat, oleh tim bersertifikat penjamah makanan dan HACCP. Bersertifikat Halal BPJPH dan Laik Higiene Jasaboga {site.hygiene.grade}.
+        </p>
+        <dl class="certs tab">
+          <div>
+            <dt>Halal</dt>
+            <dd>{site.halal.number}</dd>
+          </div>
+          <div>
+            <dt>Laik Higiene</dt>
+            <dd>{site.hygiene.number}</dd>
+          </div>
+        </dl>
+      </div>
+      <div class="address">
+        <figure class="stamp">
+          <Photo photo={photos.dapurKoki} sizes="120px" widths={[240]} position="40% 50%" alt="Juru masak Aroma Langit di dapur" />
+        </figure>
+        <div class="addr-block">
+          <h3 class="addr-h">{site.kitchen.label}</h3>
+          <a class="addr-link" href={site.kitchen.mapUrl} rel="noopener">{site.kitchen.lines.join(', ')}</a>
         </div>
-
-        <div class="address">
-          <figure class="stamp" data-sticker="4">
-            <Photo photo={photos.dapurKoki} sizes="120px" widths={[240]} position="40% 50%" alt="Juru masak Aroma Langit di dapur" />
-          </figure>
-          <div class="addr-block">
-            <h3 class="addr-h">{site.kitchen.label}</h3>
-            <a class="addr-link" href={site.kitchen.mapUrl} rel="noopener">{site.kitchen.lines.join(', ')}</a>
-          </div>
-          <div class="addr-block">
-            <h3 class="addr-h">{site.office.label}</h3>
-            <a class="addr-link" href={site.office.mapUrl} rel="noopener">{site.office.lines.join(', ')}</a>
-          </div>
-          <div class="addr-block">
-            <h3 class="addr-h">Hubungi</h3>
-            <ul role="list" class="contact">
-              <li>
-                <a href={waLink(site.csPhone)} rel="noopener">
-                  <span class="tab">{formatPhone(site.csPhone)}</span> <span class="hint">Layanan pelanggan, {site.csHours}</span>
-                </a>
-              </li>
-              <li>
-                <a href={waLink(site.marketingPhone)} rel="noopener">
-                  <span class="tab">{formatPhone(site.marketingPhone)}</span> <span class="hint">Marketing, {site.marketingHours}</span>
-                </a>
-              </li>
-              <li>
-                <a href={`mailto:${site.email}`}>{site.email}</a>
-              </li>
-            </ul>
-          </div>
+        <div class="addr-block">
+          <h3 class="addr-h">{site.office.label}</h3>
+          <a class="addr-link" href={site.office.mapUrl} rel="noopener">{site.office.lines.join(', ')}</a>
+        </div>
+        <div class="addr-block">
+          <h3 class="addr-h">Hubungi</h3>
+          <ul role="list" class="contact">
+            <li>
+              <a href={waLink(site.csPhone)} rel="noopener">
+                <span class="tab">{formatPhone(site.csPhone)}</span> <span class="hint">Layanan pelanggan, {site.csHours}</span>
+              </a>
+            </li>
+            <li>
+              <a href={waLink(site.marketingPhone)} rel="noopener">
+                <span class="tab">{formatPhone(site.marketingPhone)}</span> <span class="hint">Marketing, {site.marketingHours}</span>
+              </a>
+            </li>
+            <li>
+              <a href={`mailto:${site.email}`}>{site.email}</a>
+            </li>
+          </ul>
         </div>
       </div>
-
-      <div class="foot-nav">
-        <nav aria-label="Layanan">
-          <ul role="list">
-            {services.map((s) => <li><a href={`/katering/${s.slug}/`}>{s.title}</a></li>)}
-          </ul>
-        </nav>
-        <nav aria-label="Tautan lain">
-          <ul role="list">
-            <li><a href="/kalkulator/">Kalkulator katering</a></li>
-            <li><a href="/pernikahan/">Pernikahan</a></li>
-            <li><a href="/korporat/">Katering kantor</a></li>
-            <li><a href="/tentang-kami/">Tentang kami</a></li>
-            <li><a href={site.pricelistUrl} download>Daftar harga (PDF)</a></li>
-          </ul>
-        </nav>
-        <nav aria-label="Media sosial">
-          <ul role="list">
-            {site.socials.map((s) => <li><a href={s.url} rel="noopener">{s.label}</a></li>)}
-          </ul>
-        </nav>
-      </div>
-
-      <Logo variant="wordmark" class="big-word" title="Aroma Langit" />
-      <p class="imprint t-small tab">© {year} {site.legalName}. Halal {site.halal.number}.</p>
     </div>
+
+    <div class="foot-nav">
+      <nav aria-label="Layanan">
+        <ul role="list">
+          {services.map((s) => <li><a href={`/katering/${s.slug}/`}>{s.title}</a></li>)}
+        </ul>
+      </nav>
+      <nav aria-label="Tautan lain">
+        <ul role="list">
+          <li><a href="/kalkulator/">Kalkulator katering</a></li>
+          <li><a href="/pernikahan/">Pernikahan</a></li>
+          <li><a href="/korporat/">Katering kantor</a></li>
+          <li><a href="/tentang-kami/">Tentang kami</a></li>
+          <li><a href={site.pricelistUrl} download>Daftar harga (PDF)</a></li>
+        </ul>
+      </nav>
+      <nav aria-label="Media sosial">
+        <ul role="list">
+          {site.socials.map((s) => <li><a href={s.url} rel="noopener">{s.label}</a></li>)}
+        </ul>
+      </nav>
+    </div>
+
+    <Logo variant="wordmark" tone="on-ink" class="big-word" title="Aroma Langit" />
+    <p class="imprint tab">© {year} {site.legalName}. Halal {site.halal.number}.</p>
   </div>
 </footer>
 
 <style>
+  /* Closing call to action: read mode on paper */
   .closing {
-    padding-block: clamp(72px, 8vw, 128px);
+    padding-block: var(--section-space);
   }
   .closing-inner {
     display: grid;
-    gap: 40px;
+    gap: var(--spacing-4);
     align-items: end;
-  }
-  .closing-title {
-    font-size: clamp(2.75rem, 1rem + 7.4vw, 9rem);
+    padding-top: var(--spacing-3);
+    border-top: var(--rule-double);
   }
   .closing-side {
     display: grid;
-    gap: 28px;
+    gap: var(--spacing-3);
     max-width: 520px;
   }
   .closing-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
   }
   @media (min-width: 1024px) {
-    .closing-side {
-      grid-template-columns: minmax(0, 1fr) auto;
-      max-width: none;
-      align-items: end;
-      gap: 40px;
-    }
-    .closing-side p {
-      max-width: 40ch;
+    .closing-inner {
+      grid-template-columns: 1.4fr 1fr;
     }
   }
 
+  /* Footer: the page's navy, paper text */
   .footer {
-    padding-bottom: var(--gutter);
+    padding-block: var(--spacing-5) var(--spacing-4);
   }
-  .card {
-    margin-top: 0;
-    padding: clamp(48px, 6vw, 96px) clamp(20px, 4vw, 72px) clamp(20px, 3vw, 40px);
-  }
-  .card-grid {
+  .foot-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 56px;
-  }
-  @media (min-width: 900px) {
-    .card-grid {
-      grid-template-columns: 1.1fr 1fr;
-      gap: clamp(40px, 6vw, 120px);
-    }
+    gap: var(--spacing-4);
   }
   .note {
     display: grid;
-    gap: 24px;
+    gap: var(--spacing-2);
     align-content: start;
   }
   .sign-off {
-    max-width: 11ch;
+    font: 300 clamp(32px, 1.6rem + 1.4vw, 44px) / 1.05 var(--font-display);
+    text-wrap: balance;
   }
   .certs {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 8px;
-  }
-  .certs div {
-    background: var(--paper-2);
-    padding: 14px 18px;
+    gap: var(--spacing-2) var(--spacing-4);
+    margin: var(--spacing-1) 0 0;
   }
   .certs dt {
-    font-size: var(--step-small);
-    font-weight: 700;
+    font: 600 12px/1.3 var(--font-sans);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
   .certs dd {
-    font-size: 1rem;
-    font-weight: 600;
-    overflow-wrap: anywhere;
+    margin: 4px 0 0;
+    font-size: 14px;
   }
   .address {
-    position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 28px;
-    align-content: start;
-    padding-right: clamp(100px, 11vw, 150px);
+    grid-template-columns: 1fr;
+    gap: var(--spacing-3);
   }
   .stamp {
-    position: absolute;
-    top: -8px;
-    right: 0;
-    width: clamp(76px, 8vw, 112px);
-    aspect-ratio: 3 / 4;
-    padding: 6px;
-    background: var(--paper-2);
-    rotate: 4deg;
+    width: 96px;
+    aspect-ratio: 1;
+    overflow: hidden;
   }
   .stamp :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  .addr-block {
-    display: grid;
-    gap: 6px;
-    max-width: 40ch;
-  }
   .addr-h {
-    font-size: var(--step-small);
-    font-weight: 700;
-    color: var(--muted);
+    margin-bottom: 4px;
+    font: 600 12px/1.3 var(--font-sans);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
   .addr-link,
   .contact a {
-    font-size: 1.125rem;
-    font-weight: 600;
-    line-height: 1.45;
-    text-decoration: none;
-    background-image: none;
-  }
-  .addr-link:hover,
-  @media (hover: hover) and (pointer: fine) {
-    .contact a:hover {
-      text-decoration: underline;
-    }
+    color: var(--color-paper);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
   }
   .contact {
     display: grid;
-    gap: 8px;
+    gap: 6px;
   }
   .contact a {
-    display: inline-flex;
-    flex-wrap: wrap;
-    column-gap: 10px;
-    align-items: baseline;
-    min-height: 44px;
-    align-content: center;
+    display: inline-block;
+    padding-block: 6px;
   }
   .hint {
-    font-size: var(--step-small);
-    font-weight: 500;
-    color: var(--muted);
+    font-size: 13px;
   }
   .foot-nav {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 24px;
-    margin-top: clamp(56px, 7vw, 112px);
-    padding-top: 32px;
-    background: var(--paper);
-  }
-  .foot-nav ul {
-    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-5);
+    padding-top: var(--spacing-3);
+    border-top: 1px solid var(--color-paper);
   }
   .foot-nav a {
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
+    min-height: var(--tap-min);
+    color: var(--color-paper);
     font-weight: 600;
+    font-size: 14px;
     text-decoration: none;
   }
-  @media (hover: hover) and (pointer: fine) {
-    .foot-nav a:hover {
-      text-decoration: underline;
-    }
+  .foot-nav a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
   }
-  .card :global(.big-word) {
+  .footer :global(.big-word) {
     width: 100%;
-    margin-top: clamp(40px, 6vw, 96px);
+    height: auto;
+    margin-top: var(--spacing-5);
   }
   .imprint {
-    margin-top: 20px;
-    text-align: center;
-    color: var(--muted);
+    margin-top: var(--spacing-2);
+    font-size: 13px;
+  }
+  @media (min-width: 768px) {
+    .address {
+      grid-template-columns: 96px 1fr 1fr;
+      align-items: start;
+    }
+    .address .addr-block:last-child {
+      grid-column: 2 / -1;
+    }
+    .foot-nav {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .foot-grid {
+      grid-template-columns: 1fr 1.2fr;
+      gap: var(--spacing-5);
+    }
   }
 </style>

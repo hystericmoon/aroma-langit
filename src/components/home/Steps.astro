@@ -1,29 +1,32 @@
 ---
 import Photo from '../Photo.astro';
+import Icon from '../ui/Icon.astro';
 import { photos } from '../../data/photos';
 import { getSite } from '../../lib/content';
 
 const site = await getSite();
 const steps = [
-  { title: 'Susun labelnya', text: 'Pilih paket, jumlah dan tanggal acara di situs ini, lalu kirim lewat WhatsApp.', photo: photos.nasiboxBalado, gap: 96 },
-  { title: 'Kami balas', text: `Layanan pelanggan membalas pukul ${site.csHours}, memastikan menu dan total akhirnya.`, photo: photos.hidanganFlatlay, gap: 32 },
-  { title: 'Bayar uang muka', text: 'Pesanan terkunci setelah uang muka 50% masuk. Pelunasan paling lambat H-1.', photo: photos.dapurSayur, gap: 136 },
-  { title: 'Dimasak di Pasir Kuda', text: 'Juru masak bersertifikat penjamah makanan dan HACCP menyiapkannya di dapur kami.', photo: photos.dapurKoki, gap: 56 },
-  { title: 'Dikemas bersih', text: 'Setiap kotak diisi dengan sarung tangan, lalu ditutup dan disusun untuk diantar.', photo: photos.dapurPacking, gap: 112 },
-  { title: 'Tiba di acara Anda', text: 'Antar se-Kota Bogor sudah termasuk. Prasmanan datang dengan meja saji dan pramusaji.', photo: photos.prasmananOutdoor, gap: 24 },
+  { title: 'Susun labelnya', text: 'Pilih paket, jumlah dan tanggal acara di situs ini, lalu kirim lewat WhatsApp.', photo: photos.nasiboxBalado },
+  { title: 'Kami balas', text: `Layanan pelanggan membalas pukul ${site.csHours}, memastikan menu dan total akhirnya.`, photo: photos.hidanganFlatlay },
+  { title: 'Bayar uang muka', text: 'Pesanan terkunci setelah uang muka 50% masuk. Pelunasan paling lambat H-1.', photo: photos.dapurSayur },
+  { title: 'Dimasak di Pasir Kuda', text: 'Juru masak bersertifikat penjamah makanan dan HACCP menyiapkannya di dapur kami.', photo: photos.dapurKoki },
+  { title: 'Dikemas bersih', text: 'Setiap kotak diisi dengan sarung tangan, lalu ditutup dan disusun untuk diantar.', photo: photos.dapurPacking },
+  { title: 'Tiba di acara Anda', text: 'Antar se-Kota Bogor sudah termasuk. Prasmanan datang dengan meja saji dan pramusaji.', photo: photos.prasmananOutdoor },
 ];
 ---
 
-<section class="steps field-paper" aria-labelledby="steps-title">
-  <div class="wrap head">
-    <h2 id="steps-title" class="t-h2" data-split>Cara pesan, dari chat sampai sajian.</h2>
-    <div class="ctrl">
-      <button type="button" class="arrow" data-dir="-1" aria-label="Langkah sebelumnya" aria-controls="steps-row">
-        <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path d="M17 10H4M9 4l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" /></svg>
-      </button>
-      <button type="button" class="arrow" data-dir="1" aria-label="Langkah berikutnya" aria-controls="steps-row">
-        <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path d="M3 10h13M11 4l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" /></svg>
-      </button>
+<section class="steps" aria-labelledby="steps-title">
+  <div class="wrap">
+    <div class="head">
+      <h2 id="steps-title" class="steps-title" data-split>Cara pesan, dari chat sampai sajian.</h2>
+      <div class="ctrl">
+        <button type="button" class="ui-btn ui-btn--secondary ui-btn--icon arrow" data-dir="-1" aria-label="Langkah sebelumnya" aria-controls="steps-row">
+          <Icon name="arrow-left" />
+        </button>
+        <button type="button" class="ui-btn ui-btn--secondary ui-btn--icon arrow" data-dir="1" aria-label="Langkah berikutnya" aria-controls="steps-row">
+          <Icon name="arrow-right" />
+        </button>
+      </div>
     </div>
   </div>
   <div class="wrap">
@@ -32,11 +35,11 @@ const steps = [
   <ol class="row" id="steps-row" tabindex="0" aria-label="Langkah pemesanan, geser ke samping">
     {
       steps.map((s) => (
-        <li class="col" style={`--gap:${s.gap}px`}>
+        <li class="col">
           <h3 class="col-title">{s.title}</h3>
           <p class="col-text">{s.text}</p>
           <div class="col-photo">
-            <Photo photo={s.photo} sizes="(min-width: 768px) 320px, 72vw" widths={[360, 540, 720]} />
+            <Photo photo={s.photo} sizes="(min-width: 768px) 300px, 72vw" widths={[360, 540, 720]} />
           </div>
         </li>
       ))
@@ -102,131 +105,91 @@ const steps = [
 </script>
 
 <style>
+  /* How to order: read mode. A sideways scroller of steps is not one of the brand book's
+     components (flagged); built from SectionHeading, Figure and icon Buttons. */
   .steps {
-    padding-block: var(--section);
-    overflow: hidden;
+    --side: max(var(--page-pad), calc((100vw - var(--page-max)) / 2 + var(--page-pad)));
+    padding-block: var(--section-space);
   }
   .head {
     display: flex;
     flex-wrap: wrap;
+    align-items: end;
     justify-content: space-between;
-    align-items: flex-end;
-    gap: 24px;
+    gap: var(--spacing-2);
+    padding-top: var(--spacing-2);
+    border-top: var(--rule-double);
   }
-  .head h2 {
-    max-width: 16ch;
+  .steps-title {
+    max-width: 18ch;
+    font: 400 32px/1.1 var(--font-display);
+    text-wrap: balance;
   }
   .ctrl {
-    display: none;
-    gap: 2px;
-  }
-  .arrow {
-    display: grid;
-    place-items: center;
-    width: 56px;
-    height: 56px;
-    border: 0;
-    background: var(--ink);
-    color: var(--paper);
-    cursor: pointer;
-    transition: transform var(--dur-fast) var(--ease), background var(--dur) var(--ease);
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .arrow:hover {
-      background: var(--ink-3);
-    }
-  }
-  .arrow:active {
-    transform: scale(0.94);
+    display: flex;
+    gap: var(--spacing-1);
   }
   .bar {
-    height: 6px;
-    margin-top: 32px;
-    background: var(--paper-3);
+    height: 1px;
+    margin-top: var(--spacing-3);
+    background: var(--color-rule-soft);
   }
   .bar-fill {
-    height: 100%;
-    background: var(--ink);
+    height: 2px;
+    margin-top: -0.5px;
+    background: var(--color-ink);
     transform-origin: left;
     transform: scaleX(0.08);
   }
   .row {
-    --side: max(var(--gutter), calc((100vw - var(--maxw)) / 2 + var(--gutter)));
-    display: flex;
-    gap: 32px;
-    margin: 40px 0 0;
-    padding: 0 var(--side) 8px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: min(72vw, 300px);
+    gap: var(--spacing-3);
+    margin: 0;
+    padding: var(--spacing-3) var(--side) var(--spacing-1);
     list-style: none;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scroll-padding-left: var(--side);
     scrollbar-width: none;
     overscroll-behavior-x: contain;
-    cursor: grab;
   }
   .row::-webkit-scrollbar {
     display: none;
   }
-  .row:focus-visible {
-    outline-offset: -3px;
-  }
-  .row.dragging {
-    cursor: grabbing;
-    user-select: none;
+  .row:global(.dragging) {
     scroll-snap-type: none;
+    cursor: grabbing;
   }
   .col {
-    flex: 0 0 72vw;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: var(--spacing-1);
     scroll-snap-align: start;
   }
   .col-title {
-    font-size: 1.25rem;
-    font-weight: 800;
-    letter-spacing: -0.015em;
+    font: 400 22px/1.2 var(--font-display);
   }
   .col-text {
-    margin-top: 8px;
-    font-size: 1rem;
-    line-height: 1.55;
-    min-height: 4.65em;
+    font-size: 15px;
+    color: var(--color-ink-muted);
   }
   .col-photo {
-    margin-top: clamp(24px, calc(var(--gap) * 0.45), 64px);
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 1;
     overflow: hidden;
-    background: var(--paper-2);
+    margin-top: var(--spacing-1);
+    background: var(--color-kraft);
   }
   .col-photo :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    pointer-events: none;
-    transition: transform 900ms var(--ease-out);
   }
-  @media (hover: hover) and (pointer: fine) {
-    .col:hover .col-photo :global(img) {
-      transform: scale(1.05);
-    }
-  }
-  @media (min-width: 768px) {
-    .ctrl {
-      display: flex;
-    }
-  }
-  @media (min-width: 768px) and (max-width: 1023px) {
-    .head {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  }
-  @media (min-width: 768px) {
-    .col {
-      flex-basis: 300px;
-    }
-    .col-photo {
-      margin-top: var(--gap);
+  @media (min-width: 1024px) {
+    .steps-title {
+      font-size: 44px;
+      line-height: 1.05;
     }
   }
 </style>

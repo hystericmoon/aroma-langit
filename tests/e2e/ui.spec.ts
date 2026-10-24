@@ -38,12 +38,25 @@ test('desktop dropdown lists every service', async ({ page }, info) => {
   await expect(btn).toBeFocused();
 });
 
+test('price list tabs work with arrow keys', async ({ page }) => {
+  await page.goto('/');
+  const menu = page.locator('#menu');
+  await menu.getByRole('tab', { name: 'Nasi Box' }).focus();
+  await page.keyboard.press('ArrowRight');
+  const bento = menu.getByRole('tab', { name: 'Bento' });
+  await expect(bento).toBeFocused();
+  await expect(bento).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('#menu-panel-bento')).toBeVisible();
+  await expect(page.locator('#menu-panel-nasi-box')).toBeHidden();
+});
+
 test('showcase tabs work with arrow keys', async ({ page }) => {
   await page.goto('/');
-  const first = page.getByRole('tab', { name: 'Nasi Box' }).first();
+  const show = page.locator('.show');
+  const first = show.getByRole('tab', { name: 'Nasi Box' });
   await first.focus();
   await page.keyboard.press('ArrowRight');
-  const bento = page.getByRole('tab', { name: 'Bento' }).first();
+  const bento = show.getByRole('tab', { name: 'Bento' });
   await expect(bento).toBeFocused();
   await expect(bento).toHaveAttribute('aria-selected', 'true');
   await expect(page.locator('#panel-bento')).toBeVisible();

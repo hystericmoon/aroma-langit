@@ -2,7 +2,7 @@
 // Line icons (brand book §5): 2px stroke, round caps and joins, currentColor. Always next to a
 // text label and hidden from screen readers; icon-only buttons carry their own aria-label.
 interface Props {
-  name: 'minus' | 'plus' | 'check' | 'arrow-right' | 'chat' | 'close' | 'chevron-down' | 'menu' | 'download' | 'trash';
+  name: 'minus' | 'plus' | 'check' | 'arrow-right' | 'arrow-left' | 'chat' | 'close' | 'chevron-down' | 'menu' | 'download' | 'trash';
   size?: number;
   class?: string;
 }
@@ -12,6 +12,7 @@ const paths: Record<Props['name'], string> = {
   plus: 'M12 5v14M5 12h14',
   check: 'm5 12.5 4.5 4.5L19 7.5',
   'arrow-right': 'M5 12h14m-6-6 6 6-6 6',
+  'arrow-left': 'M19 12H5m6-6-6 6 6 6',
   chat: 'M21 11.5a8.4 8.4 0 0 1-12.2 7.5L3 21l2-5.6A8.4 8.4 0 1 1 21 11.5Z',
   close: 'M6 6l12 12M18 6 6 18',
   'chevron-down': 'm6 9 6 6 6-6',
