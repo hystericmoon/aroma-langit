@@ -1,41 +1,42 @@
 // Canvas-drawn textures for the box: the order label sticker and the printed walls.
-import { full, mark } from '../../assets/brand/logo-paths';
+import { mark, word } from '../../assets/brand/logo-paths';
 
+// Brand colours (brand book §3): the logo's orange and brown, ink, and card white.
 const FONT = '"Plus Jakarta Sans", system-ui, sans-serif';
-const INK = '#3c2418';
-const ORANGE = '#ec7f18';
+const INK = '#221c17';
+const ORANGE = '#ea7a13';
+const BROWN = '#7a4806';
 const PAPER = '#ffffff';
 
 function drawPaths(ctx: CanvasRenderingContext2D, art: { orange: string; brown: string }, colors: [string, string]) {
   ctx.fillStyle = colors[0];
-  ctx.fill(new Path2D(art.orange));
+  ctx.fill(new Path2D(art.orange), 'evenodd');
   ctx.fillStyle = colors[1];
-  ctx.fill(new Path2D(art.brown));
+  ctx.fill(new Path2D(art.brown), 'evenodd');
 }
 
-/** Draws the logo mark, fitted into a square of `size` at x, y. */
+/** Draws the logo mark, fitted into a square of `size` at x, y, on a paper disc so the spoon
+ *  reads on the orange packaging. */
 export function drawMark(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, colors: [string, string]) {
   ctx.save();
   ctx.translate(x, y);
-  ctx.scale(size / 3000, size / 3000);
+  ctx.scale(size / 300, size / 300);
   ctx.fillStyle = PAPER;
   ctx.beginPath();
-  ctx.arc(1500, 1499, 1440, 0, Math.PI * 2);
+  ctx.arc(150, 150, 146, 0, Math.PI * 2);
   ctx.fill();
   drawPaths(ctx, mark, colors);
   ctx.restore();
 }
 
 export function drawWordmark(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, colors: [string, string]) {
-  const s = width / 3000;
+  const [bx, by, bw] = word.box;
+  const s = width / bw;
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(s, s);
-  ctx.translate(0, -2540);
-  ctx.beginPath();
-  ctx.rect(0, 2540, 3000, 531);
-  ctx.clip();
-  drawPaths(ctx, full, colors);
+  ctx.translate(-bx, -by);
+  drawPaths(ctx, word, colors);
   ctx.restore();
 }
 
@@ -81,7 +82,7 @@ export function drawLabel(canvas: HTMLCanvasElement, c: LabelContent) {
     ctx.fillRect(x + 28, 0, 28, 40);
   }
 
-  drawMark(ctx, 56, 92, 150, [ORANGE, '#7d4a04']);
+  drawMark(ctx, 56, 92, 150, [ORANGE, BROWN]);
 
   const left = 236;
   const maxW = LABEL_W - left - 56;
@@ -115,10 +116,10 @@ export function drawWall(canvas: HTMLCanvasElement) {
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext('2d')!;
-  ctx.fillStyle = '#f9f5ee';
+  ctx.fillStyle = '#faf6ef';
   ctx.fillRect(0, 0, W, H);
   // Fine doodle pattern of leaves, like the printed box
-  ctx.strokeStyle = 'rgba(125, 74, 4, 0.16)';
+  ctx.strokeStyle = 'rgba(122, 72, 6, 0.16)';
   ctx.lineWidth = 3;
   ctx.lineCap = 'round';
   for (let i = 0; i < 26; i++) {
@@ -131,7 +132,7 @@ export function drawWall(canvas: HTMLCanvasElement) {
     ctx.lineTo(x + r, y);
     ctx.stroke();
   }
-  drawWordmark(ctx, W / 2 - 230, H / 2 - 40, 460, [ORANGE, '#7d4a04']);
+  drawWordmark(ctx, W / 2 - 230, H / 2 - 40, 460, [ORANGE, BROWN]);
 }
 
 /** Sleeve: the orange band with the logo, as on the real packaging. */
@@ -143,7 +144,7 @@ export function drawSleeve(canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext('2d')!;
   ctx.fillStyle = ORANGE;
   ctx.fillRect(0, 0, W, H);
-  drawMark(ctx, 60, 48, 160, [ORANGE, '#7d4a04']);
+  drawMark(ctx, 60, 48, 160, [ORANGE, BROWN]);
   drawWordmark(ctx, 250, 96, 360, [PAPER, INK]);
   ctx.fillStyle = INK;
   ctx.font = `700 30px ${FONT}`;

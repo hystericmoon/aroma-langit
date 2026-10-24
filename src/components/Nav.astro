@@ -1,5 +1,4 @@
 ---
-import Logo from './Logo.astro';
 import Icon from './ui/Icon.astro';
 import { getServices, getSite } from '../lib/content';
 import { formatRupiah } from '../lib/order';
@@ -20,8 +19,8 @@ const isCurrent = (href: string) => path === href || path === href.replace(/\/$/
 
 <header class="nav" data-nav data-hidden="false" data-open="false">
   <div class="bar wrap">
-    <a href="/" class="home" aria-label="Aroma Langit, ke beranda">
-      <Logo variant="lockup" tone="ink" class="nav-logo" title="Aroma Langit" />
+    <a href="/" class="home" aria-label="Aroma Langit, beranda">
+      <img class="nav-logo" src="/brand/logo-aroma-langit.svg" width="210" height="36" alt="" />
     </a>
 
     <nav class="desk" aria-label="Utama">
@@ -183,12 +182,22 @@ const isCurrent = (href: string) => path === href || path === href.replace(/\/$/
     gap: var(--spacing-3);
     height: 72px;
   }
+  /* Logo (brand book §2): 28px tall on phones, 36px on desktop. The 72px bar leaves at least
+     the height of the "a" (13px, 16px) above and below it as clear space. */
   .home {
-    display: block;
+    display: flex;
+    align-items: center;
     flex: none;
+    min-height: var(--tap-min);
   }
-  .nav :global(.nav-logo) {
-    font-size: 40px;
+  .nav-logo {
+    width: auto;
+    height: 28px;
+  }
+  @media (min-width: 1024px) {
+    .nav-logo {
+      height: 36px;
+    }
   }
   .desk {
     display: none;

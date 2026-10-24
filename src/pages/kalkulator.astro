@@ -2,7 +2,6 @@
 import Base from '../layouts/Base.astro';
 import ItemRow from '../components/calculator/ItemRow.astro';
 import ReceiptLine from '../components/calculator/ReceiptLine.astro';
-import Logo from '../components/Logo.astro';
 import { getPresets, getServices, getSite } from '../lib/content';
 import { buildCatalog, computePlan, generalTermsApply, planFromPreset, quantityFor, type PlanItem } from '../lib/calculator';
 import { weddingCatering } from '../data/wedding';
@@ -131,7 +130,7 @@ const data = { catalog, presets, csPhone: site.csPhone, marketingPhone: site.mar
               <h2 id="nota-title" class="ui-nota__eyebrow r-title">Nota perkiraan</h2>
               <p class="r-event" data-r-event>{first.title}</p>
             </div>
-            <Logo variant="mark" tone="ink" class="r-mark" title="" />
+            <img class="r-mark" src="/brand/logo-icon.svg" width="36" height="36" alt="" />
           </header>
           <dl class="ui-nota__lines r-meta">
             <div class="ui-nota__line"><dt>Jumlah</dt><dd data-r-guests>{plan.guests} {first.guestWord}</dd></div>
@@ -429,8 +428,9 @@ const data = { catalog, presets, csPhone: site.csPhone, marketingPhone: site.mar
     align-items: start;
     gap: var(--spacing-2);
   }
-  .r-head :global(.r-mark) {
+  .r-mark {
     width: 36px;
+    height: 36px;
     flex: none;
   }
   .r-event {

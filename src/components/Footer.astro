@@ -1,5 +1,4 @@
 ---
-import Logo from './Logo.astro';
 import Photo from './Photo.astro';
 import Icon from './ui/Icon.astro';
 import { getServices, getSite } from '../lib/content';
@@ -40,6 +39,7 @@ const year = new Date().getFullYear();
 }
 <footer class="footer field-brown on-brown" aria-labelledby="footer-title">
   <div class="wrap">
+    <img class="foot-logo" src="/brand/logo-aroma-langit-paper.svg" width="233" height="40" alt="Aroma Langit" />
     <div class="foot-grid">
       <div class="note">
         <h2 id="footer-title" class="sign-off">Salam hangat dari dapur kami.</h2>
@@ -112,7 +112,6 @@ const year = new Date().getFullYear();
       </nav>
     </div>
 
-    <Logo variant="wordmark" tone="on-ink" class="big-word" title="Aroma Langit" />
     <p class="imprint tab">© {year} {site.legalName}. Halal {site.halal.number}.</p>
   </div>
 </footer>
@@ -145,7 +144,7 @@ const year = new Date().getFullYear();
     }
   }
 
-  /* Footer: the page's navy, paper text */
+  /* Footer (brand book §8): brown, paper logo, paper text */
   .footer {
     padding-block: var(--spacing-5) var(--spacing-4);
   }
@@ -245,10 +244,11 @@ const year = new Date().getFullYear();
     text-decoration: underline;
     text-underline-offset: 4px;
   }
-  .footer :global(.big-word) {
-    width: 100%;
-    height: auto;
-    margin-top: var(--spacing-5);
+  /* Paper logo on brown (brand book §2: never the full-colour logo on brown) */
+  .foot-logo {
+    width: auto;
+    height: 40px;
+    margin-bottom: var(--spacing-4);
   }
   .imprint {
     margin-top: var(--spacing-2);
