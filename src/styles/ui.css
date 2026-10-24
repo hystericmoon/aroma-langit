@@ -80,6 +80,14 @@
 .ui-link:hover {
   color: var(--color-orange-ink-hover);
 }
+/* A link that stands on its own (not inside a sentence) is a 44px tap target. */
+.ui-link--tap,
+.ui-section-head__main .ui-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  min-width: var(--tap-min);
+}
 /* orange-ink is 2.6:1 on navy and 3.9:1 on kraft, so links there use ink or paper (flagged). */
 .field-kraft .ui-link {
   color: var(--color-ink);
@@ -213,6 +221,13 @@ select.ui-input {
   font-family: var(--font-mono);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+}
+/* Text fields show the ring on any focus (date fields focus an inner part, which
+   :focus-visible on the input itself does not see). */
+.ui-input:focus,
+.ui-input:focus-within {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
 }
 .ui-input::placeholder {
   color: var(--color-ink-muted);

@@ -197,6 +197,10 @@ const year = new Date().getFullYear();
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
+  .addr-link {
+    display: inline-block;
+    padding-block: 10px;
+  }
   .addr-link,
   .contact a {
     color: var(--color-paper);
@@ -209,8 +213,11 @@ const year = new Date().getFullYear();
     gap: 6px;
   }
   .contact a {
-    display: inline-block;
-    padding-block: 6px;
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 6px;
+    min-height: var(--tap-min);
   }
   .hint {
     font-size: 13px;
@@ -227,6 +234,7 @@ const year = new Date().getFullYear();
     display: inline-flex;
     align-items: center;
     min-height: var(--tap-min);
+    min-width: var(--tap-min);
     color: var(--color-paper);
     font-weight: 600;
     font-size: 14px;

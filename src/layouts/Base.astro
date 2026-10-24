@@ -49,6 +49,8 @@ const business = {
   sameAs: site.socials.map((s) => s.url),
   hasMenu: new URL('/#menu', Astro.site).href,
 };
+const fontsHref =
+  'https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap';
 ---
 
 <!doctype html>
@@ -73,10 +75,10 @@ const business = {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
-    />
+    {/* Brand book §9 fonts, loaded without blocking the first paint: the stylesheet is
+        preloaded and applied once it arrives (display=swap), with a plain link for no-JS. */}
+    <link rel="preload" as="style" href={fontsHref} onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href={fontsHref} /></noscript>
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="id_ID" />
     <meta property="og:site_name" content="Aroma Langit" />

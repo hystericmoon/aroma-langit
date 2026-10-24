@@ -32,7 +32,7 @@ const hi = Math.max(...all.map((p) => p.price));
         <section class="group" id={`menu-panel-${s.slug}`} role="tabpanel" aria-labelledby={`menu-tab-${s.slug}`} hidden={i !== 0} data-group={s.slug}>
           <div class="group-head">
             <h3 class="group-name">{s.title}</h3>
-            <a class="ui-link group-link" href={`/katering/${s.slug}/`}>
+            <a class="ui-link ui-link--tap group-link" href={`/katering/${s.slug}/`}>
               Lihat isi menu<span class="sr-only"> {s.title}</span>
             </a>
           </div>

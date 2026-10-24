@@ -49,7 +49,7 @@ const from = (s: (typeof services)[number]) => Math.min(...s.packages.map((p) =>
               <a class="ui-btn ui-btn--secondary" href={`/?layanan=${s.slug}#pesan`} data-pick-service={s.slug}>
                 Pesan {s.title}
               </a>
-              <a class="ui-link" href={`/katering/${s.slug}/`}>
+              <a class="ui-link ui-link--tap" href={`/katering/${s.slug}/`}>
                 Lihat isi menu
               </a>
             </div>

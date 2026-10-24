@@ -27,7 +27,7 @@ for (const path of PAGES) {
       await page.goto(path);
       await scrollThrough(page);
       const results = await new AxeBuilder({ page })
-        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
         .exclude('.box-canvas')
         .analyze();
       const serious = results.violations
