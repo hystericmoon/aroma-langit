@@ -1,7 +1,7 @@
 // Canvas-drawn textures for the box: the order label sticker and the printed walls.
 import { full, mark } from '../../assets/brand/logo-paths';
 
-const FONT = '"Plus Jakarta Sans Variable", "Plus Jakarta Sans", system-ui, sans-serif';
+const FONT = '"Plus Jakarta Sans", system-ui, sans-serif';
 const INK = '#3c2418';
 const ORANGE = '#ec7f18';
 const PAPER = '#ffffff';
