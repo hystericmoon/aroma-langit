@@ -10,11 +10,12 @@ interface Props {
   attrs?: Record<string, string | boolean | undefined>;
   totalAttrs?: Record<string, string | boolean | undefined>;
   subAttrs?: Record<string, string | boolean | undefined>;
+  class?: string;
 }
-const { total, sub, action, attrs, totalAttrs, subAttrs } = Astro.props;
+const { total, sub, action, attrs, totalAttrs, subAttrs, class: cls } = Astro.props;
 ---
 
-<div class="ui-orderbar" {...attrs}>
+<div class:list={['ui-orderbar', cls]} {...attrs}>
   <p class="ui-orderbar__sum tab">
     <small>Perkiraan total</small>
     <strong {...totalAttrs}>{total}</strong>
