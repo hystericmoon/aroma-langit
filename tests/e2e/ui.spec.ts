@@ -17,7 +17,10 @@ test('mobile menu opens, traps nothing and closes with Escape', async ({ page },
   const menu = page.locator('#mobile-menu');
   await expect(menu).toBeVisible();
   await expect(page.getByRole('button', { name: 'Tutup menu' })).toHaveAttribute('aria-expanded', 'true');
+  // The page behind the open menu is out of the tab order (WCAG 2.4.11).
+  expect(await page.locator('main').evaluate((m) => (m as HTMLElement).inert)).toBe(true);
   await page.keyboard.press('Escape');
+  expect(await page.locator('main').evaluate((m) => (m as HTMLElement).inert)).toBe(false);
   await expect(menu).toBeHidden();
   await expect(page.getByRole('button', { name: 'Buka menu' })).toBeFocused();
   await page.getByRole('button', { name: 'Buka menu' }).click();

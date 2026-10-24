@@ -3,9 +3,14 @@
 //   npm run build && npm run screenshots
 // Serves dist/ with `astro preview`, emulates reduced motion so every page is in its resting
 // state (entrances skipped, hero not pinned), and waits for the web fonts.
+// Pages are captured in strips and stitched: with software GL, one capture taller than the
+// 8192px texture limit wraps back to the top of the page.
 import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { chromium } from '@playwright/test';
+import sharp from 'sharp';
+
+const STRIP = 4000;
 
 const PORT = 4455;
 const BASE = `http://localhost:${PORT}`;
@@ -60,7 +65,16 @@ try {
       await page.evaluate(() => document.fonts.ready);
       await page.waitForTimeout(1500); // the 3D box, if it boots, fades in over its photo
       const file = `${OUT}/${name}-${width}.jpg`;
-      await page.screenshot({ path: file, fullPage: true, type: 'jpeg', quality: 85 });
+      const total = await page.evaluate(() => document.documentElement.scrollHeight);
+      const strips = [];
+      for (let top = 0; top < total; top += STRIP) {
+        const h = Math.min(STRIP, total - top);
+        strips.push({ input: await page.screenshot({ fullPage: true, clip: { x: 0, y: top, width, height: h } }), top, left: 0 });
+      }
+      await sharp({ create: { width, height: total, channels: 3, background: '#faf6ef' } })
+        .composite(strips)
+        .jpeg({ quality: 85 })
+        .toFile(file);
       console.log(file);
     }
     await context.close();

@@ -70,7 +70,7 @@ const isCurrent = (href: string) => path === href || path === href.replace(/\/$/
         {
           services.map((s) => (
             <li>
-              <a href={`/katering/${s.slug}/`}>
+              <a href={`/katering/${s.slug}/`} aria-current={isCurrent(`/katering/${s.slug}/`) ? 'page' : undefined}>
                 <span class="m-name">{s.title}</span>
                 <span class="m-price tab">mulai {formatRupiah(from(s))}</span>
               </a>
@@ -82,7 +82,7 @@ const isCurrent = (href: string) => path === href || path === href.replace(/\/$/
         {
           links.map((l) => (
             <li>
-              <a href={l.href}>{l.label}</a>
+              <a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>{l.label}</a>
             </li>
           ))
         }
@@ -109,6 +109,10 @@ const isCurrent = (href: string) => path === href || path === href.replace(/\/$/
     nav.dataset.open = String(open);
     mobile.hidden = !open;
     document.documentElement.classList.toggle('menu-open', open);
+    // The open menu covers the page: keep keyboard focus out of what it hides (WCAG 2.4.11).
+    for (const el of Array.from(document.body.children) as HTMLElement[]) {
+      if (el !== nav && !el.contains(nav) && el.tagName !== 'SCRIPT') el.inert = open;
+    }
     if (open) {
       window.__lenis?.stop();
       mobile.querySelector<HTMLElement>('a')?.focus();
@@ -337,6 +341,13 @@ const isCurrent = (href: string) => path === href || path === href.replace(/\/$/
     color: var(--color-ink);
     font-weight: 600;
     text-decoration: none;
+  }
+  /* The current page is marked as on desktop */
+  .m-services a[aria-current='page'] .m-name,
+  .m-links a[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
   }
   .m-actions {
     display: grid;
