@@ -137,7 +137,7 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
 <script>
   import { setOrder } from '../../lib/orderStore';
   import {
-    buildMessage, checkDate, clampQty, earliestDate, estimate, formatDateLong, formatRupiah, type Area,
+    buildMessage, checkDate, clampQty, earliestDate, estimate, formatDateLong, formatRupiah, shippingLabel, type Area,
   } from '../../lib/order';
 
   interface Pkg { id: string; name: string; price: number; unit: string; minOrder: number; variants: string[] }
@@ -271,7 +271,7 @@ const genericText = 'Halo Aroma Langit, saya ingin memesan katering.';
     subEl.textContent = formatRupiah(e.subtotal);
     extraRow.hidden = !e.belowMinimum;
     extraEl.textContent = formatRupiah(e.surcharge);
-    shipEl.textContent = area() === 'kota-bogor' ? 'Termasuk' : 'Dihitung tim kami';
+    shipEl.textContent = shippingLabel[area()];
     animateTotal(e.total, opts?.live === true);
 
     const draft = {

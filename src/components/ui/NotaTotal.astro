@@ -1,0 +1,18 @@
+---
+// The Nota total. The visible figure may animate, so screen readers get a separate polite
+// live region that the page script fills when the total settles.
+interface Props {
+  label: string;
+  amount: string;
+  amountAttrs?: Record<string, string | boolean | undefined>;
+  liveAttrs?: Record<string, string | boolean | undefined>;
+}
+const { label, amount, amountAttrs, liveAttrs } = Astro.props;
+---
+
+<div class="ui-nota__total">
+  <p class="ui-nota__total-label">{label}</p>
+  <p class="ui-nota__total-value" aria-hidden="true" {...amountAttrs}>{amount}</p>
+  <p class="sr-only" aria-live="polite" {...liveAttrs}></p>
+  <slot />
+</div>

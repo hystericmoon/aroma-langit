@@ -1,0 +1,31 @@
+---
+// Nota (brand book §7, order mode): card, hairline, 4px top and 20px bottom corners.
+// Items → surcharge (chili) → delivery → dashed tear → total → DP → settlement note.
+// Lines go in the default slot (NotaLine), the total in the "total" slot (NotaTotal), and
+// actions or notes in "after". Amounts are mono; the total region is aria-live.
+//
+// TODO(data): the DP 50% line and the settlement note (pelunasan H-1) are not rendered. Both
+// rules exist only as sentences in site.sharedTerms; there is no number to compute the DP
+// amount from. Add `depositRate` and `settlementDays` to SiteSettings (and the Sanity schema)
+// before showing them here.
+interface Props {
+  id: string;
+  title: string;
+  /** Render the title as a heading (h2) or as a visual label only. */
+  heading?: boolean;
+  class?: string;
+  attrs?: Record<string, string | boolean | undefined>;
+}
+const { id, title, heading = true, class: cls, attrs } = Astro.props;
+---
+
+<section class:list={['ui-nota', cls]} aria-labelledby={heading ? id : undefined} aria-label={heading ? undefined : title} {...attrs}>
+  {heading ? <h2 id={id} class="ui-nota__eyebrow">{title}</h2> : <p class="ui-nota__eyebrow" aria-hidden="true">{title}</p>}
+  <slot name="head" />
+  <dl class="ui-nota__lines tab">
+    <slot />
+  </dl>
+  <div class="ui-nota__tear" aria-hidden="true"></div>
+  <slot name="total" />
+  <slot name="after" />
+</section>

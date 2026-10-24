@@ -1,0 +1,43 @@
+---
+// EventTile (brand book §7, order mode): the whole tile is one link to a calculator preset.
+// With `name`, it is a radio instead (the calculator's own preset picker, agreed in phase 0);
+// the selected tile takes the orange fill and a check icon.
+import Icon from './Icon.astro';
+
+interface Props {
+  title: string;
+  desc?: string;
+  /** Approximate price per guest, already formatted from data. */
+  price?: string;
+  href?: string;
+  name?: string;
+  value?: string;
+  checked?: boolean;
+  /** Extra attributes for the radio input. */
+  inputAttrs?: Record<string, string | boolean | undefined>;
+  class?: string;
+}
+const { title, desc, price, href, name, value, checked, inputAttrs, class: cls } = Astro.props;
+---
+
+{
+  name ? (
+    <label class:list={['ui-tile ui-tile--choice', cls]}>
+      <input type="radio" name={name} value={value} checked={checked} {...inputAttrs} />
+      <span class="ui-tile__title">
+        {title}
+        <Icon name="check" class="ui-tile__check" />
+      </span>
+      {desc && <span class="ui-tile__desc">{desc}</span>}
+      {price && <span class="ui-tile__price">{price}</span>}
+      <slot />
+    </label>
+  ) : (
+    <a class:list={['ui-tile', cls]} href={href}>
+      <span class="ui-tile__title">{title}</span>
+      {desc && <span class="ui-tile__desc">{desc}</span>}
+      {price && <span class="ui-tile__price">{price}</span>}
+      <slot />
+    </a>
+  )
+}

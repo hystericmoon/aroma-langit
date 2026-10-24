@@ -1,0 +1,26 @@
+---
+// SectionHeading (brand book §7, read mode): 4px double rule, Newsreader heading-1 (heading-2 on
+// phones), an optional link on the right and one line of context. One italic word at most.
+interface Props {
+  id: string;
+  title: string;
+  /** Heading level; h2 by default. */
+  level?: 'h1' | 'h2' | 'h3';
+  context?: string;
+  link?: { href: string; label: string; download?: boolean };
+  /** Opt into the line reveal from src/scripts/motion.ts. */
+  split?: boolean;
+  class?: string;
+}
+const { id, title, level = 'h2', context, link, split = false, class: cls } = Astro.props;
+const H = level;
+---
+
+<header class:list={['ui-section-head', cls]}>
+  <div class="ui-section-head__main">
+    <H id={id} class="ui-section-head__title" data-split={split ? '' : undefined}>{title}</H>
+    {link && <a class="ui-link" href={link.href} download={link.download}>{link.label}</a>}
+  </div>
+  {context && <p class="ui-section-head__context">{context}</p>}
+  <slot />
+</header>
